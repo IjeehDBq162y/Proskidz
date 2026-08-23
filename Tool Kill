@@ -1,0 +1,1022 @@
+local lp = game:GetService("Players").LocalPlayer
+local Players = game:GetService("Players")
+local RS = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+
+local isExecuting = false
+local viewConnection = nil
+
+local lastTextBoxText = ""
+local lastDropdownOpen = false
+local lastMinimized = false
+local lastPosition = UDim2.new(0.3, 0, 0.4, 0)
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "CustomControlUI_Holder"
+ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local ui = Instance.new("Frame")
+ui.Name = "CustomControlUI"
+ui.Parent = ScreenGui
+ui.Active = true
+ui.BackgroundColor3 = Color3.new(0.12, 0.12, 0.12)
+ui.BorderSizePixel = 0
+ui.Position = lastPosition
+ui.Size = lastMinimized and UDim2.new(0, 215, 0, 35) or UDim2.new(0, 215, 0, 140)
+ui.Draggable = true
+
+local dropdownOpen = lastDropdownOpen
+local isMinimized = lastMinimized
+
+local DropdownOpenValue = Instance.new("BoolValue")
+DropdownOpenValue.Name = "DropdownOpenValue"
+DropdownOpenValue.Value = dropdownOpen
+DropdownOpenValue.Parent = ui
+
+local MinimizedValue = Instance.new("BoolValue")
+MinimizedValue.Name = "MinimizedValue"
+MinimizedValue.Value = isMinimized
+MinimizedValue.Parent = ui
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 3)
+UICorner.Parent = ui
+
+local TextBox = Instance.new("TextBox")
+TextBox.Parent = ui
+TextBox.BackgroundColor3 = Color3.new(0.18, 0.18, 0.18)
+TextBox.BorderSizePixel = 0
+TextBox.Position = UDim2.new(0.04, 0, 0.05, 0)
+TextBox.Size = UDim2.new(0.52, 0, 0, 24)
+TextBox.Font = Enum.Font.SourceSans
+TextBox.Text = lastTextBoxText
+TextBox.PlaceholderText = "Target Name..."
+TextBox.TextColor3 = Color3.new(1, 1, 1)
+TextBox.TextScaled = true
+TextBox.ClearTextOnFocus = false
+
+local TextBoxCorner = Instance.new("UICorner")
+TextBoxCorner.CornerRadius = UDim.new(0, 3)
+TextBoxCorner.Parent = TextBox
+
+local ClearBtn = Instance.new("TextButton")
+ClearBtn.Parent = ui
+ClearBtn.BackgroundColor3 = Color3.new(0.25, 0.15, 0.15)
+ClearBtn.BorderSizePixel = 0
+ClearBtn.Position = UDim2.new(0.58, 0, 0.05, 0)
+ClearBtn.Size = UDim2.new(0.12, 0, 0, 24)
+ClearBtn.Font = Enum.Font.SourceSansBold
+ClearBtn.Text = "X"
+ClearBtn.TextColor3 = Color3.new(1, 0.3, 0.3)
+ClearBtn.TextScaled = true
+
+local ClearCorner = Instance.new("UICorner")
+ClearCorner.CornerRadius = UDim.new(0, 3)
+ClearCorner.Parent = ClearBtn
+
+local DropBtn = Instance.new("TextButton")
+DropBtn.Parent = ui
+DropBtn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+DropBtn.BorderSizePixel = 0
+DropBtn.Position = UDim2.new(0.72, 0, 0.05, 0)
+DropBtn.Size = UDim2.new(0.10, 0, 0, 24)
+DropBtn.Font = Enum.Font.SourceSansBold
+DropBtn.Text = dropdownOpen and "-" or "+"
+DropBtn.TextColor3 = Color3.new(1, 1, 1)
+DropBtn.TextScaled = true
+
+local DropCorner = Instance.new("UICorner")
+DropCorner.CornerRadius = UDim.new(0, 3)
+DropCorner.Parent = DropBtn
+
+local SubmitBtn = Instance.new("TextButton")
+SubmitBtn.Parent = ui
+SubmitBtn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+SubmitBtn.BorderSizePixel = 0
+SubmitBtn.Position = UDim2.new(0.84, 0, 0.05, 0)
+SubmitBtn.Size = UDim2.new(0.12, 0, 0, 24)
+SubmitBtn.Font = Enum.Font.SourceSansBold
+SubmitBtn.Text = isMinimized and "<" or ">"
+SubmitBtn.TextColor3 = Color3.new(1, 1, 1)
+SubmitBtn.TextScaled = true
+
+local BtnCorner = Instance.new("UICorner")
+BtnCorner.CornerRadius = UDim.new(0, 3)
+BtnCorner.Parent = SubmitBtn
+
+local MainElementsFrame = Instance.new("Frame")
+MainElementsFrame.Name = "MainElements"
+MainElementsFrame.Parent = ui
+MainElementsFrame.BackgroundTransparency = 1
+MainElementsFrame.BorderSizePixel = 0
+MainElementsFrame.Size = UDim2.new(1, 0, 1, 0)
+MainElementsFrame.Visible = not isMinimized
+
+local BringBtn = Instance.new("TextButton")
+BringBtn.Parent = MainElementsFrame
+BringBtn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+BringBtn.BorderSizePixel = 0
+BringBtn.Position = UDim2.new(0.04, 0, 0.28, 0)
+BringBtn.Size = UDim2.new(0.19, 0, 0, 24)
+BringBtn.Font = Enum.Font.SourceSansBold
+BringBtn.Text = "bring"
+BringBtn.TextColor3 = Color3.new(1, 1, 1)
+BringBtn.TextScaled = true
+
+local BringCorner = Instance.new("UICorner")
+BringCorner.CornerRadius = UDim.new(0, 3)
+BringCorner.Parent = BringBtn
+
+local VoidBtn = Instance.new("TextButton")
+VoidBtn.Parent = MainElementsFrame
+VoidBtn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+VoidBtn.BorderSizePixel = 0
+VoidBtn.Position = UDim2.new(0.25, 0, 0.28, 0)
+VoidBtn.Size = UDim2.new(0.13, 0, 0, 24)
+VoidBtn.Font = Enum.Font.SourceSansBold
+VoidBtn.Text = "void"
+VoidBtn.TextColor3 = Color3.new(1, 1, 1)
+VoidBtn.TextScaled = true
+
+local VoidCorner = Instance.new("UICorner")
+VoidCorner.CornerRadius = UDim.new(0, 3)
+VoidCorner.Parent = VoidBtn
+
+local KillBtn = Instance.new("TextButton")
+KillBtn.Parent = MainElementsFrame
+KillBtn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+KillBtn.BorderSizePixel = 0
+KillBtn.Position = UDim2.new(0.40, 0, 0.28, 0)
+KillBtn.Size = UDim2.new(0.14, 0, 0, 24)
+KillBtn.Font = Enum.Font.SourceSansBold
+KillBtn.Text = "fling"
+KillBtn.TextColor3 = Color3.new(1, 1, 1)
+KillBtn.TextScaled = true
+
+local KillCorner = Instance.new("UICorner")
+KillCorner.CornerRadius = UDim.new(0, 3)
+KillCorner.Parent = KillBtn
+
+local NullBtn = Instance.new("TextButton")
+NullBtn.Parent = MainElementsFrame
+NullBtn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+NullBtn.BorderSizePixel = 0
+NullBtn.Position = UDim2.new(0.56, 0, 0.28, 0)
+NullBtn.Size = UDim2.new(0.13, 0, 0, 24)
+NullBtn.Font = Enum.Font.SourceSansBold
+NullBtn.Text = "null"
+NullBtn.TextColor3 = Color3.new(1, 1, 1)
+NullBtn.TextScaled = true
+
+local NullCorner = Instance.new("UICorner")
+NullCorner.CornerRadius = UDim.new(0, 3)
+NullCorner.Parent = NullBtn
+
+local GiveBtn = Instance.new("TextButton")
+GiveBtn.Parent = MainElementsFrame
+GiveBtn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+GiveBtn.BorderSizePixel = 0
+GiveBtn.Position = UDim2.new(0.71, 0, 0.28, 0)
+GiveBtn.Size = UDim2.new(0.11, 0, 0, 24)
+GiveBtn.Font = Enum.Font.SourceSansBold
+GiveBtn.Text = "give"
+GiveBtn.TextColor3 = Color3.new(1, 1, 1)
+GiveBtn.TextScaled = true
+
+local GiveCorner = Instance.new("UICorner")
+GiveCorner.CornerRadius = UDim.new(0, 3)
+GiveCorner.Parent = GiveBtn
+
+local ABBtn = Instance.new("TextButton")
+ABBtn.Parent = MainElementsFrame
+ABBtn.BackgroundColor3 = Color3.new(0.15, 0.22, 0.15)
+ABBtn.BorderSizePixel = 0
+ABBtn.Position = UDim2.new(0.84, 0, 0.28, 0)
+ABBtn.Size = UDim2.new(0.12, 0, 0, 24)
+ABBtn.Font = Enum.Font.SourceSansBold
+ABBtn.Text = "AB"
+ABBtn.TextColor3 = Color3.new(0.4, 1, 0.4)
+ABBtn.TextScaled = true
+
+local ABCorner = Instance.new("UICorner")
+ABCorner.CornerRadius = UDim.new(0, 3)
+ABCorner.Parent = ABBtn
+
+local ViewBtn = Instance.new("TextButton")
+ViewBtn.Parent = MainElementsFrame
+ViewBtn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+ViewBtn.BorderSizePixel = 0
+ViewBtn.Position = UDim2.new(0.04, 0, 0.52, 0)
+ViewBtn.Size = UDim2.new(0.14, 0, 0, 24)
+ViewBtn.Font = Enum.Font.SourceSansBold
+ViewBtn.Text = "view"
+ViewBtn.TextColor3 = Color3.new(1, 1, 1)
+ViewBtn.TextScaled = true
+
+local ViewCorner = Instance.new("UICorner")
+ViewCorner.CornerRadius = UDim.new(0, 3)
+ViewCorner.Parent = ViewBtn
+
+local UnviewBtn = Instance.new("TextButton")
+UnviewBtn.Parent = MainElementsFrame
+UnviewBtn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+UnviewBtn.BorderSizePixel = 0
+UnviewBtn.Position = UDim2.new(0.20, 0, 0.52, 0)
+UnviewBtn.Size = UDim2.new(0.14, 0, 0, 24)
+UnviewBtn.Font = Enum.Font.SourceSansBold
+UnviewBtn.Text = "uv"
+UnviewBtn.TextColor3 = Color3.new(1, 1, 1)
+UnviewBtn.TextScaled = true
+
+local UnviewCorner = Instance.new("UICorner")
+UnviewCorner.CornerRadius = UDim.new(0, 3)
+UnviewCorner.Parent = UnviewBtn
+
+local GotoBtn = Instance.new("TextButton")
+GotoBtn.Parent = MainElementsFrame
+GotoBtn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+GotoBtn.BorderSizePixel = 0
+GotoBtn.Position = UDim2.new(0.36, 0, 0.52, 0)
+GotoBtn.Size = UDim2.new(0.14, 0, 0, 24)
+GotoBtn.Font = Enum.Font.SourceSansBold
+GotoBtn.Text = "goto"
+GotoBtn.TextColor3 = Color3.new(1, 1, 1)
+GotoBtn.TextScaled = true
+
+local GotoCorner = Instance.new("UICorner")
+GotoCorner.CornerRadius = UDim.new(0, 3)
+GotoCorner.Parent = GotoBtn
+
+local ATKBtn = Instance.new("TextButton")
+ATKBtn.Parent = MainElementsFrame
+ATKBtn.BackgroundColor3 = Color3.new(0.22, 0.18, 0.12)
+ATKBtn.BorderSizePixel = 0
+ATKBtn.Position = UDim2.new(0.84, 0, 0.52, 0)
+ATKBtn.Size = UDim2.new(0.12, 0, 0, 24)
+ATKBtn.Font = Enum.Font.SourceSansBold
+ATKBtn.Text = "ATK"
+ATKBtn.TextColor3 = Color3.new(1, 0.7, 0.3)
+ATKBtn.TextScaled = true
+
+local ATKCorner = Instance.new("UICorner")
+ATKCorner.CornerRadius = UDim.new(0, 3)
+ATKCorner.Parent = ATKBtn
+
+local RSBtn = Instance.new("TextButton")
+RSBtn.Parent = MainElementsFrame
+RSBtn.BackgroundColor3 = Color3.new(0.15, 0.15, 0.22)
+RSBtn.BorderSizePixel = 0
+RSBtn.Position = UDim2.new(0.04, 0, 0.78, 0)
+RSBtn.Size = UDim2.new(0.14, 0, 0, 22)
+RSBtn.Font = Enum.Font.SourceSansBold
+RSBtn.Text = "-rs"
+RSBtn.TextColor3 = Color3.new(0.4, 0.6, 1)
+RSBtn.TextScaled = true
+
+local RSCorner = Instance.new("UICorner")
+RSCorner.CornerRadius = UDim.new(0, 3)
+RSCorner.Parent = RSBtn
+
+local REBtn = Instance.new("TextButton")
+REBtn.Parent = MainElementsFrame
+REBtn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+REBtn.BorderSizePixel = 0
+REBtn.Position = UDim2.new(0.20, 0, 0.78, 0)
+REBtn.Size = UDim2.new(0.14, 0, 0, 22)
+REBtn.Font = Enum.Font.SourceSansBold
+REBtn.Text = "-re"
+REBtn.TextColor3 = Color3.new(1, 1, 1)
+REBtn.TextScaled = true
+
+local RECorner = Instance.new("UICorner")
+RECorner.CornerRadius = UDim.new(0, 3)
+RECorner.Parent = REBtn
+
+local R6Btn = Instance.new("TextButton")
+R6Btn.Parent = MainElementsFrame
+R6Btn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+R6Btn.BorderSizePixel = 0
+R6Btn.Position = UDim2.new(0.36, 0, 0.78, 0)
+R6Btn.Size = UDim2.new(0.14, 0, 0, 22)
+R6Btn.Font = Enum.Font.SourceSansBold
+R6Btn.Text = "-r6"
+R6Btn.TextColor3 = Color3.new(1, 1, 1)
+R6Btn.TextScaled = true
+
+local R6Corner = Instance.new("UICorner")
+R6Corner.CornerRadius = UDim.new(0, 3)
+R6Corner.Parent = R6Btn
+
+local R15Btn = Instance.new("TextButton")
+R15Btn.Parent = MainElementsFrame
+R15Btn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+R15Btn.BorderSizePixel = 0
+R15Btn.Position = UDim2.new(0.52, 0, 0.78, 0)
+R15Btn.Size = UDim2.new(0.14, 0, 0, 22)
+R15Btn.Font = Enum.Font.SourceSansBold
+R15Btn.Text = "-r15"
+R15Btn.TextColor3 = Color3.new(1, 1, 1)
+R15Btn.TextScaled = true
+
+local R15Corner = Instance.new("UICorner")
+R15Corner.CornerRadius = UDim.new(0, 3)
+R15Corner.Parent = R15Btn
+
+local SitBtn = Instance.new("TextButton")
+SitBtn.Parent = MainElementsFrame
+SitBtn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+SitBtn.BorderSizePixel = 0
+SitBtn.Position = UDim2.new(0.68, 0, 0.78, 0)
+SitBtn.Size = UDim2.new(0.14, 0, 0, 22)
+SitBtn.Font = Enum.Font.SourceSansBold
+SitBtn.Text = "sit"
+SitBtn.TextColor3 = Color3.new(1, 1, 1)
+SitBtn.TextScaled = true
+
+local SitCorner = Instance.new("UICorner")
+SitCorner.CornerRadius = UDim.new(0, 3)
+SitCorner.Parent = SitBtn
+
+local BRSBtn = Instance.new("TextButton")
+BRSBtn.Parent = MainElementsFrame
+BRSBtn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+BRSBtn.BorderSizePixel = 0
+BRSBtn.Position = UDim2.new(0.84, 0, 0.78, 0)
+BRSBtn.Size = UDim2.new(0.12, 0, 0, 22)
+BRSBtn.Font = Enum.Font.SourceSansBold
+BRSBtn.Text = "brs"
+BRSBtn.TextColor3 = Color3.new(1, 1, 1)
+BRSBtn.TextScaled = true
+
+local BRSCorner = Instance.new("UICorner")
+BRSCorner.CornerRadius = UDim.new(0, 3)
+BRSCorner.Parent = BRSBtn
+
+local DropdownFrame = Instance.new("ScrollingFrame")
+DropdownFrame.Name = "PlrDropdown"
+DropdownFrame.Parent = ScreenGui
+DropdownFrame.Visible = dropdownOpen
+DropdownFrame.BackgroundColor3 = Color3.new(0.14, 0.14, 0.14)
+DropdownFrame.BorderSizePixel = 0
+DropdownFrame.Size = UDim2.new(0, 180, 0, 150)
+DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+DropdownFrame.ScrollBarThickness = 4
+
+local DropListLayout = Instance.new("UIListLayout")
+DropListLayout.Parent = DropdownFrame
+DropListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+local DropUIListPadding = Instance.new("UIPadding")
+DropUIListPadding.Parent = DropdownFrame
+DropUIListPadding.PaddingTop = UDim.new(0, 2)
+DropUIListPadding.PaddingBottom = UDim.new(0, 2)
+DropUIListPadding.PaddingLeft = UDim.new(0, 4)
+DropUIListPadding.PaddingRight = UDim.new(0, 4)
+
+local function gplr(String)
+	local Found = {}
+	for i,v in pairs(Players:GetPlayers()) do
+		if v.Name:lower():sub(1, #String) == String:lower() or v.DisplayName:lower():sub(1, #String) == String:lower() then
+			table.insert(Found, v)
+		end
+	end 
+	return Found 
+end
+
+local function UnviewLogic()
+	if viewConnection then viewConnection:Disconnect() viewConnection = nil end
+	workspace.CurrentCamera.CameraSubject = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") or lp.Character
+end
+
+local function updateDropdownPosition()
+	if isMinimized then
+		DropdownFrame.Position = UDim2.new(ui.Position.X.Scale, ui.Position.X.Offset + 5, ui.Position.Y.Scale, ui.Position.Y.Offset + 40)
+	else
+		DropdownFrame.Position = UDim2.new(ui.Position.X.Scale, ui.Position.X.Offset + 5, ui.Position.Y.Scale, ui.Position.Y.Offset + 145)
+	end
+end
+
+ui:GetPropertyChangedSignal("Position"):Connect(updateDropdownPosition)
+updateDropdownPosition()
+
+local function rebuildDropdown()
+	for _, child in pairs(DropdownFrame:GetChildren()) do
+		if child:IsA("TextButton") then
+			child:Destroy()
+		end
+	end
+	
+	local currentCount = 0
+	for _, player in pairs(Players:GetPlayers()) do
+		if player ~= lp then
+			currentCount = currentCount + 1
+			local pBtn = Instance.new("TextButton")
+			pBtn.Size = UDim2.new(1, 0, 0, 22)
+			pBtn.BackgroundColor3 = Color3.new(0.18, 0.18, 0.18)
+			pBtn.BorderSizePixel = 0
+			pBtn.Font = Enum.Font.SourceSans
+			pBtn.Text = player.DisplayName .. " (@" .. player.Name .. ")"
+			pBtn.TextColor3 = Color3.new(0.9, 0.9, 0.9)
+			pBtn.TextScaled = true
+			pBtn.Parent = DropdownFrame
+			
+			local corner = Instance.new("UICorner")
+			corner.CornerRadius = UDim.new(0, 3)
+			corner.Parent = pBtn
+			
+			pBtn.MouseButton1Click:Connect(function()
+				TextBox.Text = player.Name
+				dropdownOpen = false
+				DropdownOpenValue.Value = false
+				DropdownFrame.Visible = false
+				DropBtn.Text = "+"
+			end)
+		end
+	end
+	DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, currentCount * 24)
+end
+
+Players.PlayerRemoving:Connect(function(player)
+	rebuildDropdown()
+	local currentText = TextBox.Text
+	if currentText ~= "" then
+		local matches = gplr(currentText)
+		if #matches > 0 and matches[1] == player then
+			UnviewLogic()
+			TextBox.Text = ""
+		elseif player.Name:lower() == currentText:lower() then
+			UnviewLogic()
+			TextBox.Text = ""
+		end
+	end
+end)
+
+Players.PlayerAdded:Connect(rebuildDropdown)
+rebuildDropdown()
+
+DropBtn.MouseButton1Click:Connect(function()
+	dropdownOpen = not dropdownOpen
+	DropdownOpenValue.Value = dropdownOpen
+	if dropdownOpen then
+		rebuildDropdown()
+		updateDropdownPosition()
+		DropdownFrame.Visible = true
+		DropBtn.Text = "-"
+	else
+		DropdownFrame.Visible = false
+		DropBtn.Text = "+"
+	end
+end)
+
+SubmitBtn.MouseButton1Click:Connect(function()
+	isMinimized = not isMinimized
+	MinimizedValue.Value = isMinimized
+	if isMinimized then
+		MainElementsFrame.Visible = false
+		ui.Size = UDim2.new(0, 215, 0, 35)
+		SubmitBtn.Text = "<"
+		if dropdownOpen then
+			updateDropdownPosition()
+		end
+	else
+		MainElementsFrame.Visible = true
+		ui.Size = UDim2.new(0, 215, 0, 140)
+		SubmitBtn.Text = ">"
+		if dropdownOpen then
+			updateDropdownPosition()
+		end
+	end
+end)
+
+TextBox:GetPropertyChangedSignal("Text"):Connect(function()
+	lastTextBoxText = TextBox.Text
+end)
+
+local function GetTargetTool()
+	local char = lp.Character
+	if not char then return nil end
+	local currentTool = char:FindFirstChildOfClass("Tool")
+	if currentTool then
+		currentTool.Parent = lp.Backpack
+		task.wait()
+		currentTool.Parent = char
+		return currentTool
+	end
+	local backpackTool = lp.Backpack:FindFirstChildOfClass("Tool")
+	if backpackTool then
+		backpackTool.Parent = char
+		return backpackTool
+	end
+	return nil
+end
+
+local function RunVoid(targetPlayer)
+	local Tchar = targetPlayer.Character
+	local Thum = Tchar and Tchar:FindFirstChild("Humanoid")
+	local Thrp = Tchar and Tchar:FindFirstChild("HumanoidRootPart")
+	local RightArm = Tchar and (Tchar:FindFirstChild("Right Arm") or Tchar:FindFirstChild("RightHand"))
+	
+	if not Thum or not Thrp or Thum.Health <= 0 or not RightArm then return end
+	
+	local char = lp.Character
+	local hum = char and char:FindFirstChild("Humanoid")
+	local hrp = char and char:FindFirstChild("HumanoidRootPart")
+	
+	if not hum or not hrp or hum.Health <= 0 then return end
+
+	local SavedCFrame = hrp.CFrame
+	local TargetSavedCFrame = Thrp.CFrame
+	
+	hum.Name = 1
+	local Clone = char["1"]:Clone()
+	Clone.Parent = char
+	Clone.Name = "Humanoid"
+	Clone:ChangeState(15)
+	wait()
+	hum:Destroy()
+	char.Animate.Disabled = false
+	wait()
+	char.Animate.Disabled = true
+	
+	local currentHum = char:FindFirstChildOfClass("Humanoid")
+	if currentHum then
+		currentHum.DisplayDistanceType = "None"
+	end
+
+	local Tool = GetTargetTool()
+
+	if Tool then
+		local Handle = Tool:FindFirstChild("Handle")
+		local Start = os.clock()
+		if Handle then
+			while Thrp.Parent == targetPlayer.Character and (os.clock() - Start) < 3 do
+				task.wait()
+				pcall(function()
+					Thrp.CFrame = Handle.CFrame
+					hrp.CFrame = CFrame.new(9999999,-495,9999999)
+				end)
+			end
+			while lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") do
+				task.wait()
+				pcall(function()
+					lp.Character.HumanoidRootPart.CFrame = CFrame.new(9999999,-495,9999999)
+				end)
+			end
+			RS:WaitForChild("01_server"):FireServer("cmd","-re")
+			local NewChar = lp.CharacterAdded:Wait()
+			local NewRoot = NewChar:WaitForChild("HumanoidRootPart", 5)
+			wait(0.1)
+			if NewRoot then
+				NewRoot.CFrame = SavedCFrame
+			end
+		end
+	end
+end
+
+local function RunNull(targetPlayer)
+	local Tchar = targetPlayer.Character
+	local Thum = Tchar and Tchar:FindFirstChild("Humanoid")
+	local Thrp = Tchar and Tchar:FindFirstChild("HumanoidRootPart")
+	local RightArm = Tchar and (Tchar:FindFirstChild("Right Arm") or Tchar:FindFirstChild("RightHand"))
+	
+	if not Thum or not Thrp or Thum.Health <= 0 or not RightArm then return end
+	
+	local char = lp.Character
+	local hum = char and char:FindFirstChild("Humanoid")
+	local hrp = char and char:FindFirstChild("HumanoidRootPart")
+	
+	if not hum or not hrp or hum.Health <= 0 then return end
+
+	local SavedCFrame = hrp.CFrame
+	local TargetSavedCFrame = Thrp.CFrame
+	
+	hum.Name = 1
+	local Clone = char["1"]:Clone()
+	Clone.Parent = char
+	Clone.Name = "Humanoid"
+	Clone:ChangeState(15)
+	wait()
+	hum:Destroy()
+	char.Animate.Disabled = false
+	wait()
+	char.Animate.Disabled = true
+	
+	local currentHum = char:FindFirstChildOfClass("Humanoid")
+	if currentHum then
+		currentHum.DisplayDistanceType = "None"
+	end
+
+	local Tool = GetTargetTool()
+
+	if Tool then
+		local Handle = Tool:FindFirstChild("Handle")
+		local Start = os.clock()
+		if Handle then
+			while Thrp.Parent == targetPlayer.Character and (os.clock() - Start) < 3 do
+				task.wait()
+				pcall(function()
+					Thrp.CFrame = Handle.CFrame
+					hrp.CFrame = CFrame.new(9999999, 9999999, 9999999)
+				end)
+			end
+			while lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") do
+				task.wait()
+				pcall(function()
+					lp.Character.HumanoidRootPart.CFrame = CFrame.new(9999999, 9999999, 9999999)
+				end)
+			end
+			RS:WaitForChild("01_server"):FireServer("cmd","-re")
+			local NewChar = lp.CharacterAdded:Wait()
+			local NewRoot = NewChar:WaitForChild("HumanoidRootPart", 5)
+			wait(0.1)
+			if NewRoot then
+				NewRoot.CFrame = SavedCFrame
+			end
+		end
+	end
+end
+
+local function RunGive(targetPlayer)
+	local Tchar = targetPlayer.Character
+	local Thum = Tchar and Tchar:FindFirstChild("Humanoid")
+	local Thrp = Tchar and Tchar:FindFirstChild("HumanoidRootPart")
+	local RightArm = Tchar and (Tchar:FindFirstChild("Right Arm") or Tchar:FindFirstChild("RightHand"))
+	
+	if not Thum or not Thrp or Thum.Health <= 0 or not RightArm then return end
+	
+	local char = lp.Character
+	local hum = char and char:FindFirstChild("Humanoid")
+	local hrp = char and char:FindFirstChild("HumanoidRootPart")
+	
+	if not hum or not hrp or hum.Health <= 0 then return end
+
+	local SavedCFrame = hrp.CFrame
+	
+	hum.Name = 1
+	local Clone = char["1"]:Clone()
+	Clone.Parent = char
+	Clone.Name = "Humanoid"
+	Clone:ChangeState(15)
+	wait()
+	hum:Destroy()
+	char.Animate.Disabled = false
+	wait()
+	char.Animate.Disabled = true
+	
+	local currentHum = char:FindFirstChildOfClass("Humanoid")
+	if currentHum then
+		currentHum.DisplayDistanceType = "None"
+	end
+
+	local Tool = GetTargetTool()
+
+	if Tool then
+		local Handle = Tool:FindFirstChild("Handle")
+		local Start = os.clock()
+		if Handle then
+			while Tool.Parent == char and (os.clock() - Start) < 3 do
+				task.wait()
+				pcall(function()
+					hrp.CFrame = Thrp.CFrame
+					Handle.CFrame = Thrp.CFrame
+				end)
+			end
+			RS:WaitForChild("01_server"):FireServer("cmd","-rs")
+			RS:WaitForChild("01_server"):FireServer("cmd","-re")
+			local NewChar = lp.CharacterAdded:Wait()
+			local NewRoot = NewChar:WaitForChild("HumanoidRootPart", 5)
+			wait(0.1)
+			if NewRoot then
+				NewRoot.CFrame = SavedCFrame
+			end
+		end
+	end
+end
+
+local function RunBring(targetPlayer)
+	local Tchar = targetPlayer.Character
+	local Thum = Tchar and Tchar:FindFirstChild("Humanoid")
+	local Thrp = Tchar and Tchar:FindFirstChild("HumanoidRootPart")
+	local RightArm = Tchar and (Tchar:FindFirstChild("Right Arm") or Tchar:FindFirstChild("RightHand"))
+	
+	if not Thum or not Thrp or Thum.Health <= 0 or not RightArm then return end
+	
+	local char = lp.Character
+	local hum = char and char:FindFirstChild("Humanoid")
+	local hrp = char and char:FindFirstChild("HumanoidRootPart")
+	
+	if not hum or not hrp or hum.Health <= 0 then return end
+
+	local SavedCFrame = hrp.CFrame
+	local TargetSavedCFrame = Thrp.CFrame
+	
+	hum.Name = 1
+	local Clone = char["1"]:Clone()
+	Clone.Parent = char
+	Clone.Name = "Humanoid"
+	Clone:ChangeState(15)
+	wait()
+	hum:Destroy()
+	char.Animate.Disabled = false
+	wait()
+	char.Animate.Disabled = true
+	
+	local currentHum = char:FindFirstChildOfClass("Humanoid")
+	if currentHum then
+		currentHum.DisplayDistanceType = "None"
+	end
+
+	local Tool = GetTargetTool()
+
+	if Tool then
+		local Handle = Tool:FindFirstChild("Handle")
+		local Start = os.clock()
+		if Handle then
+			while Thrp.Parent == targetPlayer.Character and (os.clock() - Start) < 3 do
+				task.wait()
+				pcall(function()
+					Thrp.CFrame = Handle.CFrame
+					hrp.CFrame = SavedCFrame
+				end)
+			end
+			while lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") do
+				task.wait()
+				pcall(function()
+					lp.Character.HumanoidRootPart.CFrame = SavedCFrame
+				end)
+			end
+			RS:WaitForChild("01_server"):FireServer("cmd","-rs")
+			RS:WaitForChild("01_server"):FireServer("cmd","-re")
+			local NewChar = lp.CharacterAdded:Wait()
+			local NewRoot = NewChar:WaitForChild("HumanoidRootPart", 5)
+			wait(0.1)
+			if NewRoot then
+				NewRoot.CFrame = SavedCFrame
+			end
+		end
+	end
+end
+
+local function RunFling(targetPlayer)
+	local Tchar = targetPlayer.Character
+	local Thum = Tchar and Tchar:FindFirstChild("Humanoid")
+	local Thrp = Tchar and Tchar:FindFirstChild("HumanoidRootPart")
+	local RightArm = Tchar and (Tchar:FindFirstChild("Right Arm") or Tchar:FindFirstChild("RightHand"))
+	
+	if not Thum or not Thrp or Thum.Health <= 0 or not RightArm then return end
+	
+	local char = lp.Character
+	local hum = char and char:FindFirstChild("Humanoid")
+	local hrp = char and char:FindFirstChild("HumanoidRootPart")
+	
+	if not hum or not hrp or hum.Health <= 0 then return end
+
+	local SavedCFrame = hrp.CFrame
+	local TargetSavedCFrame = Thrp.CFrame
+	
+	hum.Name = 1
+	local Clone = char["1"]:Clone()
+	Clone.Parent = char
+	Clone.Name = "Humanoid"
+	Clone:ChangeState(15)
+	wait()
+	hum:Destroy()
+	char.Animate.Disabled = false
+	wait()
+	char.Animate.Disabled = true
+	
+	local currentHum = char:FindFirstChildOfClass("Humanoid")
+	if currentHum then
+		currentHum.DisplayDistanceType = "None"
+	end
+
+	local Tool = GetTargetTool()
+
+	if Tool then
+		local Handle = Tool:FindFirstChild("Handle")
+		local Start = os.clock()
+		if Handle then
+			while Thrp.Parent == targetPlayer.Character and (os.clock() - Start) < 1.5 do
+				task.wait()
+				pcall(function()
+					Thrp.CFrame = Handle.CFrame
+					Handle.Velocity = Vector3.new(999999999, 999999999, 999999999)
+					hrp.CFrame = SavedCFrame
+				end)
+			end
+			while lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") do
+				task.wait()
+				pcall(function()
+					lp.Character.HumanoidRootPart.CFrame = SavedCFrame
+				end)
+			end
+			RS:WaitForChild("01_server"):FireServer("cmd","-re")
+			local NewChar = lp.CharacterAdded:Wait()
+			local NewRoot = NewChar:WaitForChild("HumanoidRootPart", 5)
+			wait(0.1)
+			if NewRoot then
+				NewRoot.CFrame = SavedCFrame
+			end
+		end
+	end
+end
+
+local function GotoLogic(targetPlayer)
+	if not targetPlayer or not targetPlayer.Character or not targetPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
+	if not lp.Character or not lp.Character:FindFirstChild("HumanoidRootPart") then return end
+	lp.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+end
+
+local function ViewLogic(targetPlayer)
+	UnviewLogic()
+	
+	local function updateSubject()
+		if targetPlayer and targetPlayer.Parent then
+			local char = targetPlayer.Character
+			if char then
+				local hum = char:FindFirstChildOfClass("Humanoid")
+				if hum then
+					workspace.CurrentCamera.CameraSubject = hum
+				else
+					workspace.CurrentCamera.CameraSubject = char:FindFirstChild("HumanoidRootPart") or char
+				end
+			end
+		else
+			UnviewLogic()
+		end
+	end
+	
+	viewConnection = RunService.RenderStepped:Connect(updateSubject)
+end
+
+local function executeAction(cmd)
+	local targetName = TextBox.Text
+	if targetName == "" then return end
+	local plrs = gplr(targetName)
+	if #plrs > 0 then
+		local target = plrs[1]
+		if cmd == "goto" then
+			GotoLogic(target)
+		elseif cmd == "view" then
+			ViewLogic(target)
+		elseif cmd == "bring" then
+			if isExecuting then return end
+			isExecuting = true
+			task.spawn(function()
+				pcall(function() RunBring(target) end)
+				isExecuting = false
+			end)
+		elseif cmd == "void" then
+			if isExecuting then return end
+			isExecuting = true
+			task.spawn(function()
+				pcall(function() RunVoid(target) end)
+				isExecuting = false
+			end)
+		elseif cmd == "null" then
+			if isExecuting then return end
+			isExecuting = true
+			task.spawn(function()
+				pcall(function() RunNull(target) end)
+				isExecuting = false
+			end)
+		elseif cmd == "give" then
+			if isExecuting then return end
+			isExecuting = true
+			task.spawn(function()
+				pcall(function() RunGive(target) end)
+				isExecuting = false
+			end)
+		elseif cmd == "fling" then
+			if isExecuting then return end
+			isExecuting = true
+			task.spawn(function()
+				pcall(function() RunFling(target) end)
+				isExecuting = false
+			end)
+		end
+	end
+end
+
+ClearBtn.MouseButton1Click:Connect(function()
+	TextBox.Text = ""
+end)
+
+BringBtn.MouseButton1Click:Connect(function()
+	executeAction("bring")
+end)
+
+VoidBtn.MouseButton1Click:Connect(function()
+	executeAction("void")
+end)
+
+KillBtn.MouseButton1Click:Connect(function()
+	executeAction("fling")
+end)
+
+NullBtn.MouseButton1Click:Connect(function()
+	executeAction("null")
+end)
+
+GiveBtn.MouseButton1Click:Connect(function()
+	executeAction("give")
+end)
+
+GotoBtn.MouseButton1Click:Connect(function()
+	executeAction("goto")
+end)
+
+ViewBtn.MouseButton1Click:Connect(function()
+	executeAction("view")
+end)
+
+UnviewBtn.MouseButton1Click:Connect(function()
+	UnviewLogic()
+end)
+
+RSBtn.MouseButton1Click:Connect(function()
+	RS:WaitForChild("01_server"):FireServer(unpack({"cmd", "-rs"}))
+end)
+
+local antiBangConn
+ABBtn.MouseButton1Click:Connect(function()
+	if lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+		local hrp = lp.Character.HumanoidRootPart
+		local currentPos = hrp.CFrame
+		
+		local oldHeight = workspace.FallenPartsDestroyHeight
+		pcall(function()
+			workspace.FallenPartsDestroyHeight = -999999999
+		end)
+		
+		antiBangConn = RunService.Heartbeat:Connect(function()
+			if lp.Character and hrp and hrp.Parent then
+				hrp.CFrame = CFrame.new(currentPos.X, -500, currentPos.Z)
+				hrp.Velocity = Vector3.new(0, 0, 0)
+			else
+				if antiBangConn then antiBangConn:Disconnect() end
+			end
+		end)
+		
+		task.wait(2)
+		if antiBangConn then antiBangConn:Disconnect() end
+		
+		if lp.Character and hrp and hrp.Parent then
+			hrp.CFrame = currentPos
+			hrp.Velocity = Vector3.new(0, 0, 0)
+		end
+		
+		pcall(function()
+			workspace.FallenPartsDestroyHeight = oldHeight
+		end)
+	end
+end)
+
+ATKBtn.MouseButton1Click:Connect(function()
+	if lp.Character then
+		local r6Arm = lp.Character:FindFirstChild("Right Arm")
+		if r6Arm then
+			r6Arm:Destroy()
+		end
+		
+		local r15Parts = {"RightHand", "RightLowerArm", "RightUpperArm"}
+		for _, partName in pairs(r15Parts) do
+			local part = lp.Character:FindFirstChild(partName)
+			if part then
+				part:Destroy()
+			end
+		end
+	end
+end)
+
+REBtn.MouseButton1Click:Connect(function()
+	RS:WaitForChild("01_server"):FireServer(unpack({"cmd", "-re"}))
+end)
+
+R6Btn.MouseButton1Click:Connect(function()
+	RS:WaitForChild("01_server"):FireServer(unpack({"cmd", "-r6"}))
+end)
+
+R15Btn.MouseButton1Click:Connect(function()
+	RS:WaitForChild("01_server"):FireServer(unpack({"cmd", "-r15"}))
+end)
+
+SitBtn.MouseButton1Click:Connect(function()
+	if lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") then
+		lp.Character:FindFirstChildOfClass("Humanoid").Sit = true
+	end
+end)
+
+BRSBtn.MouseButton1Click:Connect(function()
+	if lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+		local previous = lp.Character.HumanoidRootPart.CFrame
+		RS:WaitForChild("01_server"):FireServer(unpack({"cmd", "-re"}))
+		task.spawn(function()
+			local char = lp.CharacterAdded:Wait()
+			char:WaitForChild("HumanoidRootPart")
+			char.HumanoidRootPart.CFrame = previous
+		end)
+	end
+end)
