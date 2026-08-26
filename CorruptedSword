@@ -1,5 +1,5 @@
 function MainScript()
-    game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync("God Sword by Corrupted IjeehDBq")
+    game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync("God sword by Corrupted IjeehDBq")
     
     task.wait(1)
     
@@ -20,7 +20,7 @@ function MainScript()
     
     local args = {
     	"cmd",
-    	"-gh 4458601937"
+    	"-gh 12798859142"
     }
     game:GetService("ReplicatedStorage"):WaitForChild("01_server"):FireServer(unpack(args))
     wait(2)
