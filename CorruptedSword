@@ -1,5 +1,5 @@
 function MainScript()
-    game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync("Fe The Villain script/Modded by Tory")
+    game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync("God Sword Modded by Corrupted IjeehDBq")
     
     task.wait(1)
     
