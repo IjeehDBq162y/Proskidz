@@ -1,14 +1,14 @@
 function MainScript()
-    game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync("God Sword Modded by Corrupted IjeehDBq")
+    game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync("God Sword by Corrupted IjeehDBq")
     
     task.wait(1)
     
     game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync("btw script can found in scriptblox")
     wait(2)
     game:GetService("StarterGui"):SetCore("SendNotification", { 
-                Title = "God Sword";
+                Title = "Fe The Villain";
                 Text = "Loading..Pls wait.";
-                Icon = "rbxthumb://type=Asset&id=12798859142&w=150&h=150"})
+                Icon = "rbxthumb://type=Asset&id=5107182114&w=150&h=150"})
     wait(1)
     local args = {
     	"cmd",
@@ -40,7 +40,7 @@ function MainScript()
         
             game:GetService("StarterGui"):SetCore("SendNotification", { 
                 Title = "Notification";
-                Text = "Nexo Reanimate/God Sword by Corrupted IjeehDBq";
+                Text = "Nexo Reanimate/Fe The Villain made by idk";
                 Icon = "rbxthumb://type=Asset&id=5107182114&w=150&h=150"})
             Duration = 16;
         
