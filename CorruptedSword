@@ -6,7 +6,7 @@ function MainScript()
     game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync("btw script can found in scriptblox")
     wait(2)
     game:GetService("StarterGui"):SetCore("SendNotification", { 
-                Title = "Fe The Villain";
+                Title = "God Sword";
                 Text = "Loading..Pls wait.";
                 Icon = "rbxthumb://type=Asset&id=5268720002&w=150&h=150"})
     wait(1)
@@ -20,7 +20,7 @@ function MainScript()
     
     local args = {
     	"cmd",
-    	"-gh 12798859142"
+    	"-gh 5268720002"
     }
     game:GetService("ReplicatedStorage"):WaitForChild("01_server"):FireServer(unpack(args))
     wait(2)
