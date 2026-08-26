@@ -8,7 +8,7 @@ function MainScript()
     game:GetService("StarterGui"):SetCore("SendNotification", { 
                 Title = "God Sword";
                 Text = "Loading..Pls wait.";
-                Icon = "rbxthumb://type=Asset&id=5268720002&w=150&h=150"})
+                Icon = "rbxthumb://type=Asset&id=12798859142&w=150&h=150"})
     wait(1)
     local args = {
     	"cmd",
