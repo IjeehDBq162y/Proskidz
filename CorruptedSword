@@ -20,7 +20,7 @@ function MainScript()
     
     local args = {
     	"cmd",
-    	"-gh 5268720002"
+    	"-gh 4458601937"
     }
     game:GetService("ReplicatedStorage"):WaitForChild("01_server"):FireServer(unpack(args))
     wait(2)
