@@ -498,32 +498,32 @@ colrr = Color3.new()
 coroutine.resume(coroutine.create(function()
 while true do
 for i = 0,256,16 do
-colrr = Color3.new(1,i/256,0)
+colrr = Color3.new(0,0/256,0)
 updateCol2(colrr)
 swait()
 end
 for i = 0,256,16 do
-colrr = Color3.new(1-i/256,1,0)
+colrr = Color3.new(0-0/256,0,0)
 updateCol2(colrr)
 swait()
 end
 for i = 0,256,16 do
-colrr = Color3.new(0,0,i/256)
+colrr = Color3.new(0,0,0/256)
 updateCol2(colrr)
 swait()
 end
 for i = 0,256,16 do
-colrr = Color3.new(0,0-i/256,1)
+colrr = Color3.new(0,0-0/256,0)
 updateCol2(colrr)
 swait()
 end
 for i = 0,256,16 do
-colrr = Color3.new(i/256,0,0)
+colrr = Color3.new(0/256,0,0)
 updateCol2(colrr)
 swait()
 end
 for i = 0,256,16 do
-colrr = Color3.new(0,0,0-i/256)
+colrr = Color3.new(0,0,0-0/256)
 updateCol2(colrr)
 swait()
 end
