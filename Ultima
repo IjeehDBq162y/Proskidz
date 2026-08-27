@@ -10,7 +10,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 
 game.ReplicatedStorage["01_server"]:FireServer("cmd", "-r6")
 wait(2)
-game.ReplicatedStorage["01_server"]:FireServer("cmd", "-gh 108622273884500 107226489545452")
+game.ReplicatedStorage["01_server"]:FireServer("cmd", "-gh 5268720002 5268710380")
 wait(3)
 game.ReplicatedStorage["01_server"]:FireServer("cmd", "-net")
 wait(1.5)
