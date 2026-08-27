@@ -1,23 +1,26 @@
-local p = game:GetService("Players").LocalPlayer
-local char = p.Character
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/oldhacfard/The-script/refs/heads/main/Reanimate.luau"))()
+
+local p = game:GetService("Players")
+local players = game:GetService("Players")
 local mouse = p:GetMouse()
-local larm = char["Left Arm"]
-local rarm = char["Right Arm"]
-local lleg = char["Left Leg"]
-local rleg = char["Right Leg"]
-local hed = char.Head
-local torso = char.Torso
-local hum = char.Humanoid
+local larm = character["Left Arm"]
+local rarm = character["Right Arm"]
+local lleg = character["Left Leg"]
+local rleg = character["Right Leg"]
+local hed = character.Head
+local torso = character.Torso
+local hum = character.Humanoid
 local cam = game.Workspace.CurrentCamera
-local root = char.HumanoidRootPart
+local root = character.HumanoidRootPart
 local deb = false
 local shot = 0
 local stanceToggle = "Normal"
 local l = game:GetService("Lighting")
-local rs = game:GetService("RunService").RenderStepped
+local rs = game:GetService("RunService").Heartbeat
 hum.DisplayDistanceType = "None"
 math.randomseed(os.time())
-for i,v in pairs(char:children()) do
+for i,v in pairs(character:GetChildren()) do
     if v:IsA("Hat") then
         v:Destroy()
     end
