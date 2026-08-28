@@ -2,10 +2,10 @@
 local chatDelay = 1.25
 local messages = {
     "-gh 17326800544 17326812233 17270225913 17270231731 17269998373 17269983359 17269952801 17270001635 17270178857 17375337078",
-    "God Immortality by Corrupted IjeehDBq",
+    "",
     "-pd",
     "-net", -- Added right below -pd
-    "Loaded God Immortality by Corrupted IjeehDBq"
+    ""
 }
 
 -- Function to safely send chat messages across different Roblox chat systems
