@@ -5,7 +5,7 @@ local messages = {
     "God Immortality by Corrupted IjeehDBq",
     "-pd",
     "-net", -- Added right below -pd
-    "God Immortality by Corrupted IjeehDBq"
+    "Loaded God Immortality by Corrupted IjeehDBq"
 }
 
 -- Function to safely send chat messages across different Roblox chat systems
