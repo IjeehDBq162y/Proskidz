@@ -1,3 +1,28 @@
+function MainScript()
+    game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync("Good Cop and Bad Cop Modded by Skidmaster")
+    
+    task.wait(1)
+    
+wait(1)
+    local args = {
+    	"cmd",
+    	"-r6"
+}
+    game:GetService("ReplicatedStorage"):WaitForChild("01_server"):FireServer(unpack(args))
+    
+    wait(2)
+    
+    local args = {
+    	"cmd",
+    	"-pd"
+}
+    game:GetService("ReplicatedStorage"):WaitForChild("01_server"):FireServer(unpack(args))
+    wait(2)
+    local args = {
+    	"cmd",
+    	"-net"
+}
+
 --//====================================================\\--
 --||         GOOD COP BAD COP BY SHACKLUSTER
 --\\====================================================//--
