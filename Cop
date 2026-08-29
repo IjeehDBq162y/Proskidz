@@ -1,9 +1,44 @@
 -- Configuration
 local chatDelay = 1.25
 local messages = {
-    "Good cop and Bad cop by Corrupted IjeehDBq btw its serverside extender",
+    "",
+    "Good Cop and Bad Cop by Corrupted IjeehDBq btw its serverside extender ",
     "-pd",
     "-net", -- Added right below -pd
+
+}
+
+-- Function to safely send chat messages across different Roblox chat systems
+local function sendChat(message)
+    -- Modern TextChatService (2023+)
+    local textChatService = game:GetService("TextChatService")
+    if textChatService and textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+        local textChannel = textChatService.TextChannels:FindFirstChild("RBXGeneral")
+        if textChannel then
+            textChannel:SendAsync(message)
+            return
+        end
+    end
+    
+    -- Legacy ChatService fallback
+    local replicatedStorage = game:GetService("ReplicatedStorage")
+    local defaultChatSystemChatEvents = replicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
+    if defaultChatSystemChatEvents then
+        local sayMessageRequest = defaultChatSystemChatEvents:FindFirstChild("SayMessageRequest")
+        if sayMessageRequest and sayMessageRequest:IsA("RemoteEvent") then
+            sayMessageRequest:FireServer(message, "All")
+        end
+    end
+end
+
+-- Main Execution Sequence
+task.spawn(function()
+    -- Loop through and send the configured messages with the specified delay
+    for _, msg in ipairs(messages) do
+        sendChat(msg)
+        task.wait(chatDelay)
+    end
+
 
 --//====================================================\\--
 --||         GOOD COP BAD COP BY SHACKLUSTER
