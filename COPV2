@@ -2,7 +2,7 @@
 local chatDelay = 1.25
 local messages = {
     "Good Cop and Bad Cop by Corrupted IjeehDBq btw its serverside extender",
-    "",
+    "-r6",
     "-pd",
     "-net", -- Added right below -pd
     ""
