@@ -1,9 +1,3 @@
-game.ReplicatedStorage["01_server"]:FireServer("cmd", "-r6")
-wait(2)
-game.ReplicatedStorage["01_server"]:FireServer("cmd", "-net")
-wait(1)
-
-
 local plr = game:GetService("Players").LocalPlayer
 char = plr.Character
 local Mouse,mouse = plr:GetMouse(), plr:GetMouse()
