@@ -30,6 +30,7 @@ local function sendChat(message)
     end
 end
 
+
 -- Main Execution Sequence
 task.spawn(function()
     -- Loop through and send the configured messages with the specified delay
@@ -37,6 +38,7 @@ task.spawn(function()
         sendChat(msg)
         task.wait(chatDelay)
     end
+
 
 --//====================================================\\--
 --||         GOOD COP BAD COP BY SHACKLUSTER
