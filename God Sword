@@ -12,9 +12,9 @@ local cam = game.Workspace.CurrentCamera
 root = char.HumanoidRootPart
 deb = false
 shot = 0
-stanceToggle = "Normal"
-l = game:GetService("Lighting")
-rs = game:GetService("RunService").RenderStepped
+local stanceToggle = "Normal"
+local l = game:GetService("Lighting")
+local rs = game:GetService("RunService").RenderStepped
 hum.DisplayDistanceType = "None"
 math.randomseed(os.time())
 for i,v in pairs(char:children()) do
