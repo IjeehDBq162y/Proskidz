@@ -1,5 +1,9 @@
-function MainScript()
-    game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync("Good Cop and Bad Cop Modded by Skidmaster")
+-- Configuration
+local chatDelay = 1.25
+local messages = {
+    "Good cop and Bad cop by Corrupted IjeehDBq btw its serverside extender",
+    "-pd",
+    "-net", -- Added right below -pd
 
 --//====================================================\\--
 --||         GOOD COP BAD COP BY SHACKLUSTER
