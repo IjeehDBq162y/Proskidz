@@ -1,5 +1,4 @@
 -- Configuration
-local chatDelay = 1.25
 local messages = {
     "",
     "Good Cop and Bad Cop by Corrupted IjeehDBq btw its serverside extender ",
@@ -30,7 +29,6 @@ local function sendChat(message)
     end
 end
 
-
 -- Main Execution Sequence
 task.spawn(function()
     -- Loop through and send the configured messages with the specified delay
@@ -38,7 +36,6 @@ task.spawn(function()
         sendChat(msg)
         task.wait(chatDelay)
     end
-
 
 --//====================================================\\--
 --||         GOOD COP BAD COP BY SHACKLUSTER
