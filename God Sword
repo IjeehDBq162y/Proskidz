@@ -1,23 +1,29 @@
-local p = game:GetService("Players")
-local players = game:GetService("Players")
-local mouse = p:GetMouse()
-local larm = character["Left Arm"]
-local rarm = character["Right Arm"]
-local lleg = character["Left Leg"]
-local rleg = character["Right Leg"]
-local hed = character.Head
-local torso = character.Torso
-local hum = character.Humanoid
+game.ReplicatedStorage["01_server"]:FireServer("cmd", "-r6")
+wait(2)
+game.ReplicatedStorage["01_server"]:FireServer("cmd", "-net")
+wait(1)
+
+
+local plr = game:GetService("Players").LocalPlayer
+char = plr.Character
+local Mouse,mouse = plr:GetMouse(), plr:GetMouse()
+ra = char["Left Arm"]
+la = char["Right Arm"]
+rl = char["Left Leg"]
+ll = char["Right Leg"]
+h = char.Head
+t = char.Torso
+hum = char.Humanoid
 local cam = game.Workspace.CurrentCamera
-local root = character.HumanoidRootPart
-local deb = false
-local shot = 0
+root = char.HumanoidRootPart
+deb = false
+shot = 0
 local stanceToggle = "Normal"
 local l = game:GetService("Lighting")
-local rs = game:GetService("RunService").Heartbeat
+local rs = game:GetService("RunService").RenderStepped
 hum.DisplayDistanceType = "None"
 math.randomseed(os.time())
-for i,v in pairs(character:GetChildren()) do
+for i,v in pairs(char:children()) do
     if v:IsA("Hat") then
         v:Destroy()
     end
