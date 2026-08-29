@@ -5,7 +5,6 @@ local messages = {
     "Good Cop and Bad Cop by Corrupted IjeehDBq btw its serverside extender ",
     "-pd",
     "-net", -- Added right below -pd
-
 }
 
 -- Function to safely send chat messages across different Roblox chat systems
@@ -38,7 +37,6 @@ task.spawn(function()
         sendChat(msg)
         task.wait(chatDelay)
     end
-
 
 --//====================================================\\--
 --||         GOOD COP BAD COP BY SHACKLUSTER
