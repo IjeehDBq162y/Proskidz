@@ -11,16 +11,16 @@ ra = char["Left Arm"]
 la = char["Right Arm"]
 rl = char["Left Leg"]
 ll = char["Right Leg"]
-h = char.Head
+hed = char.Head
 t = char.Torso
 hum = char.Humanoid
 local cam = game.Workspace.CurrentCamera
 root = char.HumanoidRootPart
 deb = false
 shot = 0
-local stanceToggle = "Normal"
-local l = game:GetService("Lighting")
-local rs = game:GetService("RunService").RenderStepped
+stanceToggle = "Normal"
+l = game:GetService("Lighting")
+rs = game:GetService("RunService").RenderStepped
 hum.DisplayDistanceType = "None"
 math.randomseed(os.time())
 for i,v in pairs(char:children()) do
