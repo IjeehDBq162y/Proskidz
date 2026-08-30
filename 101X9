@@ -157,7 +157,7 @@ local Inverse=cfGet(cf_0,"Inverse")
 local Lerp=cfGet(cf_0,"Lerp")
 
 local guiTheme={
-	guiTitle="patchma hub",
+	guiTitle="Corrupted IjeehDBq Hub",
 	windowTitleColor=c3(1,0,0),
 	windowTopColor=c3(0,0,0),
 	windowBottomColor=c3(0.584314,0,0),
