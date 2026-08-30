@@ -1,6 +1,6 @@
 --!optimize 2
 --[[
-	patchma hub by Corrupted IjeehDBq 
+	Corrupted IjeehDBq Hub by Corrupted IjeehDBq 
 	MyWorld was here
 	
 	every bit of the remaining processing power shall be allocated to serve the greater good (im talking about more fps yall)
@@ -174,12 +174,12 @@ local guiTheme={
 	guiTitle="Corrupted IjeehDBq Hub",
 	windowTitleColor=c3(0,1,0),
 	windowTopColor=c3(0,1,0),
-	windowBottomColor=c3(0,0,0.584314),
+	windowBottomColor=c3(0,1,0.584314),
 	windowMinimizedSize={X=220,Y=22},
 	windowRegularSize={X=220,Y=290},
 	buttonsTextColor=c3(0.0941177,0.317647,0.878431),
 	labelsTextColor=c3(0.560784,0.560784,0.560784),
-	listTopColor=c3(0,0,0),
+	listTopColor=c3(0,1,0),
 	listBottomColor=c3(0.0705882,0.0705882,0.0705882)
 }
 ]]
