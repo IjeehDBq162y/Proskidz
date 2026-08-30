@@ -1,6 +1,6 @@
 --!optimize 2
 --[[
-	Corrupted IjeehDBq Hub by Corrupted IjeehDBq
+	patchma hub by rqz
 	MyWorld was here
 	
 	every bit of the remaining processing power shall be allocated to serve the greater good (im talking about more fps yall)
@@ -171,7 +171,7 @@ local guiTheme={
 
 --[[ Old myworld gui blue theme, uncomment to restore blue patchma
 local guiTheme={
-	guiTitle="Corrupted IjeehDBq Hub",
+	guiTitle="patchma hub",
 	windowTitleColor=c3(0,0,1),
 	windowTopColor=c3(0,0,0),
 	windowBottomColor=c3(0,0,0.584314),
