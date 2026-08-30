@@ -1,4 +1,4 @@
-})
+}
 
 game.ReplicatedStorage["01_server"]:FireServer("cmd", "-r6")
 wait(2)
