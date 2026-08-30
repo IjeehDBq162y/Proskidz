@@ -4,9 +4,7 @@ local messages = {
     "-gh 17326800544 17326812233 17270225913 17270231731 17269998373 17269983359 17269952801 17270001635 17270178857 17375337078",
     "-pd",
     "-net", -- Added right below -pd
-
 }
-
 
 -- Function to safely send chat messages across different Roblox chat systems
 local function sendChat(message)
