@@ -2,10 +2,9 @@
 local chatDelay = 1.25
 local messages = {
     "-gh 17326800544 17326812233 17270225913 17270231731 17269998373 17269983359 17269952801 17270001635 17270178857 17375337078",
-    "",
     "-pd",
     "-net", -- Added right below -pd
-    ""
+
 }
 
 -- Function to safely send chat messages across different Roblox chat systems
@@ -41,7 +40,7 @@ task.spawn(function()
     
     -- Execute the external Patchma Hub script after the final delay
     local success, err = pcall(function()
-        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-FE-patchma-hub-by-myworld-60137"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/IjeehDBq162y/Proskidz/refs/heads/main/101X1"))()
     end)
     
     if not success then
