@@ -1,11 +1,16 @@
+game.ReplicatedStorage["01_server"]:FireServer("cmd", "-r6")
+wait(2)
+game.ReplicatedStorage["01_server"]:FireServer("cmd", "-pd")
+wait(1.5)
+game.ReplicatedStorage["01_server"]:FireServer("cmd", "-net")
+wait(1.5)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/oldhacfard/The-script/refs/heads/main/Reanimate.luau"))()
+
 --//====================================================\\--
 --||         GOOD COP BAD COP BY SHACKLUSTER
 --\\====================================================//--
 
 wait(0.2)
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/oldhacfard/The-script/refs/heads/main/Reanimate.luau"))()
-
 
 Player = game:GetService("Players").LocalPlayer
 PlayerGui = Player.PlayerGui
