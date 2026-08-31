@@ -1,0 +1,50 @@
+-- Configuration
+local chatDelay = 1.25
+local messages = {
+    "-gh 12850960357 14647717258 5316539421 5316549755 140395948277978 138364679836274 102599402682100 90960046381276 82942681251131 4932728913 5699795428 5316479641",
+    "-sh",
+    "Star Glitcher by Corrupted IjeehDBq",
+    "Star Glitcher Modded by Skidmaster",
+    "Loaded Star Glitcher by Corrupted IjeehDBq btw already Executed"
+}
+
+-- Function to safely send chat messages across different Roblox chat systems
+local function sendChat(message)
+    -- Modern TextChatService (2023+)
+    local textChatService = game:GetService("TextChatService")
+    if textChatService and textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+        local textChannel = textChatService.TextChannels:FindFirstChild("RBXGeneral")
+        if textChannel then
+            textChannel:SendAsync(message)
+            return
+        end
+    end
+    
+    -- Legacy ChatService fallback
+    local replicatedStorage = game:GetService("ReplicatedStorage")
+    local defaultChatSystemChatEvents = replicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
+    if defaultChatSystemChatEvents then
+        local sayMessageRequest = defaultChatSystemChatEvents:FindFirstChild("SayMessageRequest")
+        if sayMessageRequest and sayMessageRequest:IsA("RemoteEvent") then
+            sayMessageRequest:FireServer(message, "All")
+        end
+    end
+end
+
+-- Main Execution Sequence
+task.spawn(function()
+    -- Loop through and send the configured messages with the specified delay
+    for _, msg in ipairs(messages) do
+        sendChat(msg)
+        task.wait(chatDelay)
+    end
+    
+    -- Execute the external Patchma Hub script after the final delay
+    local success, err = pcall(function()
+       loadstring(game:HttpGet("https://raw.githubusercontent.com/bayly098764321/Exire-Reanimate/refs/heads/main/Scripts/StarGlitcher.lua"))()
+    end)
+    
+    if not success then
+        warn("Failed to execute external script: " .. tostring(err))
+    end
+end)
