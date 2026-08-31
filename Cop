@@ -4,9 +4,7 @@
 
 wait(0.2)
 
-game.ReplicatedStorage["01_server"]:FireServer("cmd", "-r6")
-wait(2)
-loadstring(game:HttpGet("https://raw.githubusercontent.com/IjeehDBq162y/Proskidz/refs/heads/main/ERROR505"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/oldhacfard/The-script/refs/heads/main/Reanimate.luau"))()
 
 Player = game:GetService("Players").LocalPlayer
 PlayerGui = Player.PlayerGui
