@@ -5,7 +5,6 @@ wait(1)
 game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync("-net")
 
 wait(1)
-loadstring(game:HttpGet("https://raw.githubusercontent.com/oldhacfard/The-script/refs/heads/main/Reanimate.luau"))()
 
 
 game.Players.LocalPlayer.Character["PogoStick"].Handle.Mesh:Destroy()--Nike Shoebox Costume
