@@ -1,5 +1,5 @@
 --// SETTINGS
-local FLING_TIME = 8.0 -- now affects fling duration ONLY
+local FLING_TIME = 0.4 -- now affects fling duration ONLY
 
 --// SERVICES
 local Players = game:GetService("Players")
@@ -43,7 +43,7 @@ Button.TextSize = 14
 Instance.new("UICorner", Button)
 
 --// STATE
-local FlingAll = true
+local FlingAll = false
 local SavedCFrame = nil
 
 --// FLING FUNCTION (FIXED TIME)
@@ -87,7 +87,7 @@ end
 
 --// BUTTON
 Button.MouseButton1Click:Connect(function()
-FlingAll = FlingAll
+FlingAll = not FlingAll
 
 if FlingAll then
 local char = Player.Character
