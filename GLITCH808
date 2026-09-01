@@ -1,5 +1,5 @@
 --// SETTINGS
-local FLING_TIME = nil -- now affects fling duration ONLY
+local FLING_TIME = 0.0 -- now affects fling duration ONLY
 
 --// SERVICES
 local Players = game:GetService("Players")
