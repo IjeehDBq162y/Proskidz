@@ -1,0 +1,236 @@
+-- NOTE : WE STILL NOT UPDATE OR EDIT THE SCRIPT BUT WE WILL GIVE IT
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+ScreenGui.Name = "SpectateGUI"
+ScreenGui.ResetOnSpawn = false
+
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 250, 0, 300)
+MainFrame.Position = UDim2.new(0.35, 0, 0.3, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+local TopBar = Instance.new("TextLabel", MainFrame)
+TopBar.Size = UDim2.new(1, 0, 0, 30)
+TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+TopBar.Text = "SPECTATOR"
+TopBar.TextColor3 = Color3.new(1, 1, 1)
+TopBar.Font = Enum.Font.SourceSansBold
+TopBar.TextSize = 20
+
+local CloseButton = Instance.new("TextButton", MainFrame)
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -35, 0, 0)
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.new(1, 0, 0)
+CloseButton.BackgroundColor3 = Color3.fromRGB(211, 211, 211)
+CloseButton.Font = Enum.Font.SourceSansBold
+CloseButton.TextSize = 18
+CloseButton.BorderSizePixel = 0
+
+local MinimizeButton = Instance.new("TextButton", MainFrame)
+MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
+MinimizeButton.Position = UDim2.new(1, -70, 0, 0)
+MinimizeButton.Text = "-"
+MinimizeButton.TextColor3 = Color3.new(1, 1, 1)
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(211, 211, 211)
+MinimizeButton.Font = Enum.Font.SourceSansBold
+MinimizeButton.TextSize = 20
+MinimizeButton.BorderSizePixel = 0
+
+local minimized = false
+local originalSize = MainFrame.Size
+local minimizedSize = UDim2.new(originalSize.X.Scale, originalSize.X.Offset, 0, 30)
+
+MinimizeButton.MouseButton1Click:Connect(function()
+	minimized = not minimized
+	local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	local tween = TweenService:Create(MainFrame, tweenInfo, {
+		Size = minimized and minimizedSize or originalSize
+	})
+	tween:Play()
+	for _, child in ipairs(MainFrame:GetChildren()) do
+		if child ~= TopBar and child ~= CloseButton and child ~= MinimizeButton then
+			child.Visible = not minimized
+		end
+	end
+end)
+
+local SearchBox = Instance.new("TextBox", MainFrame)
+SearchBox.Size = UDim2.new(1, -20, 0, 30)
+SearchBox.Position = UDim2.new(0, 10, 0, 40)
+SearchBox.PlaceholderText = "Search Player..."
+SearchBox.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+SearchBox.TextColor3 = Color3.new(1, 1, 1)
+SearchBox.ClearTextOnFocus = false
+SearchBox.Font = Enum.Font.SourceSans
+SearchBox.TextSize = 18
+
+local ClearButton = Instance.new("TextButton", MainFrame)
+ClearButton.Size = UDim2.new(0, 60, 0, 30)
+ClearButton.Position = UDim2.new(1, -70, 0, 40)
+ClearButton.Text = "Clear"
+ClearButton.TextColor3 = Color3.new(1, 1, 1)
+ClearButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+ClearButton.Font = Enum.Font.SourceSansBold
+ClearButton.TextSize = 16
+
+local PlayerList = Instance.new("ScrollingFrame", MainFrame)
+PlayerList.Size = UDim2.new(1, -20, 0, 170)
+PlayerList.Position = UDim2.new(0, 10, 0, 80)
+PlayerList.CanvasSize = UDim2.new(0, 0, 0, 0)
+PlayerList.ScrollBarThickness = 6
+PlayerList.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+PlayerList.BorderSizePixel = 0
+
+local ConfirmButton = Instance.new("TextButton", MainFrame)
+ConfirmButton.Size = UDim2.new(1, -20, 0, 30)
+ConfirmButton.Position = UDim2.new(0, 10, 1, -40)
+ConfirmButton.Text = "Confirm"
+ConfirmButton.TextColor3 = Color3.new(1, 1, 1)
+ConfirmButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+ConfirmButton.Font = Enum.Font.SourceSansBold
+ConfirmButton.TextSize = 20
+
+local Notification = Instance.new("Frame", ScreenGui)
+Notification.Visible = false
+Notification.Size = UDim2.new(0, 250, 0, 100)
+Notification.Position = UDim2.new(0.5, -125, 0.5, -50)
+Notification.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Notification.BorderSizePixel = 0
+
+local notifText = Instance.new("TextLabel", Notification)
+notifText.Size = UDim2.new(1, 0, 0, 50)
+notifText.Text = "Are you sure you want to close this GUI?"
+notifText.TextColor3 = Color3.new(1, 1, 1)
+notifText.BackgroundTransparency = 1
+notifText.Font = Enum.Font.SourceSans
+notifText.TextSize = 16
+
+local yes = Instance.new("TextButton", Notification)
+yes.Text = "Yes"
+yes.Size = UDim2.new(0, 100, 0, 30)
+yes.Position = UDim2.new(0, 10, 1, -40)
+yes.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+yes.TextColor3 = Color3.new(1, 1, 1)
+yes.Font = Enum.Font.SourceSans
+yes.TextSize = 18
+
+local no = Instance.new("TextButton", Notification)
+no.Text = "No"
+no.Size = UDim2.new(0, 100, 0, 30)
+no.Position = UDim2.new(1, -110, 1, -40)
+no.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+no.TextColor3 = Color3.new(1, 1, 1)
+no.Font = Enum.Font.SourceSans
+no.TextSize = 18
+
+local selectedPlayer = nil
+local isSpectating = false
+
+local function updatePlayerList()
+	PlayerList:ClearAllChildren()
+	local searchText = SearchBox.Text:lower()
+	local y = 0
+	for _, player in pairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer then
+			local match = player.Name:lower():find(searchText) or player.DisplayName:lower():find(searchText)
+			if match then
+				local btn = Instance.new("TextButton")
+				btn.Size = UDim2.new(1, 0, 0, 40)
+				btn.Position = UDim2.new(0, 0, 0, y)
+				btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+				btn.Text = ""
+				btn.Parent = PlayerList
+
+				local display = Instance.new("TextLabel", btn)
+				display.Size = UDim2.new(1, 0, 0, 20)
+				display.Position = UDim2.new(0, 0, 0, 0)
+				display.Text = player.DisplayName
+				display.BackgroundTransparency = 1
+				display.TextColor3 = Color3.new(1, 1, 1)
+				display.Font = Enum.Font.SourceSansBold
+				display.TextSize = 16
+
+				local username = Instance.new("TextLabel", btn)
+				username.Size = UDim2.new(1, 0, 0, 15)
+				username.Position = UDim2.new(0, 0, 0, 20)
+				username.Text = "@" .. player.Name
+				username.BackgroundTransparency = 1
+				username.TextColor3 = Color3.fromRGB(200, 200, 200)
+				username.Font = Enum.Font.SourceSans
+				username.TextSize = 14
+
+				btn.MouseButton1Click:Connect(function()
+					selectedPlayer = player
+					for _, b in ipairs(PlayerList:GetChildren()) do
+						if b:IsA("TextButton") then
+							b.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+						end
+					end
+					btn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+				end)
+				y += 42
+			end
+		end
+	end
+	PlayerList.CanvasSize = UDim2.new(0, 0, 0, y)
+end
+
+ClearButton.MouseButton1Click:Connect(function()
+	SearchBox.Text = ""
+	updatePlayerList()
+end)
+
+SearchBox:GetPropertyChangedSignal("Text"):Connect(updatePlayerList)
+
+Players.PlayerAdded:Connect(updatePlayerList)
+
+Players.PlayerRemoving:Connect(function(p)
+	if selectedPlayer == p then
+		Camera.CameraSubject = LocalPlayer.Character:FindFirstChild("Humanoid")
+		selectedPlayer = nil
+		isSpectating = false
+		ConfirmButton.Text = "Confirm"
+	end
+	updatePlayerList()
+end)
+
+ConfirmButton.MouseButton1Click:Connect(function()
+	if selectedPlayer and selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("Humanoid") then
+		if not isSpectating then
+			Camera.CameraSubject = selectedPlayer.Character:FindFirstChild("Humanoid")
+			isSpectating = true
+			ConfirmButton.Text = "Unconfirm"
+		else
+			Camera.CameraSubject = LocalPlayer.Character:FindFirstChild("Humanoid")
+			isSpectating = false
+			ConfirmButton.Text = "Confirm"
+		end
+	end
+end)
+
+CloseButton.MouseButton1Click:Connect(function()
+	Notification.Visible = true
+end)
+
+no.MouseButton1Click:Connect(function()
+	Notification.Visible = false
+end)
+
+yes.MouseButton1Click:Connect(function()
+	if isSpectating then
+		Camera.CameraSubject = LocalPlayer.Character:FindFirstChild("Humanoid")
+		isSpectating = false
+	end
+	ScreenGui:Destroy()
+end)
+
+task.wait(0.2)
+ClearButton:Activate()
