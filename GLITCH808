@@ -103,7 +103,7 @@ root.CFrame = SavedCFrame
 end
 end
 
-Button.Text = "Fling All: " .. (Glitch404 and "ON" or "OFF")
+Button.Text = "Glitch 404: " .. (FlingAll and "ON" or "OFF")
 end)
 
 --// LOOP (NO DELAY BETWEEN TARGETS)
