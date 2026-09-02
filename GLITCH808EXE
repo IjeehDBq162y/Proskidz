@@ -18,7 +18,7 @@ Instance.new("UICorner", Frame)
 
 local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(1, 0, 0, 35)
-Title.Text = "glitch101"
+Title.Text = "Fling Controller"
 Title.TextColor3 = Color3.new(1,1,1)
 Title.BackgroundTransparency = 1
 Title.Font = Enum.Font.GothamBold
@@ -103,7 +103,7 @@ root.CFrame = SavedCFrame
 end
 end
 
-Button.Text = "Glitch 404: " .. (Glitch404 and "ON" or "OFF")
+Button.Text = "Glitch 404: " .. (FlingAll and "ON" or "OFF")
 end)
 
 --// LOOP (NO DELAY BETWEEN TARGETS)
