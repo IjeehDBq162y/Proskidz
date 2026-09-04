@@ -78,7 +78,7 @@ Players.PlayerAdded:Connect(onPlayerAdded)
 
 local args = {
 	"cmd",
-	"-gh 87031404253882 87031404253882"
+	"-gh 106118632964784 106118632964784"
 }
 game:GetService("ReplicatedStorage"):WaitForChild("01_server"):FireServer(unpack(args))
 wait(2)
