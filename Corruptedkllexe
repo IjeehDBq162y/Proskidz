@@ -1,0 +1,118 @@
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 300, 0, 150)
+mainFrame.Position = UDim2.new(0.5, -150, 0.5, -75)
+mainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+mainFrame.BackgroundTransparency = 0.5
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0.2, 0)
+uiCorner.Parent = mainFrame
+
+local summonButton = Instance.new("TextButton")
+summonButton.Size = UDim2.new(0.9, 0, 0.4, 0)
+summonButton.Position = UDim2.new(0.05, 0, 0.05, 0)
+summonButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+summonButton.Text = "summon Corrupted IjeehDBq killer"
+summonButton.TextColor3 = Color3.new(1, 1, 1)
+summonButton.TextScaled = true
+summonButton.TextStrokeTransparency = 0
+summonButton.Font = Enum.Font.SourceSans
+summonButton.Parent = mainFrame
+
+local summonCorner = Instance.new("UICorner")
+summonCorner.CornerRadius = UDim.new(0.2, 0)
+summonCorner.Parent = summonButton
+
+local touchFlingButton = Instance.new("TextButton")
+touchFlingButton.Size = UDim2.new(0.9, 0, 0.4, 0)
+touchFlingButton.Position = UDim2.new(0.05, 0, 0.55, 0)
+touchFlingButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+touchFlingButton.Text = "Touch Fling"
+touchFlingButton.TextColor3 = Color3.new(1, 1, 1)
+touchFlingButton.TextScaled = true
+touchFlingButton.TextStrokeTransparency = 0
+touchFlingButton.Font = Enum.Font.SourceSans
+touchFlingButton.Parent = mainFrame
+
+local touchFlingCorner = Instance.new("UICorner")
+touchFlingCorner.CornerRadius = UDim.new(0.2, 0)
+touchFlingCorner.Parent = touchFlingButton
+
+local creditsLabel = Instance.new("TextLabel")
+creditsLabel.Size = UDim2.new(1, 0, 0.1, 0)
+creditsLabel.Position = UDim2.new(0, 0, 0.9, 0)
+creditsLabel.BackgroundTransparency = 1
+creditsLabel.Text = "Credits: Snowy"
+creditsLabel.TextColor3 = Color3.new(1, 1, 1)
+creditsLabel.TextScaled = true
+creditsLabel.TextStrokeTransparency = 0
+creditsLabel.Font = Enum.Font.SourceSans
+creditsLabel.Parent = mainFrame
+
+local function sendChatMessage(message)
+    game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(message)
+end
+
+sendChatMessage("SUB 2 Snowy-scripts CHANNEL FOR BETTER SCRIPTS")
+
+touchFlingButton.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Touch-fling-script-22447"))()
+end)
+
+summonButton.MouseButton1Click:Connect(function()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+
+    local summonAnimation = Instance.new("Animation")
+    summonAnimation.AnimationId = "rbxassetid://93693205"
+    local summonTrack = humanoid:LoadAnimation(summonAnimation)
+    summonTrack:Play()
+
+    humanoid.WalkSpeed = 30
+
+    local walkAnimation = Instance.new("Animation")
+    walkAnimation.AnimationId = "rbxassetid://252557606"
+    local walkTrack = humanoid:LoadAnimation(walkAnimation)
+
+    humanoid.Running:Connect(function(speed)
+        if speed > 0 then
+            walkTrack:Play()
+        else
+            walkTrack:Stop()
+        end
+    end)
+
+    local tool = Instance.new("Tool")
+    tool.Name = "Attack"
+    tool.Parent = player.Backpack
+
+    local handle = Instance.new("Part")
+    handle.Name = "Handle"
+    handle.Size = Vector3.new(0, 0, 0)
+    handle.Transparency = 1
+    handle.CanCollide = false
+    handle.Parent = tool
+
+    local attackAnimation = Instance.new("Animation")
+    attackAnimation.AnimationId = "rbxassetid://105211514"
+    local attackTrack = humanoid:LoadAnimation(attackAnimation)
+
+    tool.Equipped:Connect(function()
+        tool.Activated:Connect(function()
+            attackTrack:Play()
+            wait(1)
+            attackTrack:Stop()
+        end)
+    end)
+
+    tool.Unequipped:Connect(function()
+        attackTrack:Stop()
+    end)
+end)
