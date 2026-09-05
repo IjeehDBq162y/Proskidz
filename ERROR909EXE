@@ -1,0 +1,122 @@
+--// SETTINGS
+local FLING_TIME = 0.0 -- now affects fling duration ONLY
+
+--// SERVICES
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+
+--// GUI
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 230, 0, 140)
+Frame.Position = UDim2.new(0.5, -115, 0.5, -70)
+Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Frame.Active = true
+Frame.Draggable = true
+Instance.new("UICorner", Frame)
+
+local Title = Instance.new("TextLabel", Frame)
+Title.Size = UDim2.new(1, 0, 0, 35)
+Title.Text = "Glitch101"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
+
+local Credit = Instance.new("TextLabel", Frame)
+Credit.Size = UDim2.new(1, 0, 0, 20)
+Credit.Position = UDim2.new(0,0,1,-20)
+Credit.Text = "Made by Corrupted IjeehDBq"
+Credit.TextColor3 = Color3.fromRGB(0,0,0)
+Credit.BackgroundTransparency = 1
+Credit.TextSize = 12
+
+local Button = Instance.new("TextButton", Frame)
+Button.Size = UDim2.new(1, -20, 0, 45)
+Button.Position = UDim2.new(0, 10, 0.5, -20)
+Button.Text = "Glitch 404: OFF"
+Button.BackgroundColor3 = Color3.fromRGB(40,40,40)
+Button.TextColor3 = Color3.new(0,1,0)
+Button.Font = Enum.Font.GothamBold
+Button.TextSize = 14
+Instance.new("UICorner", Button)
+
+--// STATE
+local FlingAll = false
+local SavedCFrame = nil
+
+--// FLING FUNCTION (FIXED TIME)
+local function SkidFling(TargetPlayer)
+local Character = Player.Character
+local RootPart = Character and Character:FindFirstChild("HumanoidRootPart")
+local Humanoid = Character and Character:FindFirstChildOfClass("Humanoid")
+
+local TCharacter = TargetPlayer.Character
+local TRootPart = TCharacter and TCharacter:FindFirstChild("HumanoidRootPart")
+
+if not (RootPart and Humanoid and TRootPart) then return end
+
+local BV = Instance.new("BodyVelocity")
+BV.Velocity = Vector3.new(9e8,9e8,9e8)
+BV.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+BV.Parent = RootPart
+
+local start = time()
+local angle = 0
+
+while (time() - start) < FLING_TIME and FlingAll do
+angle += 120
+
+RootPart.CFrame = TRootPart.CFrame * CFrame.new(0, 1.5, 0) * CFrame.Angles(math.rad(angle),0,0)
+RootPart.Velocity = Vector3.new(9e7,9e7,9e7)
+task.wait()
+
+RootPart.CFrame = TRootPart.CFrame * CFrame.new(0, -1.5, 0)
+task.wait()
+
+RootPart.CFrame = TRootPart.CFrame * CFrame.new(2,1,-2)
+task.wait()
+
+RootPart.CFrame = TRootPart.CFrame * CFrame.new(-2,-1,2)
+task.wait()
+end
+
+BV:Destroy()
+end
+
+--// BUTTON
+Button.MouseButton1Click:Connect(function()
+FlingAll = not FlingAll
+
+if FlingAll then
+local char = Player.Character
+local root = char and char:FindFirstChild("HumanoidRootPart")
+if root then
+SavedCFrame = root.CFrame
+end
+else
+local char = Player.Character
+local root = char and char:FindFirstChild("HumanoidRootPart")
+if root and SavedCFrame then
+root.CFrame = SavedCFrame
+end
+end
+
+Button.Text = "Glitch 404: " .. (FlingAll and "ON" or "OFF")
+end)
+
+--// LOOP (NO DELAY BETWEEN TARGETS)
+task.spawn(function()
+while true do
+if FlingAll then
+for _,plr in pairs(Players:GetPlayers()) do
+if not FlingAll then break end
+if plr ~= Player then
+SkidFling(plr)
+end
+end
+end
+task.wait()
+end
+end)
