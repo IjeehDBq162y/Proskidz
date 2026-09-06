@@ -113,7 +113,7 @@ if SkidFlingAll then
 for _,plr in pairs(Players:GetPlayers()) do
 if not SkidFlingAll then break end
 if plr ~= Player then
-SkidFling(plr)
+SkidFlingAll(plr)
 end
 end
 end
