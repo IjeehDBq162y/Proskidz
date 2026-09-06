@@ -87,7 +87,7 @@ end
 
 --// BUTTON
 Button.MouseButton1Click:Connect(function()
-SkidFlingAll = not SkidFlingAll
+SkidFlingAll = not FlingAll
 
 if SkidFlingAll then
 local char = Player.Character
