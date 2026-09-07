@@ -65,7 +65,7 @@ BV.Parent = RootPart
 local start = time()
 local angle = 0
 
-while (time(0.1) - start) < FLING_TIME and SkidFlingAll do
+while (time() - start) < FLING_TIME and FlingAll do
 angle += 120
 
 RootPart.CFrame = TRootPart.CFrame * CFrame.new(0, 1.5, 0) * CFrame.Angles(math.rad(angle),0,0)
