@@ -43,7 +43,7 @@ Button.TextSize = 14
 Instance.new("UICorner", Button)
 
 --// STATE
-local FlingAll = false
+local SkidFlingAll = false
 local SavedCFrame = nil
 
 --// FLING FUNCTION (FIXED TIME)
@@ -89,7 +89,7 @@ end
 Button.MouseButton1Click:Connect(function()
 SkidFlingAll = not SkidFlingAll
 
-if FlingAll then
+if SkidFlingAll then
 local char = Player.Character
 local root = char and char:FindFirstChild("HumanoidRootPart")
 if root then
