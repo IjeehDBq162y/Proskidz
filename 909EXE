@@ -19,7 +19,7 @@ Instance.new("UICorner", Frame)
 local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(1, 0, 0, 35)
 Title.Text = "Glitch101"
-Title.TextColor3 = Color3.new(1,1,1)
+Title.TextColor3 = Color3.new(0,1,0)
 Title.BackgroundTransparency = 1
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 16
@@ -35,9 +35,9 @@ Credit.TextSize = 12
 local Button = Instance.new("TextButton", Frame)
 Button.Size = UDim2.new(1, -20, 0, 45)
 Button.Position = UDim2.new(0, 10, 0.5, -20)
-Button.Text = "Glitch404: OFF"
+Button.Text = "Glitch 404: OFF"
 Button.BackgroundColor3 = Color3.fromRGB(40,40,40)
-Button.TextColor3 = Color3.new(0,1,0)
+Button.TextColor3 = Color3.new(1,1,1)
 Button.Font = Enum.Font.GothamBold
 Button.TextSize = 14
 Instance.new("UICorner", Button)
@@ -120,3 +120,4 @@ end
 task.wait(0.01)
 end
 end)
+
