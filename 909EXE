@@ -1,5 +1,5 @@
 --// SETTINGS
-local FLING_TIME = 0.1 -- now affects fling duration ONLY
+local FLING_TIME = 0.5 -- now affects fling duration ONLY
 
 --// SERVICES
 local Players = game:GetService("Players")
@@ -18,8 +18,8 @@ Instance.new("UICorner", Frame)
 
 local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(1, 0, 0, 35)
-Title.Text = "Fling Controller"
-Title.TextColor3 = Color3.new(1,1,1)
+Title.Text = "Glitch101"
+Title.TextColor3 = Color3.new(0,0,1)
 Title.BackgroundTransparency = 1
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 16
@@ -27,7 +27,7 @@ Title.TextSize = 16
 local Credit = Instance.new("TextLabel", Frame)
 Credit.Size = UDim2.new(1, 0, 0, 20)
 Credit.Position = UDim2.new(0,0,1,-20)
-Credit.Text = "Made by _Corupted IjeehDBq_"
+Credit.Text = "Made by Corrupted IjeehDBq"
 Credit.TextColor3 = Color3.fromRGB(180,180,180)
 Credit.BackgroundTransparency = 1
 Credit.TextSize = 12
@@ -87,7 +87,7 @@ end
 
 --// BUTTON
 Button.MouseButton1Click:Connect(function()
-    SkidFlingAll = not SkidFlingAll
+    FlingAll = not FlingAll
 
     if SkidFlingAll then
         local char = Player.Character
