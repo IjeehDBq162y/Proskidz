@@ -1,5 +1,5 @@
 --// SETTINGS
-local FLING_TIME = 0.5 -- now affects fling duration ONLY
+local FLING_TIME = 0.1 -- now affects fling duration ONLY
 
 --// SERVICES
 local Players = game:GetService("Players")
@@ -87,7 +87,7 @@ end
 
 --// BUTTON
 Button.MouseButton1Click:Connect(function()
-    FlingAll = not FlingAll
+    SkidFlingAll = not SkidFlingAll
 
     if SkidFlingAll then
         local char = Player.Character
