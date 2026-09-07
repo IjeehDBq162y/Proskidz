@@ -1,5 +1,5 @@
 --// SETTINGS
-local FLING_TIME = 0.1 -- now affects fling duration ONLY
+local FLING_TIME = 0.5 -- now affects fling duration ONLY
 
 --// SERVICES
 local Players = game:GetService("Players")
@@ -43,7 +43,7 @@ Button.TextSize = 14
 Instance.new("UICorner", Button)
 
 --// STATE
-local SkidFlingAll = false
+local FlingAll = false
 local SavedCFrame = nil
 
 --// FLING FUNCTION (FIXED TIME)
