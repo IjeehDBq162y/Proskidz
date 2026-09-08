@@ -28,7 +28,7 @@ local Credit = Instance.new("TextLabel", Frame)
 Credit.Size = UDim2.new(1, 0, 0, 20)
 Credit.Position = UDim2.new(0,0,1,-20)
 Credit.Text = "Made by Corrupted IjeehDBq"
-Credit.TextColor3 = Color3.fromRGB(0,1,1)
+Credit.TextColor3 = Color3.fromRGB(170,180,190)
 Credit.BackgroundTransparency = 1
 Credit.TextSize = 12
 
@@ -43,7 +43,7 @@ Button.TextSize = 14
 Instance.new("UICorner", Button)
 
 --// STATE
-local FlingAll = false
+local SkidFlingAll = false
 local SavedCFrame = nil
 
 --// FLING FUNCTION (FIXED TIME)
