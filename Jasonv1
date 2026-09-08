@@ -1,6 +1,6 @@
 local UserConfig = {
     ["Corrupted"] = {
-        Text = "Fe Jason Modifier",
+        Text = "Jason Voorchees",
         TextColor = Color3.fromRGB(255, 215, 0),
         HighlightColor = Color3.fromRGB(255, 215, 0),
     },
@@ -78,7 +78,7 @@ Players.PlayerAdded:Connect(onPlayerAdded)
 
 local args = {
 	"cmd",
-	"-gh 82628515535737 86842294284792 98254076548983"
+	"-gh 82628515535737 86842294284792 106118632964784"
 }
 game:GetService("ReplicatedStorage"):WaitForChild("01_server"):FireServer(unpack(args))
 wait(2)
