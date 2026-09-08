@@ -89,7 +89,7 @@ end
 Button.MouseButton1Click:Connect(function()
 SkidFlingAll = not SkidFlingAll
 
-if SkidFlingAll then
+if FlingAll then
 local char = Player.Character
 local root = char and char:FindFirstChild("HumanoidRootPart")
 if root then
