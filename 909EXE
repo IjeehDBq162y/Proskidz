@@ -43,7 +43,7 @@ Button.TextSize = 14
 Instance.new("UICorner", Button)
 
 --// STATE
-local SkidFlingAll = false
+local FlingAll = false
 local SavedCFrame = nil
 
 --// FLING FUNCTION (FIXED TIME)
@@ -65,7 +65,7 @@ BV.Parent = RootPart
 local start = time()
 local angle = 0
 
-while (time() - start) < FLING_TIME and SkidFlingAll do
+while (time() - start) < FLING_TIME and FlingAll do
 angle += 120
 
 RootPart.CFrame = TRootPart.CFrame * CFrame.new(0, 1.5, 0) * CFrame.Angles(math.rad(angle),0,0)
@@ -89,7 +89,7 @@ end
 Button.MouseButton1Click:Connect(function()
 SkidFlingAll = not SkidFlingAll
 
-if SkidFlingAll then
+if FlingAll then
 local char = Player.Character
 local root = char and char:FindFirstChild("HumanoidRootPart")
 if root then
