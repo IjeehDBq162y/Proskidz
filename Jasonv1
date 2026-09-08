@@ -1,5 +1,5 @@
 local UserConfig = {
-    ["Corrupted"] = {
+    ["Corrupted IjeehDBq"] = {
         Text = "Jason Voorchees",
         TextColor = Color3.fromRGB(255, 215, 0),
         HighlightColor = Color3.fromRGB(255, 215, 0),
