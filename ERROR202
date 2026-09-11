@@ -100,7 +100,7 @@ task.spawn(function()
 		local bar = Instance.new("Part")
 		bar.Size = Vector3.new(BAR_WIDTH, MIN_HEIGHT, BAR_DEPTH)
 		bar.Material = Enum.Material.Neon
-		bar.Color = Green
+		bar.Color = Black
 		bar.Anchored = true
 		bar.CanCollide = false
 		bar.Name = tostring(i)
