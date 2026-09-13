@@ -1,0 +1,403 @@
+-- CLEAN ROBLOX FLY SYSTEM (FINAL FIX - NOCLIP RESTORATION & MOBILE AWARENESS)
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local Player = Players.LocalPlayer
+local Gui = Player:WaitForChild("PlayerGui")
+
+------------------------------------------------
+-- STATE
+------------------------------------------------
+
+local Flying = false
+local Noclip = false
+local Destroyed = false
+
+local Speed = 60
+local MIN_SPEED, MAX_SPEED = 60, 300
+
+local BV, BG, Loop
+local AnimLockLoop = nil
+
+-- 【Noclip修正】元の衝突判定を保存しておくためのテーブル
+local originalCollision = {}
+
+------------------------------------------------
+-- GUI
+------------------------------------------------
+
+local UI = Instance.new("ScreenGui")
+UI.Name = "FlySystem"
+UI.ResetOnSpawn = false
+UI.Parent = Gui
+
+------------------------------------------------
+-- FRAME
+------------------------------------------------
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 180, 0, 140)
+frame.Position = UDim2.new(0.05, 0, 0.5, 0)
+frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+frame.Parent = UI
+Instance.new("UICorner", frame)
+
+------------------------------------------------
+-- DRAG BUTTON (ONLY DRAG CONTROL)
+------------------------------------------------
+
+local dragBtn = Instance.new("TextButton")
+dragBtn.Size = UDim2.new(0, 60, 0, 20)
+dragBtn.Position = UDim2.new(0, 5, 0, -25)
+dragBtn.Text = "DRAG"
+dragBtn.TextScaled = true
+dragBtn.BackgroundColor3 = Color3.fromRGB(80,80,80)
+dragBtn.Parent = frame
+Instance.new("UICorner", dragBtn)
+
+------------------------------------------------
+-- FLY BUTTON
+------------------------------------------------
+
+local flyBtn = Instance.new("TextButton")
+flyBtn.Size = UDim2.new(1,0,0.22,0)
+flyBtn.Text = "FLY"
+flyBtn.TextScaled = true
+flyBtn.Parent = frame
+
+------------------------------------------------
+-- NOCLIP BUTTON
+------------------------------------------------
+
+local noclipBtn = Instance.new("TextButton")
+noclipBtn.Size = UDim2.new(1,0,0.22,0)
+noclipBtn.Position = UDim2.new(0,0,0.22,0)
+noclipBtn.Text = "NOCLIP: OFF"
+noclipBtn.TextScaled = true
+noclipBtn.Parent = frame
+
+------------------------------------------------
+-- CLOSE BUTTON
+------------------------------------------------
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,25,0,25)
+close.Position = UDim2.new(1,-25,0,-25)
+close.BackgroundColor3 = Color3.fromRGB(200,0,0)
+close.Text = "X"
+close.TextScaled = true
+close.Parent = frame
+Instance.new("UICorner", close)
+
+------------------------------------------------
+-- SPEED SLIDER
+------------------------------------------------
+
+local label = Instance.new("TextLabel")
+label.Size = UDim2.new(1,0,0.2,0)
+label.Position = UDim2.new(0,0,0.5,0)
+label.BackgroundTransparency = 1
+label.TextColor3 = Color3.new(1,1,1)
+label.Text = "Speed: 60"
+label.Parent = frame
+
+local bar = Instance.new("Frame")
+bar.Size = UDim2.new(1,0,0.08,0)
+bar.Position = UDim2.new(0,0,0.72,0)
+bar.BackgroundColor3 = Color3.fromRGB(60,60,60)
+bar.Parent = frame
+Instance.new("UICorner", bar)
+
+local fill = Instance.new("Frame")
+fill.Size = UDim2.new(0,0,1,0)
+fill.BackgroundColor3 = Color3.fromRGB(0,170,255)
+fill.Parent = bar
+Instance.new("UICorner", fill)
+
+------------------------------------------------
+-- CONFIRM UI
+------------------------------------------------
+
+local confirm = Instance.new("Frame")
+confirm.Size = UDim2.new(0,300,0,150)
+confirm.Position = UDim2.new(0.5,-150,0.5,-75)
+confirm.BackgroundColor3 = Color3.fromRGB(20,20,20)
+confirm.Visible = false
+confirm.Parent = UI
+Instance.new("UICorner", confirm)
+
+local txt = Instance.new("TextLabel")
+txt.Size = UDim2.new(1,0,0.5,0)
+txt.BackgroundTransparency = 1
+txt.Text = "ARE YOU SURE YOU WANT TO UNLOAD?"
+txt.TextColor3 = Color3.new(1,1,1)
+txt.TextScaled = true
+txt.Parent = confirm
+
+local yes = Instance.new("TextButton")
+yes.Size = UDim2.new(0.45,0,0.3,0)
+yes.Position = UDim2.new(0.05,0,0.6,0)
+yes.Text = "YES"
+yes.BackgroundColor3 = Color3.fromRGB(0,200,0)
+yes.Parent = confirm
+Instance.new("UICorner", yes)
+
+local no = Instance.new("TextButton")
+no.Size = UDim2.new(0.45,0,0.3,0)
+no.Position = UDim2.new(0.5,0,0.6,0)
+no.Text = "NO"
+no.BackgroundColor3 = Color3.fromRGB(200,0,0)
+no.Parent = confirm
+Instance.new("UICorner", no)
+
+------------------------------------------------
+-- DRAG SYSTEM (FIXED)
+------------------------------------------------
+
+local dragging = false
+local dragStart
+local startPos
+
+dragBtn.InputBegan:Connect(function(i)
+	if i.UserInputType == Enum.UserInputType.MouseButton1
+	or i.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = i.Position
+		startPos = frame.Position
+	end
+end)
+
+UIS.InputChanged:Connect(function(i)
+	if not dragging then return end
+	if i.UserInputType ~= Enum.UserInputType.MouseMovement
+	and i.UserInputType ~= Enum.UserInputType.Touch then return end
+
+	local delta = i.Position - dragStart
+
+	frame.Position = UDim2.new(
+		startPos.X.Scale,
+		startPos.X.Offset + delta.X,
+		startPos.Y.Scale,
+		startPos.Y.Offset + delta.Y
+	)
+end)
+
+UIS.InputEnded:Connect(function()
+	dragging = false
+end)
+
+------------------------------------------------
+-- ANIMATION FIX (REAL FIX)
+------------------------------------------------
+
+local function disableAnimate(char)
+	local a = char:FindFirstChild("Animate")
+	if a then a.Disabled = true end
+end
+
+local function enableAnimate(char)
+	local a = char:FindFirstChild("Animate")
+	if a then a.Disabled = false end
+end
+
+local function startAnimLock(hum, char)
+	if AnimLockLoop then AnimLockLoop:Disconnect() end
+
+	disableAnimate(char)
+
+	AnimLockLoop = RunService.RenderStepped:Connect(function()
+		if not Flying or not hum then return end
+
+		for _,v in ipairs(hum:GetPlayingAnimationTracks()) do
+			v:Stop(0)
+		end
+
+		hum.PlatformStand = true
+		hum:ChangeState(Enum.HumanoidStateType.Physics)
+	end)
+end
+
+local function stopAnimLock()
+	if AnimLockLoop then
+		AnimLockLoop:Disconnect()
+		AnimLockLoop = nil
+	end
+end
+
+------------------------------------------------
+-- RESET ANIMATION
+------------------------------------------------
+
+local function resetAnim(char)
+	local hum = char:FindFirstChildOfClass("Humanoid")
+	if not hum then return end
+
+	hum.PlatformStand = false
+	hum.AutoRotate = true
+
+	hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+	task.wait()
+	hum:ChangeState(Enum.HumanoidStateType.Running)
+
+	enableAnimate(char)
+end
+
+------------------------------------------------
+-- NOCLIP (FIXED WITH RESTORE LOGIC)
+------------------------------------------------
+
+RunService.Stepped:Connect(function()
+	if Destroyed or not Noclip then return end
+
+	local char = Player.Character
+	if not char then return end
+
+	for _,p in ipairs(char:GetDescendants()) do
+		if p:IsA("BasePart") then
+			-- まだ保存されていない場合のみ、元のCanCollide状態を記憶する
+			if originalCollision[p] == nil then
+				originalCollision[p] = p.CanCollide
+			end
+			p.CanCollide = false
+		end
+	end
+end)
+
+------------------------------------------------
+-- STOP FLY
+------------------------------------------------
+
+local function stopFly()
+	Flying = false
+
+	stopAnimLock()
+
+	if Loop then Loop:Disconnect() Loop = nil end
+	if BV then BV:Destroy() BV = nil end
+	if BG then BG:Destroy() BG = nil end
+
+	local char = Player.Character
+	if char then resetAnim(char) end
+
+	flyBtn.Text = "FLY"
+end
+
+------------------------------------------------
+-- START FLY
+------------------------------------------------
+
+local function startFly()
+	if Destroyed then return end
+
+	local char = Player.Character
+	if not char then return end
+
+	local hum = char:FindFirstChildOfClass("Humanoid")
+	local root = char:FindFirstChild("HumanoidRootPart")
+	if not hum or not root then return end
+
+	Flying = true
+
+	startAnimLock(hum, char)
+
+	hum.PlatformStand = true
+	hum.AutoRotate = false
+	hum:ChangeState(Enum.HumanoidStateType.Physics)
+
+	BV = Instance.new("BodyVelocity")
+	BV.MaxForce = Vector3.new(1e5,1e5,1e5)
+	BV.Parent = root
+
+	BG = Instance.new("BodyGyro")
+	BG.MaxTorque = Vector3.new(1e5,1e5,1e5)
+	BG.P = 10000
+	BG.Parent = root
+
+	Loop = RunService.RenderStepped:Connect(function()
+		if Destroyed or not Flying then return end
+
+		local cam = workspace.CurrentCamera
+		BG.CFrame = cam.CFrame
+
+		local dir = Vector3.zero
+		
+		-- PC向けのキーボード入力
+		if UIS:IsKeyDown(Enum.KeyCode.W) then dir += cam.CFrame.LookVector end
+		if UIS:IsKeyDown(Enum.KeyCode.S) then dir -= cam.CFrame.LookVector end
+		if UIS:IsKeyDown(Enum.KeyCode.A) then dir -= cam.CFrame.RightVector end
+		if UIS:IsKeyDown(Enum.KeyCode.D) then dir += cam.CFrame.RightVector end
+		if UIS:IsKeyDown(Enum.KeyCode.Space) then dir += Vector3.new(0,1,0) end
+		if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then dir -= Vector3.new(0,1,0) end
+
+		-- モバイルのジョイスティック（MoveDirection）にも対応させる拡張
+		if dir.Magnitude == 0 and hum.MoveDirection.Magnitude > 0 then
+			local look = cam.CFrame.LookVector
+			local right = cam.CFrame.RightVector
+			dir = (look * (hum.MoveDirection:Dot(look)) + right * (hum.MoveDirection:Dot(right)))
+		end
+
+		BV.Velocity = (dir.Magnitude > 0 and dir.Unit * Speed) or Vector3.zero
+	end)
+
+	flyBtn.Text = "UNFLY"
+end
+
+------------------------------------------------
+-- BUTTONS
+------------------------------------------------
+
+flyBtn.MouseButton1Click:Connect(function()
+	if Flying then stopFly() else startFly() end
+end)
+
+noclipBtn.MouseButton1Click:Connect(function()
+	Noclip = not Noclip
+	noclipBtn.Text = Noclip and "NOCLIP: ON" or "NOCLIP: OFF"
+	
+	-- 【Noclip解除時の復元処理】オフにした瞬間に元の衝突判定を読み込んで戻す
+	if not Noclip then
+		for part, originalState in pairs(originalCollision) do
+			if part and part.Parent then
+				part.CanCollide = originalState
+			end
+		end
+		originalCollision = {} -- テーブルをリセット
+	end
+end)
+
+close.MouseButton1Click:Connect(function()
+	confirm.Visible = true
+end)
+
+no.MouseButton1Click:Connect(function()
+	confirm.Visible = false
+end)
+
+yes.MouseButton1Click:Connect(function()
+	Destroyed = true
+	stopFly()
+	UI:Destroy()
+end)
+
+------------------------------------------------
+-- KEYBIND
+------------------------------------------------
+
+UIS.InputBegan:Connect(function(i,gp)
+	if gp or Destroyed then return end
+	if i.KeyCode == Enum.KeyCode.Q then
+		if Flying then stopFly() else startFly() end
+	end
+end)
+
+------------------------------------------------
+-- RESPAWN
+------------------------------------------------
+
+Player.CharacterAdded:Connect(function()
+	stopFly()
+	Noclip = false
+	originalCollision = {}
+end)
