@@ -23,7 +23,7 @@ uiCorner.Parent = mainFrame
 
 --- BUTTONS ---
 
--- Left Button: Moderation Hat
+-- Left Button: Shadow Man Hat
 local leftButton = Instance.new("TextButton")
 leftButton.Size = UDim2.new(0, 160, 0, 60)
 leftButton.Position = UDim2.new(0, 25, 0.5, -30)
