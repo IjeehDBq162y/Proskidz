@@ -23,13 +23,13 @@ uiCorner.Parent = mainFrame
 
 --- BUTTONS ---
 
--- Left Button: Shadow man Hat
+-- Left Button: Shadow man Hats
 local leftButton = Instance.new("TextButton")
 leftButton.Size = UDim2.new(0, 160, 0, 60)
 leftButton.Position = UDim2.new(0, 25, 0.5, -30)
 leftButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 leftButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-leftButton.Text = "Shadow man Hat"
+leftButton.Text = "Shadow man Hats"
 leftButton.Font = Enum.Font.SourceSansBold
 leftButton.TextSize = 18
 leftButton.Parent = mainFrame
@@ -54,13 +54,13 @@ local middleCorner = Instance.new("UICorner")
 middleCorner.CornerRadius = UDim.new(0, 8)
 middleCorner.Parent = middleButton
 
--- Right Button: Creepypasta Hat
+-- Right Button: Creepypasta Hats
 local rightButton = Instance.new("TextButton")
 rightButton.Size = UDim2.new(0, 160, 0, 60)
 rightButton.Position = UDim2.new(1, -185, 0.5, -30)
 rightButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 rightButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-rightButton.Text = "Creepypasta"
+rightButton.Text = "Creepypasta Hats"
 rightButton.Font = Enum.Font.SourceSansBold
 rightButton.TextSize = 18
 rightButton.Parent = mainFrame
@@ -111,7 +111,7 @@ middleButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Function Shadow man Hat (Left Button)
+-- Function Shadow man Hats (Left Button)
 leftButton.MouseButton1Click:Connect(function()
     screenGui:Destroy()
     
