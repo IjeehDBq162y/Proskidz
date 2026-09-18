@@ -29,7 +29,7 @@ leftButton.Size = UDim2.new(0, 160, 0, 60)
 leftButton.Position = UDim2.new(0, 25, 0.5, -30)
 leftButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 leftButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-leftButton.Text = "Moderation Hat"
+leftButton.Text = "Shadow man Hat"
 leftButton.Font = Enum.Font.SourceSansBold
 leftButton.TextSize = 18
 leftButton.Parent = mainFrame
@@ -102,26 +102,6 @@ middleButton.MouseButton1Click:Connect(function()
     
     -- Second chat (12 more Hats = 24 Total)
     TextChatService.TextChannels.RBXGeneral:SendAsync("-gh 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178")
-    
-    task.wait(2)
-    
-    -- Sends "-net"
-    if TextChatService.TextChannels:FindFirstChild("RBXGeneral") then
-        TextChatService.TextChannels.RBXGeneral:SendAsync("-net")
-    end
-end)
-
--- Function Funny Adrian Cube meme Hat (Left Button)
-leftButton.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-    
-    -- First chat (18 Funny Adrian meme)
-    TextChatService.TextChannels.RBXGeneral:SendAsync("-gh 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291")
-    
-    task.wait(2)
-    
-    -- Second chat (18 more Funny Adrain meme)
-    TextChatService.TextChannels.RBXGeneral:SendAsync("-gh 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291 109703927635291")
     
     task.wait(2)
     
