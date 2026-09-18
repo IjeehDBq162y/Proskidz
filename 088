@@ -23,7 +23,7 @@ uiCorner.Parent = mainFrame
 
 --- BUTTONS ---
 
--- Left Button: Shadow Man Hat
+-- Left Button: Shadow man Hat
 local leftButton = Instance.new("TextButton")
 leftButton.Size = UDim2.new(0, 160, 0, 60)
 leftButton.Position = UDim2.new(0, 25, 0.5, -30)
@@ -38,13 +38,13 @@ local leftCorner = Instance.new("UICorner")
 leftCorner.CornerRadius = UDim.new(0, 8)
 leftCorner.Parent = leftButton
 
--- Middle Button: Scary Hats (NEW)
+-- Middle Button: Moderation Hats (NEW)
 local middleButton = Instance.new("TextButton")
 middleButton.Size = UDim2.new(0, 160, 0, 60)
 middleButton.Position = UDim2.new(0.5, -80, 0.5, -30) -- Centered
 middleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 middleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-middleButton.Text = "Moderation"
+middleButton.Text = "Moderation Hats"
 middleButton.Font = Enum.Font.SourceSansBold
 middleButton.TextSize = 15 -- Slightly smaller text size to fit the name perfectly
 middleButton.TextWrapped = true
@@ -102,6 +102,26 @@ middleButton.MouseButton1Click:Connect(function()
     
     -- Second chat (12 more Hats = 24 Total)
     TextChatService.TextChannels.RBXGeneral:SendAsync("-gh 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178 116085335944178")
+    
+    task.wait(2)
+    
+    -- Sends "-net"
+    if TextChatService.TextChannels:FindFirstChild("RBXGeneral") then
+        TextChatService.TextChannels.RBXGeneral:SendAsync("-net")
+    end
+end)
+
+-- Function Shadow man Hat (Left Button)
+leftButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+    
+    -- First chat (16 Shadow man)
+    TextChatService.TextChannels.RBXGeneral:SendAsync("-gh 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007")
+    
+    task.wait(2)
+    
+    -- Second chat (16 more Shadow man)
+    TextChatService.TextChannels.RBXGeneral:SendAsync("-gh 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007 17853809007")
     
     task.wait(2)
     
