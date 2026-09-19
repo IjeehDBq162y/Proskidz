@@ -1,0 +1,234 @@
+local players = game:GetService("Players")
+local player = players.LocalPlayer
+local camera = workspace.CurrentCamera
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local SoundService = game:GetService("SoundService")
+local StarterGui = game:GetService("StarterGui")
+
+local startSound = Instance.new("Sound")
+startSound.SoundId = "rbxassetid://6026984224"
+startSound.Volume = 1
+startSound.Parent = SoundService
+startSound:Play()
+
+StarterGui:SetCore("SendNotification", {
+    Title = "Ejecutado Correctamente",
+    Text = "Creado por Max_xd811",
+    Duration = 4
+})
+
+local spectating = false
+local index = 1
+local playerList = {}
+local lastTarget = nil
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 150, 0, 55)
+frame.Position = UDim2.new(0.5, -75, 0.9, 0)
+frame.BackgroundTransparency = 1
+
+local nameLabel = Instance.new("TextLabel", frame)
+nameLabel.Size = UDim2.new(1, 0, 0, 16)
+nameLabel.Position = UDim2.new(0, 0, 0, -24)
+nameLabel.BackgroundTransparency = 1
+nameLabel.Text = "Nadie"
+nameLabel.TextScaled = true
+nameLabel.TextColor3 = Color3.fromRGB(255,255,255)
+nameLabel.TextStrokeTransparency = 0
+
+local closeBtn = Instance.new("TextButton", frame)
+closeBtn.Size = UDim2.new(0, 20, 0, 20)
+closeBtn.Position = UDim2.new(1, -20, 0, -24)
+closeBtn.Text = "X"
+closeBtn.BackgroundColor3 = Color3.fromRGB(200,0,0)
+closeBtn.TextColor3 = Color3.fromRGB(255,255,255)
+closeBtn.TextScaled = true
+
+local prevBtn = Instance.new("TextButton", frame)
+local toggleBtn = Instance.new("TextButton", frame)
+local nextBtn = Instance.new("TextButton", frame)
+
+prevBtn.Size = UDim2.new(0, 40, 1, 0)
+toggleBtn.Size = UDim2.new(0, 70, 1, 0)
+nextBtn.Size = UDim2.new(0, 40, 1, 0)
+
+prevBtn.Position = UDim2.new(0, 0, 0, 0)
+toggleBtn.Position = UDim2.new(0, 40, 0, 0)
+nextBtn.Position = UDim2.new(0, 110, 0, 0)
+
+prevBtn.Text = "â—€"
+nextBtn.Text = "â–¶"
+toggleBtn.Text = "OFF"
+
+prevBtn.TextScaled = true
+nextBtn.TextScaled = true
+toggleBtn.TextScaled = true
+
+prevBtn.Font = Enum.Font.GothamBold
+nextBtn.Font = Enum.Font.GothamBold
+toggleBtn.Font = Enum.Font.GothamBold
+
+local function updatePlayers()
+	playerList = {}
+	for _, plr in pairs(players:GetPlayers()) do
+		if plr ~= player then
+			table.insert(playerList, plr)
+		end
+	end
+end
+
+updatePlayers()
+players.PlayerAdded:Connect(updatePlayers)
+players.PlayerRemoving:Connect(updatePlayers)
+
+local function updateName()
+	if spectating and playerList[index] then
+		nameLabel.Text = playerList[index].Name
+	else
+		nameLabel.Text = "Nadie"
+	end
+end
+
+local function spectate()
+	if #playerList == 0 then 
+		updateName()
+		return 
+	end
+	
+	local target = playerList[index]
+	
+	if target and target.Character and target.Character:FindFirstChild("Humanoid") then
+		camera.CameraType = Enum.CameraType.Custom
+		camera.CameraSubject = target.Character.Humanoid
+		lastTarget = target
+	end
+	
+	updateName()
+end
+
+RunService.RenderStepped:Connect(function()
+	if spectating then
+		local target = playerList[index]
+		if target and target.Character and target.Character:FindFirstChild("Humanoid") then
+			if camera.CameraSubject ~= target.Character.Humanoid then
+				camera.CameraSubject = target.Character.Humanoid
+			end
+		end
+	end
+end)
+
+toggleBtn.MouseButton1Click:Connect(function()
+	spectating = not spectating
+	
+	if spectating then
+		toggleBtn.Text = "ON"
+		
+		if lastTarget then
+			for i, plr in ipairs(playerList) do
+				if plr == lastTarget then
+					index = i
+					break
+				end
+			end
+		end
+		
+		spectate()
+	else
+		toggleBtn.Text = "OFF"
+		
+		if player.Character and player.Character:FindFirstChild("Humanoid") then
+			camera.CameraSubject = player.Character.Humanoid
+		end
+		
+		updateName()
+	end
+end)
+
+nextBtn.MouseButton1Click:Connect(function()
+	if spectating then
+		index += 1
+		if index > #playerList then
+			index = 1
+		end
+		spectate()
+	end
+end)
+
+prevBtn.MouseButton1Click:Connect(function()
+	if spectating then
+		index -= 1
+		if index < 1 then
+			index = #playerList
+		end
+		spectate()
+	end
+end)
+
+local dragging = false
+local dragStart
+local startPos
+
+toggleBtn.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 
+	or input.UserInputType == Enum.UserInputType.Touch then
+		
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement 
+	or input.UserInputType == Enum.UserInputType.Touch) then
+		
+		local delta = input.Position - dragStart
+		
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+closeBtn.MouseButton1Click:Connect(function()
+	spectating = false
+	
+	if player.Character and player.Character:FindFirstChild("Humanoid") then
+		camera.CameraSubject = player.Character.Humanoid
+	end
+
+	local closeSound = Instance.new("Sound")
+	closeSound.SoundId = "rbxassetid://139009780109934"
+	closeSound.Volume = 1
+	closeSound.Parent = SoundService
+	closeSound:Play()
+
+	local tweenInfo = TweenInfo.new(0.5)
+
+	for _, obj in pairs(frame:GetDescendants()) do
+		if obj:IsA("TextLabel") or obj:IsA("TextButton") then
+			TweenService:Create(obj, tweenInfo, {
+				TextTransparency = 1,
+				BackgroundTransparency = 1
+			}):Play()
+		end
+	end
+
+	wait(0.5)
+	screenGui:Destroy()
+end)
