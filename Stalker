@@ -1,0 +1,251 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+--------------------------------------------------
+-- GUI
+--------------------------------------------------
+
+local gui = Instance.new("ScreenGui")
+gui.Parent = player.PlayerGui
+gui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0,260,0,260)
+frame.Position = UDim2.new(0,50,0.5,-130)
+frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+frame.Parent = gui
+
+--------------------------------------------------
+-- Title
+--------------------------------------------------
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0,35)
+title.Text = "Back TP Control"
+title.TextScaled = true
+title.BackgroundTransparency = 1
+title.TextColor3 = Color3.new(1,1,1)
+title.Parent = frame
+
+--------------------------------------------------
+-- Close Button
+--------------------------------------------------
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-35,0,5)
+close.Text = "X"
+close.TextScaled = true
+close.BackgroundColor3 = Color3.fromRGB(200,60,60)
+close.Parent = frame
+
+--------------------------------------------------
+-- Toggle Button
+--------------------------------------------------
+
+local toggle = Instance.new("TextButton")
+toggle.Size = UDim2.new(1,-20,0,45)
+toggle.Position = UDim2.new(0,10,0,40)
+toggle.Text = "OFF"
+toggle.TextScaled = true
+toggle.BackgroundColor3 = Color3.fromRGB(200,60,60)
+toggle.Parent = frame
+
+--------------------------------------------------
+-- Player Counter
+--------------------------------------------------
+
+local playerLabel = Instance.new("TextLabel")
+playerLabel.Size = UDim2.new(1,0,0,25)
+playerLabel.Position = UDim2.new(0,0,0,90)
+playerLabel.BackgroundTransparency = 1
+playerLabel.TextColor3 = Color3.fromRGB(0,255,120)
+playerLabel.TextScaled = true
+playerLabel.Parent = frame
+
+--------------------------------------------------
+-- Delay
+--------------------------------------------------
+
+local delayBox = Instance.new("TextBox")
+delayBox.Size = UDim2.new(1,-20,0,35)
+delayBox.Position = UDim2.new(0,10,0,120)
+delayBox.Text = "0.5"
+delayBox.PlaceholderText = "Delay"
+delayBox.Parent = frame
+
+--------------------------------------------------
+-- Offset Z
+--------------------------------------------------
+
+local offsetZ = Instance.new("TextBox")
+offsetZ.Size = UDim2.new(1,-20,0,35)
+offsetZ.Position = UDim2.new(0,10,0,160)
+offsetZ.Text = "3"
+offsetZ.PlaceholderText = "Offset Z"
+offsetZ.Parent = frame
+
+--------------------------------------------------
+-- Drag system (Ð´Ð»Ñ Ñ‚ÐµÐ»ÐµÑ„Ð¾Ð½Ð°)
+--------------------------------------------------
+
+local dragging = false
+local dragStart
+local startPos
+
+frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+		
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+		
+	end
+end)
+
+frame.InputEnded:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+	
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+	if dragging then
+		
+		local delta = input.Position - dragStart
+		
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+		
+	end
+	
+end)
+
+--------------------------------------------------
+-- Collapse GUI
+--------------------------------------------------
+
+local collapsed = false
+
+close.MouseButton1Click:Connect(function()
+
+	collapsed = not collapsed
+	
+	if collapsed then
+		
+		for _,v in pairs(frame:GetChildren()) do
+			if v ~= title and v ~= close then
+				v.Visible = false
+			end
+		end
+		
+		frame.Size = UDim2.new(0,260,0,40)
+		
+	else
+		
+		for _,v in pairs(frame:GetChildren()) do
+			v.Visible = true
+		end
+		
+		frame.Size = UDim2.new(0,260,0,260)
+		
+	end
+	
+end)
+
+--------------------------------------------------
+-- Player Update
+--------------------------------------------------
+
+local function updateCount()
+
+	playerLabel.Text = "Valid Players: "..(#Players:GetPlayers()-1)
+
+end
+
+Players.PlayerAdded:Connect(updateCount)
+Players.PlayerRemoving:Connect(updateCount)
+
+updateCount()
+
+--------------------------------------------------
+-- TP System
+--------------------------------------------------
+
+local running = false
+local index = 1
+
+toggle.MouseButton1Click:Connect(function()
+
+	running = not running
+	
+	if running then
+		toggle.Text = "ON"
+		toggle.BackgroundColor3 = Color3.fromRGB(60,200,100)
+	else
+		toggle.Text = "OFF"
+		toggle.BackgroundColor3 = Color3.fromRGB(200,60,60)
+	end
+	
+end)
+
+--------------------------------------------------
+-- Loop
+--------------------------------------------------
+
+while true do
+	
+	local delayTime = tonumber(delayBox.Text) or 0.5
+	
+	task.wait(delayTime)
+	
+	if running then
+		
+		local list = Players:GetPlayers()
+		
+		if #list > 1 then
+			
+			if index > #list then
+				index = 1
+			end
+			
+			local target = list[index]
+			
+			if target ~= player and target.Character then
+				
+				local char = player.Character
+				local tchar = target.Character
+				
+				if char and tchar then
+					
+					local hrp = char:FindFirstChild("HumanoidRootPart")
+					local thrp = tchar:FindFirstChild("HumanoidRootPart")
+					
+					if hrp and thrp then
+						
+						local z = tonumber(offsetZ.Text) or 3
+						
+						hrp.CFrame = thrp.CFrame * CFrame.new(0,0,z)
+						
+					end
+					
+				end
+				
+			end
+			
+			index += 1
+			
+		end
+		
+	end
+	
+end
