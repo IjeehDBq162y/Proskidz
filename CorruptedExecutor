@@ -1,0 +1,253 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Buat RemoteEvent otomatis jika belum ada
+local executeEvent = ReplicatedStorage:FindFirstChild("ExecuteScriptEvent")
+if not executeEvent then
+	executeEvent = Instance.new("RemoteEvent")
+	executeEvent.Name = "ExecuteScriptEvent"
+	executeEvent.Parent = ReplicatedStorage
+end
+
+-- 1. ScreenGui Utama
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CompactExecutorGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+local FULL_HEIGHT = 95
+local MIN_HEIGHT = 24
+
+---------------------------------------------------------
+-- 2. FRAME UTAMA (EXECUTOR) - Default disembunyikan (Visible = false)
+---------------------------------------------------------
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 330, 0, FULL_HEIGHT)
+mainFrame.Position = UDim2.new(0.5, -165, 0.3, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+mainFrame.BorderColor3 = Color3.fromRGB(180, 200, 230)
+mainFrame.BorderSizePixel = 1
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.ClipsDescendants = true
+mainFrame.Visible = false -- Muncul setelah login
+mainFrame.Parent = screenGui
+
+-- Header Bar
+local headerBar = Instance.new("Frame")
+headerBar.Name = "HeaderBar"
+headerBar.Size = UDim2.new(1, 0, 0, 24)
+headerBar.Position = UDim2.new(0, 0, 0, 0)
+headerBar.BackgroundColor3 = Color3.fromRGB(24, 75, 132)
+headerBar.BorderSizePixel = 0
+headerBar.Parent = mainFrame
+
+-- Tombol Toggle Panah Putih (â–¼ / â–²)
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Name = "ToggleButton"
+toggleBtn.Size = UDim2.new(0, 24, 1, 0)
+toggleBtn.Position = UDim2.new(0, 4, 0, 0)
+toggleBtn.BackgroundTransparency = 1
+toggleBtn.Text = "â–¼"
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.TextSize = 12
+toggleBtn.Font = Enum.Font.Code
+toggleBtn.Parent = headerBar
+
+-- Judul Header
+local titleText = Instance.new("TextLabel")
+titleText.Name = "Title"
+titleText.Size = UDim2.new(1, -30, 1, 0)
+titleText.Position = UDim2.new(0, 26, 0, 0)
+titleText.BackgroundTransparency = 1
+titleText.Text = "Executor"
+titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleText.TextSize = 13
+titleText.Font = Enum.Font.Code
+titleText.TextXAlignment = Enum.TextXAlignment.Left
+titleText.Parent = headerBar
+
+-- Container Konten
+local contentContainer = Instance.new("Frame")
+contentContainer.Name = "ContentContainer"
+contentContainer.Size = UDim2.new(1, 0, 1, -24)
+contentContainer.Position = UDim2.new(0, 0, 0, 24)
+contentContainer.BackgroundTransparency = 1
+contentContainer.Parent = mainFrame
+
+-- TextBox Container
+local textBoxContainer = Instance.new("Frame")
+textBoxContainer.Name = "InputContainer"
+textBoxContainer.Size = UDim2.new(1, -14, 0, 28)
+textBoxContainer.Position = UDim2.new(0, 7, 0, 7)
+textBoxContainer.BackgroundColor3 = Color3.fromRGB(18, 36, 56)
+textBoxContainer.BorderSizePixel = 0
+textBoxContainer.ClipsDescendants = true
+textBoxContainer.Parent = contentContainer
+
+-- TextBox Input
+local textBox = Instance.new("TextBox")
+textBox.Name = "CodeInput"
+textBox.Size = UDim2.new(1, -10, 1, 0)
+textBox.Position = UDim2.new(0, 5, 0, 0)
+textBox.BackgroundTransparency = 1
+textBox.TextColor3 = Color3.fromRGB(220, 235, 255)
+textBox.PlaceholderColor3 = Color3.fromRGB(100, 120, 140)
+textBox.Text = 'print("hello world")'
+textBox.Font = Enum.Font.Code
+textBox.TextSize = 12
+textBox.ClearTextOnFocus = false
+textBox.MultiLine = true
+textBox.TextWrapped = false
+textBox.TextXAlignment = Enum.TextXAlignment.Left
+textBox.Parent = textBoxContainer
+
+-- Tombol Execute
+local executeBtn = Instance.new("TextButton")
+executeBtn.Name = "ExecuteButton"
+executeBtn.Size = UDim2.new(0, 65, 0, 22)
+executeBtn.Position = UDim2.new(0, 7, 0, 41)
+executeBtn.BackgroundColor3 = Color3.fromRGB(25, 75, 130)
+executeBtn.BorderSizePixel = 0
+executeBtn.Text = "Execute"
+executeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+executeBtn.Font = Enum.Font.Code
+executeBtn.TextSize = 12
+executeBtn.Parent = contentContainer
+
+-- Tombol Clear
+local clearBtn = Instance.new("TextButton")
+clearBtn.Name = "ClearButton"
+clearBtn.Size = UDim2.new(0, 52, 0, 22)
+clearBtn.Position = UDim2.new(0, 78, 0, 41)
+clearBtn.BackgroundColor3 = Color3.fromRGB(25, 75, 130)
+clearBtn.BorderSizePixel = 0
+clearBtn.Text = "Clear"
+clearBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+clearBtn.Font = Enum.Font.Code
+clearBtn.TextSize = 12
+clearBtn.Parent = contentContainer
+
+---------------------------------------------------------
+-- 3. FRAME LOGIN (Dengan Icon Headshot & Tanpa Password)
+---------------------------------------------------------
+local loginFrame = Instance.new("Frame")
+loginFrame.Name = "LoginFrame"
+loginFrame.Size = UDim2.new(0, 220, 0, 160)
+loginFrame.Position = UDim2.new(0.5, -110, 0.4, -80)
+loginFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+loginFrame.BorderColor3 = Color3.fromRGB(180, 200, 230)
+loginFrame.BorderSizePixel = 1
+loginFrame.Active = true
+loginFrame.Draggable = true
+loginFrame.Parent = screenGui
+
+-- Header Login
+local loginHeader = Instance.new("Frame")
+loginHeader.Name = "LoginHeader"
+loginHeader.Size = UDim2.new(1, 0, 0, 24)
+loginHeader.BackgroundColor3 = Color3.fromRGB(24, 75, 132)
+loginHeader.BorderSizePixel = 0
+loginHeader.Parent = loginFrame
+
+local loginTitle = Instance.new("TextLabel")
+loginTitle.Size = UDim2.new(1, 0, 1, 0)
+loginTitle.BackgroundTransparency = 1
+loginTitle.Text = "Welcome / Login"
+loginTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+loginTitle.Font = Enum.Font.Code
+loginTitle.TextSize = 13
+loginTitle.Parent = loginHeader
+
+-- Icon Headshot Avatar Pemain
+local headshotImage = Instance.new("ImageLabel")
+headshotImage.Name = "AvatarHeadshot"
+headshotImage.Size = UDim2.new(0, 50, 0, 50)
+headshotImage.Position = UDim2.new(0.5, -25, 0, 34)
+headshotImage.BackgroundColor3 = Color3.fromRGB(24, 75, 132)
+headshotImage.BorderSizePixel = 0
+headshotImage.Image = "rbxthumb://type=AvatarHeadShot&id=" .. player.UserId .. "&w=150&h=150"
+headshotImage.Parent = loginFrame
+
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(1, 0) -- Membuat avatar berbentuk lingkaran
+uiCorner.Parent = headshotImage
+
+-- Label Username Pemain
+local usernameLabel = Instance.new("TextLabel")
+usernameLabel.Name = "UsernameLabel"
+usernameLabel.Size = UDim2.new(1, -20, 0, 18)
+usernameLabel.Position = UDim2.new(0, 10, 0, 90)
+usernameLabel.BackgroundTransparency = 1
+usernameLabel.Text = player.DisplayName .. " (@" .. player.Name .. ")"
+usernameLabel.TextColor3 = Color3.fromRGB(220, 235, 255)
+usernameLabel.Font = Enum.Font.Code
+usernameLabel.TextSize = 12
+usernameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+usernameLabel.Parent = loginFrame
+
+-- Tombol Login Langsung
+local loginButton = Instance.new("TextButton")
+loginButton.Name = "LoginBtn"
+loginButton.Size = UDim2.new(0, 90, 0, 24)
+loginButton.Position = UDim2.new(0.5, -45, 0, 120)
+loginButton.BackgroundColor3 = Color3.fromRGB(25, 75, 130)
+loginButton.BorderSizePixel = 0
+loginButton.Text = "Login"
+loginButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+loginButton.Font = Enum.Font.Code
+loginButton.TextSize = 13
+loginButton.Parent = loginFrame
+
+---------------------------------------------------------
+-- 4. LOGIKA TOMBOL & EVENT
+---------------------------------------------------------
+
+-- Saat tombol Login ditekan
+loginButton.Activated:Connect(function()
+	loginFrame.Visible = false -- Tutup panel login
+	mainFrame.Visible = true  -- Buka executor UI
+end)
+
+-- Minimize / Expand Executor
+local isMinimized = false
+toggleBtn.Activated:Connect(function()
+	isMinimized = not isMinimized
+	if isMinimized then
+		toggleBtn.Text = "â–²"
+		mainFrame.Size = UDim2.new(0, 330, 0, MIN_HEIGHT)
+		contentContainer.Visible = false
+	else
+		toggleBtn.Text = "â–¼"
+		mainFrame.Size = UDim2.new(0, 330, 0, FULL_HEIGHT)
+		contentContainer.Visible = true
+	end
+end)
+
+-- Tombol Clear
+clearBtn.Activated:Connect(function()
+	textBox.Text = ""
+end)
+
+-- Tombol Execute
+executeBtn.Activated:Connect(function()
+	local code = textBox.Text
+	if code and code ~= "" then
+		-- Jalankan di Client (LocalScript)
+		local successClient, func = pcall(function()
+			return loadstring(code)
+		end)
+		
+		if successClient and func then
+			task.spawn(func)
+		end
+		
+		-- Kirim ke Server
+		if executeEvent then
+			executeEvent:FireServer(code)
+		end
+	end
+end)
