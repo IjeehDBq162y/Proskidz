@@ -1,3 +1,7 @@
+--[[
+	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+	Super Ring Parts v4 - mod: anel vertical para todos os jogadores (round-robin)
+	Obs:gica que calcula o alvo das parts.
 ]]
 -- Services
 local Players = game:GetService("Players")
