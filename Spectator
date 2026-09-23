@@ -1,15 +1,437 @@
-local StarterGui = game:GetService("StarterGui")
+-- Spectator Mode (LocalScript)  
+-- Place in StarterPlayer > StarterPlayerScripts
 
-StarterGui:SetCore("SendNotification", {
-    Title = "you have 8 secnds",
-    Text = "use one of the hats Quickly.",
-    Duration = 5
-})
+local Players = game:GetService("Players")  
+local RunService = game:GetService("RunService")  
+local UserInputService = game:GetService("UserInputService")
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/IjeehDBq162y/Proskidz/refs/heads/main/088"))()
+-- ═══════════════════════════════════════  
+-- CONFIGURATION  
+-- ═══════════════════════════════════════  
+local CFG = {  
+FrameSize = UDim2.new(0, 210, 0, 140),  
+FramePosition = UDim2.new(0.5, -105, 0.35, 0),  
+BackgroundColor = Color3.fromRGB(30, 30, 30),  
+BackgroundTransparency = 0.3,  
+AccentColor = Color3.fromRGB(0, 170, 255),  
+ArrowColor = Color3.fromRGB(255, 255, 255),  
+ArrowSize = UDim2.new(0, 36, 0, 36),  
+ArrowFontSize = Enum.FontSize.Size24,  
+PlayerListWidth = 120,  
+SpectatorFov = 70,  
+LerpSpeed = 8,  
+ShadowColor = Color3.fromRGB(0, 0, 0),  
+ShadowTransparency = 0.6,  
+ShadowOffset = UDim2.new(0, 3, 0, 3),  
+}
 
-task.delay(8, function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/arsin8595/Hat-Wander/refs/heads/main/Hat%20wander"))()
+-- ═══════════════════════════════════════  
+-- STATE  
+-- ═══════════════════════════════════════  
+local localPlayer = Players.LocalPlayer  
+local camera = workspace.CurrentCamera  
+local selectedIndex = 1  
+local playerList = {}  
+local isSpectating = false  
+local targetCFrame = nil  
+local targetFocus = nil  
+local screenGui = nil
+
+-- ═══════════════════════════════════════  
+-- GUI SETUP  
+-- ═══════════════════════════════════════
+
+local function createGui()  
+if screenGui then  
+screenGui:Destroy()  
+end
+
+screenGui = Instance.new("ScreenGui")  
+screenGui.Name = "SpectatorGui"  
+screenGui.ResetOnSpawn = false  
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling  
+screenGui.Parent = localPlayer:WaitForChild("PlayerGui")
+
+-- SHADOW FRAME  
+local shadowFrame = Instance.new("Frame")  
+shadowFrame.Name = "Shadow"  
+shadowFrame.Size = CFG.FrameSize + UDim2.new(0, 6, 0, 6)  
+shadowFrame.Position = CFG.FramePosition + UDim2.new(0, 3, 0, 3)  
+shadowFrame.BackgroundColor3 = CFG.ShadowColor  
+shadowFrame.BackgroundTransparency = CFG.ShadowTransparency  
+shadowFrame.BorderSizePixel = 0  
+shadowFrame.ZIndex = 0  
+shadowFrame.Parent = screenGui
+
+local shadowCorner = Instance.new("UICorner")  
+shadowCorner.CornerRadius = UDim.new(0, 8)  
+shadowCorner.Parent = shadowFrame
+
+-- Main draggable frame  
+local mainFrame = Instance.new("Frame")  
+mainFrame.Name = "MainFrame"  
+mainFrame.Size = CFG.FrameSize  
+mainFrame.Position = CFG.FramePosition  
+mainFrame.BackgroundColor3 = CFG.BackgroundColor  
+mainFrame.BackgroundTransparency = CFG.BackgroundTransparency  
+mainFrame.BorderSizePixel = 0  
+mainFrame.Active = true  
+mainFrame.Draggable = true  
+mainFrame.ZIndex = 1  
+mainFrame.Parent = screenGui
+
+local mainCorner = Instance.new("UICorner")  
+mainCorner.CornerRadius = UDim.new(0, 6)  
+mainCorner.Parent = mainFrame
+
+local mainStroke = Instance.new("UIStroke")  
+mainStroke.Color = CFG.AccentColor  
+mainStroke.Thickness = 1.5  
+mainStroke.Transparency = 0.4  
+mainStroke.Parent = mainFrame
+
+-- Inner shadow at bottom for depth  
+local innerShadow = Instance.new("Frame")  
+innerShadow.Name = "InnerShadow"  
+innerShadow.Size = UDim2.new(1, 0, 0, 8)  
+innerShadow.Position = UDim2.new(0, 0, 1, -8)  
+innerShadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  
+innerShadow.BackgroundTransparency = 0.6  
+innerShadow.BorderSizePixel = 0  
+innerShadow.ZIndex = 2  
+innerShadow.Parent = mainFrame
+
+local innerShadowCorner = Instance.new("UICorner")  
+innerShadowCorner.CornerRadius = UDim.new(0, 6)  
+innerShadowCorner.Parent = innerShadow
+
+-- Title bar  
+local titleBar = Instance.new("Frame")  
+titleBar.Name = "TitleBar"  
+titleBar.Size = UDim2.new(1, 0, 0, 24)  
+titleBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)  
+titleBar.BackgroundTransparency = 0.1  
+titleBar.BorderSizePixel = 0  
+titleBar.ZIndex = 2  
+titleBar.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")  
+titleCorner.CornerRadius = UDim.new(0, 6)  
+titleCorner.Parent = titleBar
+
+local titleLabel = Instance.new("TextLabel")  
+titleLabel.Size = UDim2.new(1, 0, 1, 0)  
+titleLabel.BackgroundTransparency = 1  
+titleLabel.Text = "SPECTATOR"  
+titleLabel.TextColor3 = CFG.AccentColor  
+titleLabel.Font = Enum.Font.GothamBold  
+titleLabel.TextSize = 12  
+titleLabel.Parent = titleBar
+
+-- Player count  
+local countLabel = Instance.new("TextLabel")  
+countLabel.Name = "PlayerCount"  
+countLabel.Size = UDim2.new(1, -8, 0, 16)  
+countLabel.Position = UDim2.new(0, 4, 0, 28)  
+countLabel.BackgroundTransparency = 1  
+countLabel.TextColor3 = Color3.fromRGB(200, 200, 200)  
+countLabel.Font = Enum.Font.Gotham  
+countLabel.TextSize = 11  
+countLabel.TextXAlignment = Enum.TextXAlignment.Left  
+countLabel.Parent = mainFrame
+
+-- Player list scroller  
+local listFrame = Instance.new("Frame")  
+listFrame.Name = "PlayerList"  
+listFrame.Size = UDim2.new(0, CFG.PlayerListWidth, 1, -52)  
+listFrame.Position = UDim2.new(0, 3, 0, 46)  
+listFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)  
+listFrame.BackgroundTransparency = 0.4  
+listFrame.BorderSizePixel = 0  
+listFrame.ZIndex = 2  
+listFrame.Parent = mainFrame
+
+local listCorner = Instance.new("UICorner")  
+listCorner.CornerRadius = UDim.new(0, 4)  
+listCorner.Parent = listFrame
+
+local listScroller = Instance.new("ScrollingFrame")  
+listScroller.Size = UDim2.new(1, 0, 1, 0)  
+listScroller.BackgroundTransparency = 1  
+listScroller.BorderSizePixel = 0  
+listScroller.ScrollBarThickness = 3  
+listScroller.ScrollBarImageColor3 = CFG.AccentColor  
+listScroller.ZIndex = 2  
+listScroller.Parent = listFrame
+
+local listLayout = Instance.new("UIListLayout")  
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder  
+listLayout.Padding = UDim.new(0, 2)  
+listLayout.Parent = listScroller
+
+-- Selected player info  
+local infoLabel = Instance.new("TextLabel")  
+infoLabel.Name = "SelectedInfo"  
+infoLabel.Size = UDim2.new(1, -8, 0, 24)  
+infoLabel.Position = UDim2.new(0, 4, 1, -48)  
+infoLabel.BackgroundTransparency = 1  
+infoLabel.TextColor3 = Color3.fromRGB(255, 255, 255)  
+infoLabel.Font = Enum.Font.GothamBold  
+infoLabel.TextSize = 11  
+infoLabel.TextWrapped = true  
+infoLabel.ZIndex = 2  
+infoLabel.Parent = mainFrame
+
+-- Arrow container  
+local arrowContainer = Instance.new("Frame")  
+arrowContainer.Name = "Arrows"  
+arrowContainer.Size = UDim2.new(1, -16, 0, 36)  
+arrowContainer.Position = UDim2.new(0, 8, 1, -76)  
+arrowContainer.BackgroundTransparency = 1  
+arrowContainer.ZIndex = 2  
+arrowContainer.Parent = mainFrame
+
+-- LEFT ARROW (<) — WHITE  
+local leftArrow = Instance.new("TextButton")  
+leftArrow.Name = "LeftArrow"  
+leftArrow.Size = CFG.ArrowSize  
+leftArrow.Position = UDim2.new(0, 0, 0.5, -18)  
+leftArrow.BackgroundColor3 = Color3.fromRGB(40, 40, 40)  
+leftArrow.BackgroundTransparency = 0.3  
+leftArrow.Text = "<"  
+leftArrow.TextColor3 = CFG.ArrowColor  
+leftArrow.Font = Enum.Font.GothamBold  
+leftArrow.TextSize = CFG.ArrowFontSize  
+leftArrow.BorderSizePixel = 0  
+leftArrow.ZIndex = 2  
+leftArrow.Parent = arrowContainer
+
+local leftCorner = Instance.new("UICorner")  
+leftCorner.CornerRadius = UDim.new(0, 5)  
+leftCorner.Parent = leftArrow
+
+-- RIGHT ARROW (>) — WHITE  
+local rightArrow = Instance.new("TextButton")  
+rightArrow.Name = "RightArrow"  
+rightArrow.Size = CFG.ArrowSize  
+rightArrow.Position = UDim2.new(1, -36, 0.5, -18)  
+rightArrow.BackgroundColor3 = Color3.fromRGB(40, 40, 40)  
+rightArrow.BackgroundTransparency = 0.3  
+rightArrow.Text = ">"  
+rightArrow.TextColor3 = CFG.ArrowColor  
+rightArrow.Font = Enum.Font.GothamBold  
+rightArrow.TextSize = CFG.ArrowFontSize  
+rightArrow.BorderSizePixel = 0  
+rightArrow.ZIndex = 2  
+rightArrow.Parent = arrowContainer
+
+local rightCorner = Instance.new("UICorner")  
+rightCorner.CornerRadius = UDim.new(0, 5)  
+rightCorner.Parent = rightArrow
+
+-- Toggle button  
+local toggleBtn = Instance.new("TextButton")  
+toggleBtn.Name = "Toggle"  
+toggleBtn.Size = UDim2.new(0, 20, 0, 20)  
+toggleBtn.Position = UDim2.new(1, -24, 0, 3)  
+toggleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)  
+toggleBtn.BackgroundTransparency = 0.5  
+toggleBtn.Text = "—"  
+toggleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)  
+toggleBtn.Font = Enum.Font.GothamBold  
+toggleBtn.TextSize = 11  
+toggleBtn.BorderSizePixel = 0  
+toggleBtn.ZIndex = 3  
+toggleBtn.Parent = titleBar
+
+local toggleCorner = Instance.new("UICorner")  
+toggleCorner.CornerRadius = UDim.new(0, 3)  
+toggleCorner.Parent = toggleBtn
+
+-- Close button  
+local closeBtn = Instance.new("TextButton")  
+closeBtn.Name = "Close"  
+closeBtn.Size = UDim2.new(0, 20, 0, 20)  
+closeBtn.Position = UDim2.new(1, -48, 0, 3)  
+closeBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)  
+closeBtn.BackgroundTransparency = 0.5  
+closeBtn.Text = "✕"  
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)  
+closeBtn.Font = Enum.Font.GothamBold  
+closeBtn.TextSize = 10  
+closeBtn.BorderSizePixel = 0  
+closeBtn.ZIndex = 3  
+closeBtn.Parent = titleBar
+
+local closeCorner = Instance.new("UICorner")  
+closeCorner.CornerRadius = UDim.new(0, 3)  
+closeCorner.Parent = closeBtn
+
+-- ═══════════════════════════════════════  
+-- HELPER FUNCTIONS  
+-- ═══════════════════════════════════════
+
+local function buildPlayerList()  
+listScroller:ClearAllChildren()  
+playerList = {}  
+local i = 1  
+for _, plr in ipairs(Players:GetPlayers()) do  
+if plr ~= localPlayer then  
+local btn = Instance.new("TextButton")  
+btn.Name = plr.Name  
+btn.Size = UDim2.new(1, -4, 0, 20)  
+btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)  
+btn.BackgroundTransparency = 0.5  
+btn.Text = plr.Name  
+btn.TextColor3 = Color3.fromRGB(220, 220, 220)  
+btn.Font = Enum.Font.Gotham  
+btn.TextSize = 10  
+btn.LayoutOrder = i  
+btn.BorderSizePixel = 0  
+btn.ZIndex = 2  
+btn.Parent = listScroller
+
+local c = Instance.new("UICorner")  
+c.CornerRadius = UDim.new(0, 3)  
+c.Parent = btn
+
+table.insert(playerList, plr)  
+i = i + 1  
+end  
+end  
+countLabel.Text = string.format("Players: %d", #playerList)  
+clampIndex()  
+updateSelection()  
+end
+
+local function clampIndex()  
+if #playerList == 0 then  
+selectedIndex = 0  
+return  
+end  
+selectedIndex = math.clamp(selectedIndex, 1, #playerList)  
+end
+
+local function updateSelection()  
+if #playerList == 0 then  
+infoLabel.Text = "No players"  
+isSpectating = false  
+return  
+end  
+local target = playerList[selectedIndex]  
+if not target or not target.Character or not target.Character:FindFirstChild("HumanoidRootPart") then  
+infoLabel.Text = string.format("[%d/%d] %s — waiting...", selectedIndex, #playerList, target and target.Name or "?")  
+return  
+end  
+local hrp = target.Character.HumanoidRootPart  
+infoLabel.Text = string.format("[%d/%d] %s  HP:%d", selectedIndex, #playerList, target.Name, math.ceil(target.Character.Humanoid.Health))  
+targetCFrame = hrp.CFrame * CFrame.new(0, 5, 10)  
+targetFocus = hrp.Position  
+isSpectating = true  
+end
+
+local function navigate(dir)  
+if #playerList == 0 then return end  
+selectedIndex = selectedIndex + dir  
+if selectedIndex < 1 then selectedIndex = #playerList end  
+if selectedIndex > #playerList then selectedIndex = 1 end  
+updateSelection()  
+end
+
+-- ═══════════════════════════════════════  
+-- INPUT HANDLING  
+-- ═══════════════════════════════════════
+
+leftArrow.MouseButton1Click:Connect(function()  
+navigate(-1)  
 end)
 
+rightArrow.MouseButton1Click:Connect(function()  
+navigate(1)  
+end)
 
+toggleBtn.MouseButton1Click:Connect(function()  
+local visible = mainFrame.Visible  
+mainFrame.Visible = not visible  
+shadowFrame.Visible = not visible  
+toggleBtn.Text = visible and "▼" or "▲"  
+end)
+
+closeBtn.MouseButton1Click:Connect(function()  
+if screenGui then  
+screenGui:Destroy()  
+end  
+end)
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)  
+if gameProcessed then return end  
+if input.KeyCode == Enum.KeyCode.Left then  
+navigate(-1)  
+elseif input.KeyCode == Enum.KeyCode.Right then  
+navigate(1)  
+elseif input.KeyCode == Enum.KeyCode.S then  
+isSpectating = not isSpectating  
+if isSpectating and #playerList > 0 then  
+updateSelection()  
+end  
+end  
+end)
+
+-- ═══════════════════════════════════════  
+-- PERSISTENCE — survives death/respawn  
+-- ═══════════════════════════════════════
+
+local function ensureGui()  
+if not screenGui or not screenGui.Parent then  
+createGui()  
+buildPlayerList()  
+end  
+end
+
+task.spawn(function()  
+while true do  
+ensureGui()  
+task.wait(1)  
+end  
+end)
+
+Players.PlayerAdded:Connect(function()  
+buildPlayerList()  
+end)
+
+Players.PlayerRemoving:Connect(function()  
+buildPlayerList()  
+if selectedIndex > #playerList then  
+selectedIndex = math.max(1, #playerList)  
+end  
+updateSelection()  
+end)
+
+-- ═══════════════════════════════════════  
+-- SPECTATOR CAMERA LOOP  
+-- ═══════════════════════════════════════
+
+RunService.RenderStepped:Connect(function(dt)  
+if not isSpectating or not targetCFrame or #playerList == 0 then  
+return  
+end
+
+local target = playerList[selectedIndex]  
+if not target or not target.Character or not target.Character:FindFirstChild("HumanoidRootPart") then  
+updateSelection()  
+return  
+end
+
+local hrp = target.Character.HumanoidRootPart  
+local newTarget = hrp.CFrame * CFrame.new(0, 5, 10)  
+local newFocus = hrp.Position
+
+targetCFrame = targetCFrame:Lerp(newTarget, math.clamp(dt * CFG.LerpSpeed, 0, 1))  
+targetFocus = targetFocus:Lerp(newFocus, math.clamp(dt * CFG.LerpSpeed, 0, 1))
+
+camera.CFrame = targetCFrame  
+camera.Focus = targetFocus  
+camera.FieldOfView = CFG.SpectatorFov  
+end)
+
+print("[Spectator Mode] Loaded — persistent, smaller frame, draggable, white arrows.")  
