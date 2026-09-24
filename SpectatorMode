@@ -1,1 +1,520 @@
+--[[
+	SPECTATE MENU V3 - Clean Auto Player List
+	Fixed and optimized - no overlapping elements
+]]
+-- LocalScript inside StarterGui
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+-- Main Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 340, 0, 420)
+mainFrame.Position = UDim2.new(0.5, -170, 0.5, -210)
+mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+mainFrame.BackgroundTransparency = 0.3
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 16)
+mainCorner.Parent = mainFrame
+
+-- Border glow
+local borderFrame = Instance.new("Frame")
+borderFrame.Size = UDim2.new(1, 2, 1, 2)
+borderFrame.Position = UDim2.new(0, -1, 0, -1)
+borderFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+borderFrame.BackgroundTransparency = 0.9
+borderFrame.BorderSizePixel = 0
+borderFrame.ZIndex = 0
+borderFrame.Parent = mainFrame
+
+local borderCorner = Instance.new("UICorner")
+borderCorner.CornerRadius = UDim.new(0, 16)
+borderCorner.Parent = borderFrame
+
+-- Gradient
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(80, 80, 120)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 50))
+}
+gradient.Rotation = 135
+gradient.Transparency = NumberSequence.new{
+	NumberSequenceKeypoint.new(0, 0.7),
+	NumberSequenceKeypoint.new(1, 0.9)
+}
+gradient.Parent = mainFrame
+
+-- Title Bar
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 50)
+titleBar.BackgroundTransparency = 1
+titleBar.Parent = mainFrame
+
+local titleText = Instance.new("TextLabel")
+titleText.Size = UDim2.new(1, -80, 1, 0)
+titleText.Position = UDim2.new(0, 20, 0, 0)
+titleText.BackgroundTransparency = 1
+titleText.Text = "ðŸ‘ï¸ SPECTATE"
+titleText.Font = Enum.Font.GothamBold
+titleText.TextSize = 18
+titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleText.TextXAlignment = Enum.TextXAlignment.Left
+titleText.TextStrokeTransparency = 0.8
+titleText.Parent = titleBar
+
+-- Player count
+local playerCount = Instance.new("TextLabel")
+playerCount.Size = UDim2.new(0, 60, 0, 20)
+playerCount.Position = UDim2.new(1, -75, 0, 15)
+playerCount.BackgroundTransparency = 1
+playerCount.Text = "0 Players"
+playerCount.Font = Enum.Font.Gotham
+playerCount.TextSize = 11
+playerCount.TextColor3 = Color3.fromRGB(150, 150, 180)
+playerCount.Parent = titleBar
+
+-- Status dot
+local statusDot = Instance.new("Frame")
+statusDot.Size = UDim2.new(0, 8, 0, 8)
+statusDot.Position = UDim2.new(1, -20, 0, 21)
+statusDot.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+statusDot.BorderSizePixel = 0
+statusDot.Parent = titleBar
+
+local dotCorner = Instance.new("UICorner")
+dotCorner.CornerRadius = UDim.new(1, 0)
+dotCorner.Parent = statusDot
+
+-- Dragging
+local dragging = false
+local dragStart, startPos
+
+titleBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = mainFrame.Position
+	end
+end)
+
+titleBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+		local delta = input.Position - dragStart
+		mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+end)
+
+UIS.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+-- Content Frame
+local contentFrame = Instance.new("Frame")
+contentFrame.Size = UDim2.new(1, -30, 1, -70)
+contentFrame.Position = UDim2.new(0, 15, 0, 55)
+contentFrame.BackgroundTransparency = 1
+contentFrame.Parent = mainFrame
+
+-- Search Bar
+local searchContainer = Instance.new("Frame")
+searchContainer.Size = UDim2.new(1, 0, 0, 40)
+searchContainer.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+searchContainer.BackgroundTransparency = 0.4
+searchContainer.BorderSizePixel = 0
+searchContainer.Parent = contentFrame
+
+local searchCorner = Instance.new("UICorner")
+searchCorner.CornerRadius = UDim.new(0, 10)
+searchCorner.Parent = searchContainer
+
+local searchStroke = Instance.new("UIStroke")
+searchStroke.Color = Color3.fromRGB(100, 100, 150)
+searchStroke.Thickness = 1
+searchStroke.Transparency = 0.7
+searchStroke.Parent = searchContainer
+
+local searchIcon = Instance.new("TextLabel")
+searchIcon.Size = UDim2.new(0, 35, 1, 0)
+searchIcon.BackgroundTransparency = 1
+searchIcon.Text = "ðŸ”"
+searchIcon.TextSize = 16
+searchIcon.TextTransparency = 0.3
+searchIcon.Parent = searchContainer
+
+local searchBox = Instance.new("TextBox")
+searchBox.PlaceholderText = "Filter players..."
+searchBox.Size = UDim2.new(1, -45, 1, 0)
+searchBox.Position = UDim2.new(0, 40, 0, 0)
+searchBox.BackgroundTransparency = 1
+searchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+searchBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 170)
+searchBox.Font = Enum.Font.Gotham
+searchBox.TextSize = 13
+searchBox.TextXAlignment = Enum.TextXAlignment.Left
+searchBox.ClearTextOnFocus = false
+searchBox.Parent = searchContainer
+
+-- Player List Container
+local playerListContainer = Instance.new("Frame")
+playerListContainer.Size = UDim2.new(1, 0, 1, -130)
+playerListContainer.Position = UDim2.new(0, 0, 0, 48)
+playerListContainer.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+playerListContainer.BackgroundTransparency = 0.5
+playerListContainer.BorderSizePixel = 0
+playerListContainer.Parent = contentFrame
+
+local listCorner = Instance.new("UICorner")
+listCorner.CornerRadius = UDim.new(0, 10)
+listCorner.Parent = playerListContainer
+
+local listStroke = Instance.new("UIStroke")
+listStroke.Color = Color3.fromRGB(100, 100, 150)
+listStroke.Thickness = 1
+listStroke.Transparency = 0.7
+listStroke.Parent = playerListContainer
+
+-- Scrolling Frame
+local playerList = Instance.new("ScrollingFrame")
+playerList.Size = UDim2.new(1, -10, 1, -10)
+playerList.Position = UDim2.new(0, 5, 0, 5)
+playerList.BackgroundTransparency = 1
+playerList.BorderSizePixel = 0
+playerList.ScrollBarThickness = 4
+playerList.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 150)
+playerList.CanvasSize = UDim2.new(0, 0, 0, 0)
+playerList.Parent = playerListContainer
+
+local listLayout = Instance.new("UIListLayout")
+listLayout.SortOrder = Enum.SortOrder.Name
+listLayout.Padding = UDim.new(0, 4)
+listLayout.Parent = playerList
+
+listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	playerList.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 10)
+end)
+
+-- Stop Button
+local stopButton = Instance.new("TextButton")
+stopButton.Size = UDim2.new(1, 0, 0, 40)
+stopButton.Position = UDim2.new(0, 0, 1, -40)
+stopButton.BackgroundColor3 = Color3.fromRGB(255, 70, 90)
+stopButton.BorderSizePixel = 0
+stopButton.AutoButtonColor = false
+stopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+stopButton.Font = Enum.Font.GothamBold
+stopButton.TextSize = 14
+stopButton.Text = "â¹ STOP SPECTATING"
+stopButton.Parent = contentFrame
+
+local stopCorner = Instance.new("UICorner")
+stopCorner.CornerRadius = UDim.new(0, 10)
+stopCorner.Parent = stopButton
+
+local stopGlow = Instance.new("UIStroke")
+stopGlow.Color = Color3.fromRGB(255, 70, 90)
+stopGlow.Thickness = 0
+stopGlow.Transparency = 0.5
+stopGlow.Parent = stopButton
+
+stopButton.MouseEnter:Connect(function()
+	TweenService:Create(stopButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 90, 110)}):Play()
+	TweenService:Create(stopGlow, TweenInfo.new(0.2), {Thickness = 2}):Play()
+end)
+
+stopButton.MouseLeave:Connect(function()
+	TweenService:Create(stopButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 70, 90)}):Play()
+	TweenService:Create(stopGlow, TweenInfo.new(0.2), {Thickness = 0}):Play()
+end)
+
+-- Variables
+local spectating = nil
+local spectateLoop = nil
+local guiVisible = true
+local playerButtons = {}
+
+-- Update status
+local function updateStatus(isSpectating)
+	if isSpectating then
+		TweenService:Create(statusDot, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(100, 255, 100)}):Play()
+	else
+		TweenService:Create(statusDot, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(100, 100, 100)}):Play()
+	end
+end
+
+-- Stop spectating
+local function stopSpectating()
+	spectating = nil
+	
+	if spectateLoop then
+		spectateLoop:Disconnect()
+		spectateLoop = nil
+	end
+	
+	updateStatus(false)
+	
+	-- Reset button highlights
+	for _, btnData in pairs(playerButtons) do
+		if btnData.button then
+			TweenService:Create(btnData.button, TweenInfo.new(0.2), {
+				BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+			}):Play()
+			TweenService:Create(btnData.stroke, TweenInfo.new(0.2), {
+				Transparency = 0.7
+			}):Play()
+		end
+	end
+	
+	pcall(function()
+		if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+			Camera.CameraSubject = LocalPlayer.Character.Humanoid
+		end
+	end)
+end
+
+-- Start spectating
+local function startSpectating(player)
+	if player == LocalPlayer or not player then return end
+	
+	stopSpectating()
+	spectating = player
+	updateStatus(true)
+	
+	-- Highlight button
+	if playerButtons[player.UserId] then
+		TweenService:Create(playerButtons[player.UserId].button, TweenInfo.new(0.2), {
+			BackgroundColor3 = Color3.fromRGB(70, 130, 255)
+		}):Play()
+		TweenService:Create(playerButtons[player.UserId].stroke, TweenInfo.new(0.2), {
+			Transparency = 0.3
+		}):Play()
+	end
+	
+	spectateLoop = RunService.Heartbeat:Connect(function()
+		if not spectating or not spectating.Parent then
+			stopSpectating()
+			return
+		end
+		
+		local character = spectating.Character
+		if character and character.Parent then
+			local humanoid = character:FindFirstChild("Humanoid")
+			if humanoid and humanoid.Health > 0 then
+				pcall(function()
+					Camera.CameraSubject = humanoid
+				end)
+			else
+				stopSpectating()
+			end
+		end
+	end)
+	
+	local playerRemoving
+	playerRemoving = Players.PlayerRemoving:Connect(function(p)
+		if p == spectating then
+			stopSpectating()
+			if playerRemoving then
+				playerRemoving:Disconnect()
+			end
+		end
+	end)
+end
+
+-- Create player button
+local function createPlayerButton(player)
+	local button = Instance.new("TextButton")
+	button.Name = player.Name
+	button.Size = UDim2.new(1, -8, 0, 40)
+	button.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+	button.BackgroundTransparency = 0.3
+	button.BorderSizePixel = 0
+	button.AutoButtonColor = false
+	button.Text = ""
+	button.Parent = playerList
+	
+	local btnCorner = Instance.new("UICorner")
+	btnCorner.CornerRadius = UDim.new(0, 8)
+	btnCorner.Parent = button
+	
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(100, 100, 150)
+	stroke.Thickness = 1
+	stroke.Transparency = 0.7
+	stroke.Parent = button
+	
+	-- Player name label
+	local nameLabel = Instance.new("TextLabel")
+	nameLabel.Size = UDim2.new(1, -30, 1, 0)
+	nameLabel.Position = UDim2.new(0, 12, 0, 0)
+	nameLabel.BackgroundTransparency = 1
+	nameLabel.Text = player.Name
+	nameLabel.Font = Enum.Font.GothamMedium
+	nameLabel.TextSize = 13
+	nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+	nameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+	nameLabel.Parent = button
+	
+	-- Online indicator
+	local onlineDot = Instance.new("Frame")
+	onlineDot.Size = UDim2.new(0, 6, 0, 6)
+	onlineDot.Position = UDim2.new(1, -12, 0.5, -3)
+	onlineDot.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+	onlineDot.BorderSizePixel = 0
+	onlineDot.Parent = button
+	
+	local onlineCorner = Instance.new("UICorner")
+	onlineCorner.CornerRadius = UDim.new(1, 0)
+	onlineCorner.Parent = onlineDot
+	
+	-- Store reference
+	playerButtons[player.UserId] = {
+		button = button,
+		stroke = stroke,
+		player = player
+	}
+	
+	-- Hover
+	button.MouseEnter:Connect(function()
+		if spectating ~= player then
+			TweenService:Create(button, TweenInfo.new(0.15), 
+				{BackgroundColor3 = Color3.fromRGB(50, 50, 70), BackgroundTransparency = 0.1}):Play()
+		end
+	end)
+	
+	button.MouseLeave:Connect(function()
+		if spectating ~= player then
+			TweenService:Create(button, TweenInfo.new(0.15), 
+				{BackgroundColor3 = Color3.fromRGB(35, 35, 50), BackgroundTransparency = 0.3}):Play()
+		end
+	end)
+	
+	-- Click
+	button.MouseButton1Click:Connect(function()
+		startSpectating(player)
+	end)
+	
+	return button
+end
+
+-- Remove player button
+local function removePlayerButton(player)
+	if playerButtons[player.UserId] then
+		if playerButtons[player.UserId].button then
+			playerButtons[player.UserId].button:Destroy()
+		end
+		playerButtons[player.UserId] = nil
+	end
+	
+	if spectating == player then
+		stopSpectating()
+	end
+end
+
+-- Update player count
+local function updatePlayerCount()
+	local count = #Players:GetPlayers() - 1
+	playerCount.Text = count .. " Player" .. (count ~= 1 and "s" or "")
+end
+
+-- Filter players
+searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+	local searchText = searchBox.Text:lower()
+	
+	for _, btnData in pairs(playerButtons) do
+		if btnData.button then
+			if searchText == "" or btnData.player.Name:lower():find(searchText, 1, true) then
+				btnData.button.Visible = true
+			else
+				btnData.button.Visible = false
+			end
+		end
+	end
+end)
+
+-- Search focus effects
+searchBox.Focused:Connect(function()
+	TweenService:Create(searchStroke, TweenInfo.new(0.3), 
+		{Color = Color3.fromRGB(120, 150, 255), Transparency = 0.3, Thickness = 2}):Play()
+end)
+
+searchBox.FocusLost:Connect(function()
+	TweenService:Create(searchStroke, TweenInfo.new(0.3), 
+		{Color = Color3.fromRGB(100, 100, 150), Transparency = 0.7, Thickness = 1}):Play()
+end)
+
+-- Stop button
+stopButton.MouseButton1Click:Connect(function()
+	stopSpectating()
+end)
+
+-- Player events
+Players.PlayerAdded:Connect(function(player)
+	task.wait(0.1)
+	if player ~= LocalPlayer then
+		createPlayerButton(player)
+		updatePlayerCount()
+	end
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+	removePlayerButton(player)
+	updatePlayerCount()
+end)
+
+-- Toggle GUI (P key)
+UIS.InputBegan:Connect(function(input, gameProcessed)
+	if not gameProcessed and input.KeyCode == Enum.KeyCode.P then
+		guiVisible = not guiVisible
+		
+		if guiVisible then
+			mainFrame.Visible = true
+			TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), 
+				{Size = UDim2.new(0, 340, 0, 420)}):Play()
+		else
+			TweenService:Create(mainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.In), 
+				{Size = UDim2.new(0, 0, 0, 0)}):Play()
+			task.wait(0.2)
+			mainFrame.Visible = false
+		end
+	end
+end)
+
+-- Initial setup
+for _, player in ipairs(Players:GetPlayers()) do
+	if player ~= LocalPlayer then
+		createPlayerButton(player)
+	end
+end
+updatePlayerCount()
+
+-- Entrance animation
+mainFrame.Size = UDim2.new(0, 0, 0, 0)
+task.wait(0.1)
+TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), 
+	{Size = UDim2.new(0, 340, 0, 420)}):Play()
+
+-- Cleanup
+screenGui.Destroying:Connect(function()
+	stopSpectating()
+	for _, btnData in pairs(playerButtons) do
+		if btnData.button then
+			btnData.button:Destroy()
+		end
+	end
+	playerButtons = {}
+end)
