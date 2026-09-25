@@ -37,11 +37,11 @@ end
 
 local function setupUI()
     if gui:FindFirstChild("flingGui") then
-        gui.flingGui:Destroy()
+        gui.SkidflingGui:Destroy()
     end
 
     local sc = Instance.new("ScreenGui")
-    sc.Name = "flingGui"
+    sc.Name = "SkidflingGui"
     sc.ResetOnSpawn = false
     sc.Parent = gui
     
@@ -72,7 +72,7 @@ local function setupUI()
     btn.Parent = frm
 
     local pwrBox = Instance.new("TextBox")
-    pwrBox.Name = "FlingPower"
+    pwrBox.Name = "SkidFlingPower"
     pwrBox.Size = UDim2.new(1, -10, 0, 30)
     pwrBox.Position = UDim2.new(0, 5, 0, 45)
     pwrBox.BackgroundColor3 = Color3.fromRGB(10, 20, 10)
@@ -81,7 +81,7 @@ local function setupUI()
     pwrBox.TextSize = 13
     pwrBox.TextColor3 = Color3.fromRGB(0, 255, 70)
     pwrBox.Text = "1000000"
-    pwrBox.PlaceholderText = "Fling Power"
+    pwrBox.PlaceholderText = "SkidFling Power"
     pwrBox.ClearTextOnFocus = false
     pwrBox.Parent = frm
 
@@ -161,7 +161,7 @@ local function setupUI()
     end
 
     local function updateBtnVis()
-        if isFlinging then
+        if isSkidFlinging then
             btn.Text = "[ SYSTEM: ACTIVE ]"
             tween(btn, "BackgroundColor3", bgOn)
             tween(btn, "TextColor3", txtOn)
@@ -362,7 +362,7 @@ local function setupUI()
         if not v or v < 1 then
             pwrBox.Text = "1"
         end
-        if isFlinging then
+        if isSkidFlinging then
             stopSkidFling()
             startSkidFling()
         end
