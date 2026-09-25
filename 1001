@@ -111,7 +111,7 @@ local function setupUI()
     local SkidflingConn = nil
     local hboxVis = nil
     local curTrack = nil
-    local isSkidPunch = false
+    local isPunch = false
 
     local anims = {
         R6 = "rbxassetid://204062532",
@@ -191,7 +191,7 @@ local function setupUI()
     end
 
     btn.MouseEnter:Connect(function()
-        if isFlinging then
+        if isSkidFlinging then
             tween(btn, "BackgroundColor3", Color3.fromRGB(0, 70, 15))
             tween(btn, "TextColor3", Color3.fromRGB(150, 255, 180))
         else
@@ -348,7 +348,7 @@ local function setupUI()
     end
 
     local function togglePnch()
-        isSkidPunch = not isSkidPunch
+        isPunch = not isSkidPunch
         updatePnchBtn()
         
         if isSkidFlinging then
