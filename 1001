@@ -37,11 +37,11 @@ end
 
 local function setupUI()
     if gui:FindFirstChild("flingGui") then
-        gui.SkidflingGui:Destroy()
+        gui.flingGui:Destroy()
     end
 
     local sc = Instance.new("ScreenGui")
-    sc.Name = "SkidflingGui"
+    sc.Name = "flingGui"
     sc.ResetOnSpawn = false
     sc.Parent = gui
     
@@ -72,7 +72,7 @@ local function setupUI()
     btn.Parent = frm
 
     local pwrBox = Instance.new("TextBox")
-    pwrBox.Name = "SkidFlingPower"
+    pwrBox.Name = "FlingPower"
     pwrBox.Size = UDim2.new(1, -10, 0, 30)
     pwrBox.Position = UDim2.new(0, 5, 0, 45)
     pwrBox.BackgroundColor3 = Color3.fromRGB(10, 20, 10)
@@ -81,7 +81,7 @@ local function setupUI()
     pwrBox.TextSize = 13
     pwrBox.TextColor3 = Color3.fromRGB(0, 255, 70)
     pwrBox.Text = "1000000"
-    pwrBox.PlaceholderText = "SkidFling Power"
+    pwrBox.PlaceholderText = "Fling Power"
     pwrBox.ClearTextOnFocus = false
     pwrBox.Parent = frm
 
@@ -107,8 +107,8 @@ local function setupUI()
     pnchStrk.Thickness = 1
     pnchStrk.Parent = pnchBtn
 
-    local isSkidFlinging = false
-    local SkidflingConn = nil
+    local isFlinging = false
+    local flingConn = nil
     local hboxVis = nil
     local curTrack = nil
     local isPunch = false
@@ -161,7 +161,7 @@ local function setupUI()
     end
 
     local function updateBtnVis()
-        if isSkidFlinging then
+        if isFlinging then
             btn.Text = "[ SYSTEM: ACTIVE ]"
             tween(btn, "BackgroundColor3", bgOn)
             tween(btn, "TextColor3", txtOn)
@@ -191,7 +191,7 @@ local function setupUI()
     end
 
     btn.MouseEnter:Connect(function()
-        if isSkidFlinging then
+        if isFlinging then
             tween(btn, "BackgroundColor3", Color3.fromRGB(0, 70, 15))
             tween(btn, "TextColor3", Color3.fromRGB(150, 255, 180))
         else
@@ -271,10 +271,10 @@ local function setupUI()
         end
     end
 
-    local function startSkidFling()
-        if SkidflingConn then return end
+    local function startFling()
+        if flingConn then return end
         
-        isSkidFlinging = true
+        isFlinging = true
         
         if isPunch then
             playAnim()
@@ -300,7 +300,7 @@ local function setupUI()
                 updateHbox(true)
             end
             
-            if isSkidFlinging then
+            if isFlinging then
                 disableCol(char, false)
             end
             
@@ -322,12 +322,12 @@ local function setupUI()
         updateBtnVis()
     end
 
-    local function stopSkidFling()
-        if SkidflingConn then
-            SkidflingConn:Disconnect()
-            SkidflingConn = nil
+    local function stopFling()
+        if flingConn then
+            flingConn:Disconnect()
+            flingConn = nil
         end
-        isSkidFlinging = false
+        isFlinging = false
         
         stopAnim()
         
@@ -339,21 +339,21 @@ local function setupUI()
         updateBtnVis()
     end
 
-    local function toggleSkidFling()
-        if isSkidFlinging then
-            stopSkidFling()
+    local function toggleFling()
+        if isFlinging then
+            stopFling()
         else
-            startSkidFling()
+            startFling()
         end
     end
 
     local function togglePnch()
-        isPunch = not isSkidPunch
+        isPunch = not isPunch
         updatePnchBtn()
         
-        if isSkidFlinging then
-            stopSkidFling()
-            startSkidFling()
+        if isFlinging then
+            stopFling()
+            startFling()
         end
     end
 
@@ -362,14 +362,14 @@ local function setupUI()
         if not v or v < 1 then
             pwrBox.Text = "1"
         end
-        if isSkidFlinging then
-            stopSkidFling()
-            startSkidFling()
+        if isFlinging then
+            stopFling()
+            startFling()
         end
     end)
 
     plr.CharacterAdded:Connect(function(char)
-        if isSkidFlinging then
+        if isFlinging then
             task.wait(0.1)
             disableCol(char, false)
             if isPunch then
