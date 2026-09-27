@@ -1,0 +1,547 @@
+--[[
+    Community Accessory Orbit
+    -------------------------
+    Simple equipped-accessory orbit with the Source -30 netless-style write.
+
+    Important:
+    Source -30 helps keep locally owned accessory physics stable in experiences
+    where the client retains ownership. It does not guarantee replication or
+    protection in every game; the server still has final authority.
+
+    Controls:
+      RightShift  - show / hide menu
+      Toggle      - orbit currently equipped accessories
+]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local LP = Players.LocalPlayer
+if not LP then return end
+
+local SOURCE_VELOCITY = Vector3.new(-30, 0, 0)
+
+local ORBIT_RADIUS = 5.5
+local ORBIT_HEIGHT = 1.25
+local ORBIT_SPEED = 1.35
+local ITEM_SPIN_SPEED = 1.8
+local RESCAN_INTERVAL = 0.25
+
+local GUI_NAME = "CommunityAccessoryOrbit"
+local ENV_KEY = "__CommunityAccessoryOrbitUnload"
+
+local env = (type(getgenv) == "function" and getgenv()) or _G
+if type(env[ENV_KEY]) == "function" then
+    pcall(env[ENV_KEY])
+end
+
+local playerGui = LP:WaitForChild("PlayerGui")
+local old = playerGui:FindFirstChild(GUI_NAME)
+if old then old:Destroy() end
+
+local alive = true
+local orbitEnabled = false
+local orbitClock = 0
+local lastScan = 0
+
+local records = {}
+local connections = {}
+
+local function track(c)
+    connections[#connections + 1] = c
+    return c
+end
+
+local function character()
+    return LP.Character
+end
+
+local function rootPart()
+    local char = character()
+    return char and char:FindFirstChild("HumanoidRootPart")
+end
+
+local function accessoryJoints(char, accessory, handle)
+    local out = {}
+    if not (char and accessory and handle) then return out end
+
+    for _, obj in ipairs(char:GetDescendants()) do
+        if obj:IsA("JointInstance") or obj:IsA("WeldConstraint") then
+            local ok, p0, p1 = pcall(function()
+                return obj.Part0, obj.Part1
+            end)
+
+            if ok and (p0 == handle or p1 == handle) then
+                local other = (p0 == handle) and p1 or p0
+                if other
+                    and other:IsA("BasePart")
+                    and other:IsDescendantOf(char)
+                    and not other:IsDescendantOf(accessory)
+                then
+                    out[#out + 1] = {
+                        joint = obj,
+                        parent = obj.Parent,
+                    }
+                end
+            end
+        end
+    end
+
+    return out
+end
+
+local function detachRecord(record)
+    local handle = record.handle
+    if not (handle and handle.Parent) then return end
+
+    for _, info in ipairs(record.joints) do
+        if info.joint and info.joint.Parent then
+            info.joint.Parent = nil
+        end
+    end
+
+    handle.Anchored = false
+    handle.CanCollide = false
+    handle.CanTouch = false
+    handle.CanQuery = false
+    handle.Massless = true
+end
+
+local function restoreRecord(record)
+    local handle = record.handle
+
+    if handle and handle.Parent then
+        pcall(function()
+            handle.CanCollide = record.canCollide
+            handle.CanTouch = record.canTouch
+            handle.CanQuery = record.canQuery
+            handle.Massless = record.massless
+        end)
+    end
+
+    for _, info in ipairs(record.joints) do
+        if info.joint
+            and info.joint.Parent == nil
+            and info.parent
+            and info.parent.Parent
+        then
+            pcall(function()
+                info.joint.Parent = info.parent
+            end)
+        end
+    end
+end
+
+local function addAccessory(accessory)
+    if records[accessory] then return records[accessory] end
+    if not accessory:IsA("Accessory") then return nil end
+
+    local handle = accessory:FindFirstChild("Handle")
+    if not (handle and handle:IsA("BasePart")) then return nil end
+
+    local char = character()
+    if not char then return nil end
+
+    local record = {
+        accessory = accessory,
+        handle = handle,
+        joints = accessoryJoints(char, accessory, handle),
+
+        canCollide = handle.CanCollide,
+        canTouch = handle.CanTouch,
+        canQuery = handle.CanQuery,
+        massless = handle.Massless,
+    }
+
+    records[accessory] = record
+
+    if orbitEnabled then
+        detachRecord(record)
+    end
+
+    return record
+end
+
+local function scanAccessories()
+    local char = character()
+    if not char then return end
+
+    for _, child in ipairs(char:GetChildren()) do
+        if child:IsA("Accessory") then
+            addAccessory(child)
+        end
+    end
+
+    for accessory, record in pairs(records) do
+        if not accessory.Parent or not accessory:IsDescendantOf(char) then
+            records[accessory] = nil
+        elseif record.handle and record.handle.Parent then
+            -- Keep body welds from being silently recreated.
+            local newJoints = accessoryJoints(char, accessory, record.handle)
+            for _, info in ipairs(newJoints) do
+                local known = false
+                for _, oldInfo in ipairs(record.joints) do
+                    if oldInfo.joint == info.joint then
+                        known = true
+                        break
+                    end
+                end
+                if not known then
+                    record.joints[#record.joints + 1] = info
+                end
+            end
+
+            if orbitEnabled then
+                detachRecord(record)
+            end
+        end
+    end
+end
+
+local function recordList()
+    local list = {}
+    for _, record in pairs(records) do
+        if record.handle and record.handle.Parent then
+            list[#list + 1] = record
+        end
+    end
+    table.sort(list, function(a, b)
+        return a.accessory.Name < b.accessory.Name
+    end)
+    return list
+end
+
+local function applySource30(handle)
+    if not (handle and handle.Parent) then return end
+
+    -- Keep these AFTER every CFrame / physics operation.
+    -- This is the actual "Source -30" part.
+    handle.Velocity = SOURCE_VELOCITY
+    handle.AssemblyLinearVelocity = SOURCE_VELOCITY
+end
+
+local function updateOrbit(dt)
+    if not orbitEnabled then return end
+
+    local root = rootPart()
+    if not root then return end
+
+    orbitClock += dt * ORBIT_SPEED
+
+    local now = os.clock()
+    if now - lastScan >= RESCAN_INTERVAL then
+        lastScan = now
+        scanAccessories()
+    end
+
+    local list = recordList()
+    local count = #list
+    if count == 0 then return end
+
+    for index, record in ipairs(list) do
+        local handle = record.handle
+        if handle and handle.Parent then
+            detachRecord(record)
+
+            local angle = orbitClock + ((index - 1) / count) * math.pi * 2
+            local localOffset = Vector3.new(
+                math.cos(angle) * ORBIT_RADIUS,
+                ORBIT_HEIGHT + math.sin(angle * 2) * 0.35,
+                math.sin(angle) * ORBIT_RADIUS
+            )
+
+            local worldPosition = root.CFrame:PointToWorldSpace(localOffset)
+            local spin = orbitClock * ITEM_SPIN_SPEED + index * 0.35
+
+            handle.CFrame =
+                CFrame.new(worldPosition)
+                * CFrame.Angles(
+                    math.sin(angle) * 0.22,
+                    -angle + math.pi * 0.5,
+                    spin
+                )
+
+            handle.AssemblyAngularVelocity = Vector3.zero
+
+            -- FINAL velocity write.
+            applySource30(handle)
+        end
+    end
+end
+
+local function setOrbit(on)
+    orbitEnabled = on == true
+
+    if orbitEnabled then
+        orbitClock = 0
+        lastScan = 0
+        scanAccessories()
+
+        for _, record in pairs(records) do
+            detachRecord(record)
+            applySource30(record.handle)
+        end
+    else
+        for _, record in pairs(records) do
+            restoreRecord(record)
+        end
+    end
+end
+
+-- UI
+
+local unload
+
+local gui = Instance.new("ScreenGui")
+gui.Name = GUI_NAME
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = false
+gui.Parent = playerGui
+
+local main = Instance.new("Frame")
+main.Name = "Main"
+main.Size = UDim2.fromOffset(300, 212)
+main.Position = UDim2.new(0, 24, 0.5, -106)
+main.BackgroundColor3 = Color3.fromRGB(17, 19, 24)
+main.BorderSizePixel = 0
+main.Active = true
+main.Parent = gui
+
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(45, 51, 62)
+stroke.Thickness = 1
+stroke.Parent = main
+
+local title = Instance.new("TextLabel")
+title.BackgroundTransparency = 1
+title.Position = UDim2.fromOffset(14, 10)
+title.Size = UDim2.new(1, -62, 0, 22)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 14
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.TextColor3 = Color3.fromRGB(236, 240, 247)
+title.Text = "ACCESSORY ORBIT"
+title.Parent = main
+
+local closeButton = Instance.new("TextButton")
+closeButton.Name = "Close"
+closeButton.AnchorPoint = Vector2.new(1, 0)
+closeButton.Position = UDim2.new(1, -10, 0, 8)
+closeButton.Size = UDim2.fromOffset(30, 26)
+closeButton.BackgroundColor3 = Color3.fromRGB(156, 53, 61)
+closeButton.BorderSizePixel = 0
+closeButton.Font = Enum.Font.GothamBold
+closeButton.TextSize = 14
+closeButton.TextColor3 = Color3.fromRGB(255, 238, 240)
+closeButton.Text = "X"
+closeButton.AutoButtonColor = true
+closeButton.Parent = main
+Instance.new("UICorner", closeButton).CornerRadius = UDim.new(0, 7)
+
+track(closeButton.MouseButton1Click:Connect(function()
+    if unload then
+        unload()
+    end
+end))
+
+local sourceLabel = Instance.new("TextLabel")
+sourceLabel.BackgroundTransparency = 1
+sourceLabel.Position = UDim2.fromOffset(14, 33)
+sourceLabel.Size = UDim2.new(1, -28, 0, 17)
+sourceLabel.Font = Enum.Font.Code
+sourceLabel.TextSize = 11
+sourceLabel.TextXAlignment = Enum.TextXAlignment.Left
+sourceLabel.TextColor3 = Color3.fromRGB(108, 219, 174)
+sourceLabel.Text = "SOURCE  Vector3.new(-30, 0, 0)"
+sourceLabel.Parent = main
+
+local toggle = Instance.new("TextButton")
+toggle.Position = UDim2.fromOffset(14, 60)
+toggle.Size = UDim2.new(1, -28, 0, 42)
+toggle.BackgroundColor3 = Color3.fromRGB(37, 42, 51)
+toggle.BorderSizePixel = 0
+toggle.Font = Enum.Font.GothamBold
+toggle.TextSize = 12
+toggle.TextColor3 = Color3.fromRGB(231, 236, 244)
+toggle.AutoButtonColor = false
+toggle.Text = "ORBIT  â€¢  OFF"
+toggle.Parent = main
+Instance.new("UICorner", toggle).CornerRadius = UDim.new(0, 8)
+
+local function makeAdjustRow(y, labelText, minusText, plusText)
+    local label = Instance.new("TextLabel")
+    label.BackgroundTransparency = 1
+    label.Position = UDim2.fromOffset(14, y)
+    label.Size = UDim2.fromOffset(120, 30)
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 11
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.TextColor3 = Color3.fromRGB(170, 181, 198)
+    label.Text = labelText
+    label.Parent = main
+
+    local minus = Instance.new("TextButton")
+    minus.Position = UDim2.new(1, -96, 0, y)
+    minus.Size = UDim2.fromOffset(36, 30)
+    minus.BackgroundColor3 = Color3.fromRGB(31, 35, 43)
+    minus.BorderSizePixel = 0
+    minus.Font = Enum.Font.GothamBold
+    minus.TextSize = 14
+    minus.TextColor3 = Color3.fromRGB(220, 225, 234)
+    minus.Text = minusText
+    minus.Parent = main
+    Instance.new("UICorner", minus).CornerRadius = UDim.new(0, 7)
+
+    local plus = Instance.new("TextButton")
+    plus.Position = UDim2.new(1, -54, 0, y)
+    plus.Size = UDim2.fromOffset(40, 30)
+    plus.BackgroundColor3 = Color3.fromRGB(31, 35, 43)
+    plus.BorderSizePixel = 0
+    plus.Font = Enum.Font.GothamBold
+    plus.TextSize = 14
+    plus.TextColor3 = Color3.fromRGB(220, 225, 234)
+    plus.Text = plusText
+    plus.Parent = main
+    Instance.new("UICorner", plus).CornerRadius = UDim.new(0, 7)
+
+    return label, minus, plus
+end
+
+local radiusLabel, radiusMinus, radiusPlus =
+    makeAdjustRow(112, "", "-", "+")
+
+local speedLabel, speedMinus, speedPlus =
+    makeAdjustRow(148, "", "-", "+")
+
+local footer = Instance.new("TextLabel")
+footer.BackgroundTransparency = 1
+footer.Position = UDim2.fromOffset(14, 183)
+footer.Size = UDim2.new(1, -28, 0, 18)
+footer.Font = Enum.Font.Gotham
+footer.TextSize = 10
+footer.TextXAlignment = Enum.TextXAlignment.Left
+footer.TextColor3 = Color3.fromRGB(112, 123, 140)
+footer.Text = "RightShift hides menu  â€¢  rescans equipped accessories"
+footer.Parent = main
+
+local function refreshUi()
+    toggle.Text = orbitEnabled and "ORBIT  â€¢  ON" or "ORBIT  â€¢  OFF"
+    toggle.BackgroundColor3 =
+        orbitEnabled
+        and Color3.fromRGB(83, 196, 158)
+        or Color3.fromRGB(37, 42, 51)
+
+    toggle.TextColor3 =
+        orbitEnabled
+        and Color3.fromRGB(10, 30, 24)
+        or Color3.fromRGB(231, 236, 244)
+
+    radiusLabel.Text = ("RADIUS   %.1f"):format(ORBIT_RADIUS)
+    speedLabel.Text = ("SPEED    %.2f"):format(ORBIT_SPEED)
+end
+
+toggle.MouseButton1Click:Connect(function()
+    setOrbit(not orbitEnabled)
+    refreshUi()
+end)
+
+radiusMinus.MouseButton1Click:Connect(function()
+    ORBIT_RADIUS = math.max(1.5, ORBIT_RADIUS - 0.5)
+    refreshUi()
+end)
+
+radiusPlus.MouseButton1Click:Connect(function()
+    ORBIT_RADIUS = math.min(20, ORBIT_RADIUS + 0.5)
+    refreshUi()
+end)
+
+speedMinus.MouseButton1Click:Connect(function()
+    ORBIT_SPEED = math.max(0.1, ORBIT_SPEED - 0.15)
+    refreshUi()
+end)
+
+speedPlus.MouseButton1Click:Connect(function()
+    ORBIT_SPEED = math.min(8, ORBIT_SPEED + 0.15)
+    refreshUi()
+end)
+
+-- simple drag
+do
+    local dragging = false
+    local dragStart
+    local startPos
+
+    track(main.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = main.Position
+        end
+    end))
+
+    track(UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            main.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end))
+
+    track(UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end))
+end
+
+track(UserInputService.InputBegan:Connect(function(input, processed)
+    if processed then return end
+
+    if input.KeyCode == Enum.KeyCode.RightShift then
+        main.Visible = not main.Visible
+    end
+end))
+
+track(LP.CharacterAdded:Connect(function()
+    setOrbit(false)
+    table.clear(records)
+    task.wait(0.5)
+    scanAccessories()
+    refreshUi()
+end))
+
+track(RunService.Heartbeat:Connect(updateOrbit))
+
+unload = function()
+    if not alive then return end
+    alive = false
+
+    setOrbit(false)
+
+    for _, c in ipairs(connections) do
+        pcall(function()
+            c:Disconnect()
+        end)
+    end
+    table.clear(connections)
+
+    if gui and gui.Parent then
+        gui:Destroy()
+    end
+
+    if env[ENV_KEY] == unload then
+        env[ENV_KEY] = nil
+    end
+end
+
+env[ENV_KEY] = unload
+
+scanAccessories()
+refreshUi()
