@@ -1,0 +1,147 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+local flying = false
+local bodyVelocity
+
+local commands = {
+    "?cmds - Shows this command list",
+    "?fly - Toggles flying on/off",
+    "?invisible - Makes you invisible",
+    "?visible - Makes you visible",
+    "?heal - Heals your character",
+    "?reset - Resets your character",
+    "?admin - Grants admin status",
+    "?unadmin - Revokes admin status",
+    "?dolphin - Activates the dolphin emote",
+    "?to [player] - Teleports the specified player to you",
+}
+
+local function showCommands()
+    for _, cmd in ipairs(commands) do
+        game.ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:Fire("Command: " .. cmd, "All")
+    end
+end
+
+local function toggleFly()
+    local character = player.Character
+    if not character then return end
+
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if not humanoidRootPart then return end
+
+    if flying then
+        flying = false
+        if bodyVelocity then
+            bodyVelocity:Destroy()
+            bodyVelocity = nil
+        end
+        print("You have unflyed.")
+    else
+        flying = true
+        bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.Velocity = Vector3.new(0, 50, 0)
+        bodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)
+        bodyVelocity.Parent = humanoidRootPart
+
+        while flying do
+            local direction = Vector3.new(0, 0, 0)
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+                direction = direction + workspace.CurrentCamera.CFrame.LookVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+                direction = direction - workspace.CurrentCamera.CFrame.LookVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+                direction = direction - workspace.CurrentCamera.CFrame.RightVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+                direction = direction + workspace.CurrentCamera.CFrame.RightVector
+            end
+
+            bodyVelocity.Velocity = direction.Unit * 50 + Vector3.new(0, 10, 0)
+            wait(0.1)
+        end
+        
+        bodyVelocity:Destroy()
+    end
+end
+
+local function setInvisible()
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character.HumanoidRootPart.Transparency = 1
+        for _, part in ipairs(character:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.Transparency = 1
+            end
+        end
+        print("You are now invisible.")
+    end
+end
+
+local function setVisible()
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character.HumanoidRootPart.Transparency = 0
+        for _, part in ipairs(character:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.Transparency = 0
+            end
+        end
+        print("You are now visible.")
+    end
+end
+
+local function heal()
+    local character = player.Character
+    local humanoid = character and character:FindFirstChild("Humanoid")
+    if humanoid then
+        humanoid.Health = humanoid.MaxHealth
+        print("You have been healed.")
+    end
+end
+
+local function reset()
+    local character = player.Character
+    if character then
+        character:BreakJoints()
+        print("You have been reset.")
+    end
+end
+
+local function teleportToPlayer(targetPlayer)
+    local character = targetPlayer.Character
+    if character and character:FindFirstChild("HumanoidRootPart") and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local targetPosition = player.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0)
+        character:SetPrimaryPartCFrame(CFrame.new(targetPosition))
+        game.ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:Fire(targetPlayer.Name .. " has been teleported to you.", "All")
+    else
+        print("Target player does not have a character or you do not have a character.")
+    end
+end
+
+player.Chatted:Connect(function(message)
+    local args = string.split(message, " ")
+    if args[1]:lower() == "?cmds" then
+        showCommands()
+    elseif args[1]:lower() == "?fly" then
+        toggleFly()
+    elseif args[1]:lower() == "?invisible" then
+        setInvisible()
+    elseif args[1]:lower() == "?visible" then
+        setVisible()
+    elseif args[1]:lower() == "?heal" then
+        heal()
+    elseif args[1]:lower() == "?reset" then
+        reset()
+    elseif args[1]:lower() == "?to" and args[2] then
+        local targetPlayer = Players:FindFirstChild(args[2])
+        if targetPlayer then
+            teleportToPlayer(targetPlayer)
+        else
+            game.ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:Fire("Player not found.", "All")
+        end
+    end
+end)
