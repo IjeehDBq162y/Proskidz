@@ -4,6 +4,7 @@
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/oldhacfard/The-script/refs/heads/main/Reanimate.luau"))()
 
+
 wait(0.2)
 
 Player = game:GetService("Players").LocalPlayer
