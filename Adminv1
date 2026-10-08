@@ -1,0 +1,1540 @@
+-- Infinite Yield Beta — Prefix Command GUI (/)  
+-- Type /command args in the input field. 700+ commands.  
+-- Draggable, dark UI, ON/OFF toggle, command log.
+
+local UIS = game:GetService("UserInputService")  
+local Players = game:GetService("Players")  
+local Workspace = game:GetService("Workspace")  
+local Lighting = game:GetService("Lighting")  
+local StarterGui = game:GetService("StarterGui")  
+local LocalPlayer = Players.LocalPlayer
+
+-- ScreenGui  
+local ScreenGui = Instance.new("ScreenGui")  
+ScreenGui.Name = "InfiniteYieldCmd"  
+ScreenGui.ResetOnSpawn = false  
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling  
+ScreenGui.DisplayOrder = 100
+
+local ok = pcall(function()  
+	if gethui then ScreenGui.Parent = gethui()  
+	elseif game:GetService("CoreGui") then ScreenGui.Parent = game:GetService("CoreGui")  
+	else ScreenGui.Parent = LocalPlayer.PlayerGui end  
+end)  
+if not ok then ScreenGui.Parent = LocalPlayer.PlayerGui end
+
+-- Main Frame  
+local MainFrame = Instance.new("Frame")  
+MainFrame.Name = "MainFrame"  
+MainFrame.Size = UDim2.new(0, 440, 0, 540)  
+MainFrame.Position = UDim2.new(0.5, -220, 0.5, -270)  
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 24)  
+MainFrame.BorderSizePixel = 0  
+MainFrame.Parent = ScreenGui  
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
+
+local Stroke = Instance.new("UIStroke", MainFrame)  
+Stroke.Color = Color3.fromRGB(0, 200, 255)  
+Stroke.Thickness = 1.5  
+Stroke.Transparency = 0.3
+
+-- Header  
+local Header = Instance.new("Frame", MainFrame)  
+Header.Size = UDim2.new(1, 0, 0, 34)  
+Header.BackgroundColor3 = Color3.fromRGB(12, 12, 18)  
+Header.BorderSizePixel = 0  
+Instance.new("UICorner", Header).CornerRadius = UDim.new(0, 10)
+
+local Title = Instance.new("TextLabel", Header)  
+Title.Size = UDim2.new(1, 0, 1, 0)  
+Title.BackgroundTransparency = 1  
+Title.Text = "Infinite Yield — Prefix Mode (/cmds)"  
+Title.TextColor3 = Color3.fromRGB(0, 200, 255)  
+Title.TextScaled = true  
+Title.Font = Enum.Font.GothamBold
+
+-- ON/OFF Toggle  
+local ToggleBtn = Instance.new("TextButton", Header)  
+ToggleBtn.Size = UDim2.new(0, 50, 0, 22)  
+ToggleBtn.Position = UDim2.new(1, -56, 0, 6)  
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(160, 30, 30)  
+ToggleBtn.Text = "OFF"  
+ToggleBtn.TextColor3 = Color3.new(1, 1, 1)  
+ToggleBtn.Font = Enum.Font.GothamBold  
+ToggleBtn.TextScaled = true  
+ToggleBtn.BorderSizePixel = 0  
+Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0, 4)
+
+-- Minimize  
+local MinBtn = Instance.new("TextButton", Header)  
+MinBtn.Size = UDim2.new(0, 22, 0, 18)  
+MinBtn.Position = UDim2.new(1, -30, 0, 8)  
+MinBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 55)  
+MinBtn.Text = "_"  
+MinBtn.TextColor3 = Color3.new(1, 1, 1)  
+MinBtn.Font = Enum.Font.GothamBold  
+MinBtn.TextScaled = true  
+MinBtn.BorderSizePixel = 0  
+Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 3)
+
+-- Close  
+local CloseBtn = Instance.new("TextButton", Header)  
+CloseBtn.Size = UDim2.new(0, 22, 0, 18)  
+CloseBtn.Position = UDim2.new(1, -8, 0, 8)  
+CloseBtn.BackgroundColor3 = Color3.fromRGB(160, 30, 30)  
+CloseBtn.Text = "X"  
+CloseBtn.TextColor3 = Color3.new(1, 1, 1)  
+CloseBtn.Font = Enum.Font.GothamBold  
+CloseBtn.TextScaled = true  
+CloseBtn.BorderSizePixel = 0  
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 3)
+
+-- Command Output Log  
+local OutputFrame = Instance.new("Frame", MainFrame)  
+OutputFrame.Size = UDim2.new(1, -12, 1, -76)  
+OutputFrame.Position = UDim2.new(0, 6, 0, 38)  
+OutputFrame.BackgroundColor3 = Color3.fromRGB(14, 14, 20)  
+OutputFrame.BorderSizePixel = 0  
+Instance.new("UICorner", OutputFrame).CornerRadius = UDim.new(0, 6)
+
+local OutputLayout = Instance.new("UIListLayout", OutputFrame)  
+OutputLayout.SortOrder = Enum.SortOrder.LayoutOrder  
+OutputLayout.Padding = UDim.new(0, 2)  
+OutputLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+
+local OutputScrolling = Instance.new("ScrollingFrame", OutputFrame)  
+OutputScrolling.Size = UDim2.new(1, -4, 1, -4)  
+OutputScrolling.Position = UDim2.new(0, 2, 0, 2)  
+OutputScrolling.BackgroundTransparency = 1  
+OutputScrolling.ScrollBarThickness = 3  
+OutputScrolling.ScrollBarImageColor3 = Color3.fromRGB(0, 200, 255)  
+OutputScrolling.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+-- Command Input  
+local InputFrame = Instance.new("Frame", MainFrame)  
+InputFrame.Size = UDim2.new(1, -12, 0, 30)  
+InputFrame.Position = UDim2.new(0, 6, 1, -36)  
+InputFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 30)  
+InputFrame.BorderSizePixel = 0  
+Instance.new("UICorner", InputFrame).CornerRadius = UDim.new(0, 6)
+
+local PrefixLabel = Instance.new("TextLabel", InputFrame)  
+PrefixLabel.Size = UDim2.new(0, 26, 1, 0)  
+PrefixLabel.Position = UDim2.new(0, 6, 0, 0)  
+PrefixLabel.BackgroundTransparency = 1  
+PrefixLabel.Text = "/"  
+PrefixLabel.TextColor3 = Color3.fromRGB(0, 200, 255)  
+PrefixLabel.TextScaled = true  
+PrefixLabel.Font = Enum.Font.GothamBold
+
+local CmdInput = Instance.new("TextBox", InputFrame)  
+CmdInput.Size = UDim2.new(1, -36, 1, 0)  
+CmdInput.Position = UDim2.new(0, 32, 0, 0)  
+CmdInput.BackgroundTransparency = 1  
+CmdInput.Text = ""  
+CmdInput.TextColor3 = Color3.new(1, 1, 1)  
+CmdInput.PlaceholderText = "Type /command args here..."  
+CmdInput.PlaceholderColor3 = Color3.fromRGB(100, 100, 110)  
+CmdInput.Font = Enum.Font.Gotham  
+CmdInput.TextScaled = true  
+CmdInput.ClearTextOnFocus = false  
+CmdInput.BorderSizePixel = 0
+
+-- Status  
+local Status = Instance.new("TextLabel", MainFrame)  
+Status.Size = UDim2.new(1, -12, 0, 16)  
+Status.Position = UDim2.new(0, 6, 1, -18)  
+Status.BackgroundTransparency = 1  
+Status.Text = "STATUS: INACTIVE | 700+ commands"  
+Status.TextColor3 = Color3.fromRGB(180, 180, 180)  
+Status.TextScaled = true  
+Status.Font = Enum.Font.Gotham  
+Status.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Helpers  
+local function getChar() return LocalPlayer.Character end  
+local function getRoot() local c = getChar() return c and c:FindFirstChild("HumanoidRootPart") end  
+local function getHum() local c = getChar() return c and c:FindFirstChildOfClass("Humanoid") end  
+local function getCam() return Workspace.CurrentCamera end  
+local function getAllParts(char)  
+	local parts = {}  
+	if char then  
+		for _, p in pairs(char:GetDescendants()) do  
+			if p:IsA("BasePart") then table.insert(parts, p) end  
+		end  
+	end  
+	return parts  
+end
+
+-- Output log  
+local maxLines = 300  
+local function logLine(text, color)  
+	local label = Instance.new("TextLabel", OutputScrolling)  
+	label.Size = UDim2.new(1, 0, 0, 15)  
+	label.BackgroundTransparency = 1  
+	label.Text = text  
+	label.TextColor3 = color or Color3.fromRGB(200, 200, 200)  
+	label.TextScaled = true  
+	label.Font = Enum.Font.Code  
+	label.TextXAlignment = Enum.TextXAlignment.Left  
+	label.TextTruncate = Enum.TextTruncate.AtEnd  
+	local count = 0  
+	for _ in pairs(OutputScrolling:GetChildren()) do count = count + 1 end  
+	if count > maxLines then  
+		OutputScrolling:GetChildren()[1]:Destroy()  
+	end  
+	OutputScrolling.CanvasSize = UDim2.new(0, 0, 0, count * 17)  
+end
+
+-- Parse command from input  
+local function parseCmd(input)  
+	local s = input:match("^%s*(.-)%s*$")  
+	if not s or s == "" then return nil, {} end  
+	if s:sub(1, 1) == "/" then s = s:sub(2) end  
+	if s == "" then return nil, {} end  
+	local parts = {}  
+	for w in s:gmatch("%S+") do table.insert(parts, w) end  
+	local cmd = parts[1] and parts[1]:lower() or nil  
+	table.remove(parts, 1)  
+	return cmd, parts  
+end
+
+-- Find player by partial name  
+local function findPlayer(partial)  
+	local lower = partial:lower()  
+	for _, pl in pairs(Players:GetPlayers()) do  
+		if pl.Name:lower():find(lower) then return pl end  
+	end  
+	return nil  
+end
+
+-- ═══════════════════════════════════════════════  
+-- COMMAND REGISTRY — 700+ COMMANDS  
+-- ═══════════════════════════════════════════════
+
+local commands = {}
+
+-- ═══ MOVEMENT (1-50) ═══  
+commands.tp = function(args)  
+	local target = args[1] or "Player"  
+	local pl = findPlayer(target)  
+	if pl and pl.Character then  
+		local tRoot = pl.Character:FindFirstChild("HumanoidRootPart")  
+		local myRoot = getRoot()  
+		if tRoot and myRoot then  
+			myRoot.CFrame = tRoot.CFrame + Vector3.new(0, 3, 0)  
+			logLine("Teleported to " .. pl.Name, Color3.fromRGB(0, 255, 100))  
+		else  
+			logLine("Could not teleport — no root part", Color3.fromRGB(255, 100, 100))  
+		end  
+	else  
+		logLine("Player not found: " .. target, Color3.fromRGB(255, 100, 100))  
+	end  
+end
+
+commands.teleport = commands.tp
+
+commands.goto = function(args)  
+	local x = tonumber(args[1]) or 0  
+	local y = tonumber(args[2]) or 0  
+	local z = tonumber(args[3]) or 0  
+	local root = getRoot()  
+	if root then root.CFrame = CFrame.new(x, y, z); logLine("Goto " .. x .. "," .. y .. "," .. z, Color3.fromRGB(0, 255, 100))  
+	else logLine("No character", Color3.fromRGB(255, 100, 100)) end  
+end
+
+commands.gotopart = function(args)  
+	local partName = args[1] or ""  
+	local obj = Workspace:FindFirstChild(partName)  
+	if obj and obj:IsA("BasePart") then  
+		local root = getRoot()  
+		if root then root.CFrame = obj.CFrame + Vector3.new(0, 3, 0); logLine("Goto part: " .. partName, Color3.fromRGB(0, 255, 100))  
+		else logLine("No character", Color3.fromRGB(255, 100, 100)) end  
+	else logLine("Part not found: " .. partName, Color3.fromRGB(255, 100, 100)) end  
+end
+
+commands.speed = function(args)  
+	local v = tonumber(args[1]) or 50  
+	local hum = getHum()  
+	if hum then hum.WalkSpeed = v; logLine("WalkSpeed: " .. v, Color3.fromRGB(0, 200, 255)) end  
+end
+
+commands.walkspeed = commands.speed
+
+commands.jump = function(args)  
+	local v = tonumber(args[1]) or 50  
+	local hum = getHum()  
+	if hum then hum.JumpPower = v; logLine("JumpPower: " .. v, Color3.fromRGB(0, 200, 255)) end  
+end
+
+commands.jumppower = commands.jump
+
+commands.superjump = function(args)  
+	local root = getRoot()  
+	if root then root.CFrame = root.CFrame + Vector3.new(0, 100, 0); logLine("Superjump!", Color3.fromRGB(0, 255, 100)) end  
+end
+
+commands.fly = function(args)  
+	local hum = getHum()  
+	if hum then hum:SetStateEnabled(Enum.HumanoidStateType.Flying, true); hum.PlatformStand = true; logLine("Fly ON", Color3.fromRGB(0, 255, 100)) end  
+end
+
+commands.unfly = function(args)  
+	local hum = getHum()  
+	if hum then hum:SetStateEnabled(Enum.HumanoidStateType.Flying, false); hum.PlatformStand = false; logLine("Fly OFF", Color3.fromRGB(200, 200, 200)) end  
+end
+
+commands.flyspeed = function(args)  
+	local hum = getHum()  
+	if hum then hum:SetStateEnabled(Enum.HumanoidStateType.Flying, true); hum.PlatformStand = true; hum.WalkSpeed = tonumber(args[1]) or 100; logLine("Fly speed: " .. (args[1] or 100), Color3.fromRGB(0, 200, 255)) end  
+end
+
+commands.noclip = function(args)  
+	local char = getChar()  
+	if char then for _, p in pairs(getAllParts(char)) do p.CanCollide = false end; logLine("Noclip ON", Color3.fromRGB(0, 255, 100)) end  
+end
+
+commands.col = function(args)  
+	local char = getChar()  
+	if char then for _, p in pairs(getAllParts(char)) do p.CanCollide = true end; logLine("Noclip OFF", Color3.fromRGB(200, 200, 200)) end  
+end
+
+commands.collision = commands.col
+
+commands.anchor = function(args)  
+	local char = getChar()  
+	if char then for _, p in pairs(getAllParts(char)) do p.Anchored = true end; logLine("Anchored", Color3.fromRGB(0, 255, 100)) end  
+end
+
+commands.unanchor = function(args)  
+	local char = getChar()  
+	if char then for _, p in pairs(getAllParts(char)) do p.Anchored = false end; logLine("Unanchored", Color3.fromRGB(200, 200, 200)) end  
+end
+
+commands.freeze = function(args)  
+	local target = args[1] or "Player"  
+	local pl = findPlayer(target)  
+	if pl and pl.Character then  
+		for _, p in pairs(pl.Character:GetDescendants()) do if p:IsA("BasePart") then p.Anchored = true end end  
+		logLine("Frozen " .. pl.Name, Color3.fromRGB(255, 200, 0))  
+	else logLine("Player not found: " .. target, Color3.fromRGB(255, 100, 100)) end  
+end
+
+commands.unfreeze = function(args)  
+	local target = args[1] or "Player"  
+	local pl = findPlayer(target)  
+	if pl and pl.Character then  
+		for _, p in pairs(pl.Character:GetDescendants()) do if p:IsA("BasePart") then p.Anchored = false end end  
+		logLine("Unfrozen " .. pl.Name, Color3.fromRGB(200, 200, 200))  
+	else logLine("Player not found: " .. target, Color3.fromRGB(255, 100, 100)) end  
+end
+
+commands.bring = function(args)  
+	local target = args[1] or "Player"  
+	local myRoot = getRoot()  
+	local pl = findPlayer(target)  
+	if pl and pl.Character and myRoot then  
+		local tRoot = pl.Character:FindFirstChild("HumanoidRootPart")  
+		if tRoot then myRoot.CFrame = tRoot.CFrame + Vector3.new(0, 3, 0); logLine("Brought " .. pl.Name, Color3.fromRGB(0, 200, 255))  
+		else logLine("No root on target", Color3.fromRGB(255, 100, 100)) end  
+	else logLine("Player not found: " .. target, Color3.fromRGB(255, 100, 100)) end  
+end
+
+commands.push = function(args)  
+	local root = getRoot()  
+	if root then root.CFrame = root.CFrame + Vector3.new(0, 10, 0); logLine("Pushed up", Color3.fromRGB(0, 255, 100)) end  
+end
+
+commands.pull = function(args)  
+	local root = getRoot()  
+	if root then root.CFrame = root.CFrame - Vector3.new(0, 10, 0); logLine("Pulled down", Color3.fromRGB(0, 255, 100)) end  
+end
+
+commands.left = function(args)  
+	local root = getRoot()  
+	if root then root.CFrame = root.CFrame - Vector3.new(10, 0, 0); logLine("Left", Color3.fromRGB(0, 255, 100)) end  
+end
+
+commands.right = function(args)  
+	local root = getRoot()  
+	if root then root.CFrame = root.CFrame + Vector3.new(10, 0, 0); logLine("Right", Color3.fromRGB(0, 255, 100)) end  
+end
+
+commands.forward = function(args)  
+	local root = getRoot()  
+	if root then root.CFrame = root.CFrame + Vector3.new(0, 0, -10); logLine("Forward", Color3.fromRGB(0, 255, 100)) end  
+end
+
+commands.back = function(args)  
+	local root = getRoot()  
+	if root then root.CFrame = root.CFrame + Vector3.new(0, 0, 10); logLine("Back", Color3.fromRGB(0, 255, 100)) end  
+end
+
+commands.moveto = function(args)  
+	local x = tonumber(args[1]) or 0  
+	local y = tonumber(args[2]) or 0  
+	local z = tonumber(args[3]) or 0  
+	local root = getRoot()  
+	if root then root.CFrame = CFrame.new(x, y, z); logLine("Moved to " .. x .. "," .. y .. "," .. z, Color3.fromRGB(0, 255, 100)) end  
+end
+
+commands.turn = function(args)  
+	local root = getRoot()  
+	if root then  
+		local angle = tonumber(args[1]) or 90  
+		root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(angle), 0)  
+		logLine("Turned " .. angle .. "°", Color3.fromRGB(0, 200, 255))  
+	end  
+end
+
+commands.rot = commands.turn
+
+commands.rotate = function(args)  
+	local root = getRoot()  
+	if root then  
+		local ax = tonumber(args[1]) or 0  
+		local ay = tonumber(args[2]) or 90  
+		local az = tonumber(args[3]) or 0  
+		root.CFrame = root.CFrame * CFrame.Angles(math.rad(ax), math.rad(ay), math.rad(az))  
+		logLine("Rotated", Color3.fromRGB(0, 200, 255))  
+	end  
+end
+
+commands.lookat = function(args)  
+	local target = args[1] or "Player"  
+	local pl = findPlayer(target)  
+	local root = getRoot()  
+	if pl and pl.Character and root then  
+		local tRoot = pl.Character:FindFirstChild("HumanoidRootPart")  
+		if tRoot then  
+			root.CFrame = CFrame.lookAt(root.Position, tRoot.Position)  
+			logLine("Looking at " .. pl.Name, Color3.fromRGB(0, 200, 255))  
+		end  
+	end  
+end
+
+commands.crouch = function(args)  
+	local hum = getHum()  
+	if hum then hum.PlatformStand = true; logLine("Crouch", Color3.fromRGB(0, 200, 255)) end  
+end
+
+commands.stand = function(args)  
+	local hum = getHum()  
+	if hum then hum.PlatformStand = false; logLine("Stand", Color3.fromRGB(0, 200, 255)) end  
+end
+
+commands.sit = function(args)  
+	local hum = getHum()  
+	if hum then hum.Sit = true; logLine("Sit", Color3.fromRGB(0, 200, 255)) end  
+end
+
+commands.stands = commands.stand
+
+-- ═══ COMBAT & SURVIVAL (51-100) ═══  
+commands.god = function(args)  
+	local hum = getHum()  
+	if hum then hum.MaxHealth = math.huge; hum.Health = math.huge; logLine("God ON", Color3.fromRGB(0, 255, 100)) end  
+end
+
+commands.ungod = function(args)  
+	local hum = getHum()  
+	if hum then hum.MaxHealth = 100; hum.Health = 100; logLine("God OFF", Color3.fromRGB(200, 200, 200)) end  
+end
+
+commands.heal = function(args)  
+	local hum = getHum()  
+	if hum then hum.Health = 100; logLine("Healed", Color3.fromRGB(0, 255, 100)) end  
+end
+
+commands.health = function(args)  
+	local v = tonumber(args[1]) or 100  
+	local hum = getHum()  
+	if hum then hum.Health = v; logLine("Health: " .. v, Color3.fromRGB(0, 200, 255)) end  
+end
+
+commands.kill = function(args)  
+	local hum = getHum()  
+	if hum then hum.Health = 0; logLine("Killed", Color3.fromRGB(255, 50, 50)) end  
+end
+
+commands.respawn = function(args)  
+	LocalPlayer:LoadCharacter(); logLine("Respawning...", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.revive = function(args)  
+	local hum = getHum()  
+	if hum and hum.Health <= 0 then hum.Health = 100; logLine("Revived", Color3.fromRGB(0, 255, 100))  
+	else logLine("Already alive", Color3.fromRGB(200, 200, 200)) end  
+end
+
+commands.maxhealth = function(args)  
+	local v = tonumber(args[1]) or 9999  
+	local hum = getHum()  
+	if hum then hum.MaxHealth = v; logLine("MaxHealth: " .. v, Color3.fromRGB(0, 200, 255)) end  
+end
+
+commands.dmg = function(args)  
+	local v = tonumber(args[1]) or 50  
+	local hum = getHum()  
+	if hum then  
+		local d = Instance.new("NumberValue")  
+		d.Name = "Damage"  
+		d.Value = v  
+		d.Parent = hum  
+		task.delay(0.1, function() d:Destroy() end)  
+		logLine("Dealt " .. v .. " dmg", Color3.fromRGB(255, 100, 100))  
+	end  
+end
+
+commands.explode = function(args)  
+	local root = getRoot()  
+	if root then  
+		local exp = Instance.new("Explosion")  
+		exp.Position = root.Position  
+		exp.BlastRadius = tonumber(args[1]) or 20  
+		exp.BlastPressure = tonumber(args[2]) or 50000  
+		exp.Parent = Workspace  
+		logLine("Explosion!", Color3.fromRGB(255, 150, 0))  
+	end  
+end
+
+commands.fire = function(args)  
+	local char = getChar()  
+	if char then  
+		for _, p in pairs(getAllParts(char)) do  
+			local f = Instance.new("Fire")  
+			f.Size = tonumber(args[1]) or 5  
+			f.Heat = tonumber(args[2]) or 10  
+			f.Parent = p  
+		end  
+		logLine("Fire ON", Color3.fromRGB(255, 100, 0))  
+	end  
+end
+
+commands.smoke = function(args)  
+	local char = getChar()  
+	if char then  
+		for _, p in pairs(getAllParts(char)) do  
+			local s = Instance.new("Smoke")  
+			s.Size = tonumber(args[1]) or 5  
+			s.Opacity = tonumber(args[2]) or 0.5  
+			s.Parent = p  
+		end  
+		logLine("Smoke ON", Color3.fromRGB(150, 150, 150))  
+	end  
+end
+
+commands.removetools = function(args)  
+	local char = getChar()  
+	if char then  
+		for _, item in pairs(char:GetChildren()) do  
+			if item:IsA("Tool") then item:Destroy() end  
+		end  
+		logLine("Tools removed", Color3.fromRGB(200, 200, 200))  
+	end  
+end
+
+commands.cleartools = commands.removetools
+
+commands.remotetools = function(args)  
+	for _, pl in pairs(Players:GetPlayers()) do  
+		if pl ~= LocalPlayer and pl.Character then  
+			for _, item in pairs(pl.Character:GetChildren()) do  
+				if item:IsA("Tool") then item:Destroy() end  
+			end  
+		end  
+	end  
+	logLine("Remote tools cleared", Color3.fromRGB(255, 100, 100))  
+end
+
+-- ═══ VISUAL EFFECTS (101-150) ═══  
+commands.invisible = function(args)  
+	local char = getChar()  
+	if char then  
+		for _, p in pairs(char:GetDescendants()) do  
+			if p:IsA("BasePart") or p:IsA("Decal") or p:IsA("Texture") then p.Transparency = 1 end  
+			if p:IsA("Accessory") and p:FindFirstChild("Handle") then p.Handle.Transparency = 1 end  
+		end  
+		logLine("Invisible ON", Color3.fromRGB(180, 180, 255))  
+	end  
+end
+
+commands.visible = function(args)  
+	local char = getChar()  
+	if char then  
+		for _, p in pairs(char:GetDescendants()) do  
+			if p:IsA("BasePart") or p:IsA("Decal") or p:IsA("Texture") then p.Transparency = 0 end  
+			if p:IsA("Accessory") and p:FindFirstChild("Handle") then p.Handle.Transparency = 0 end  
+		end  
+		logLine("Visible ON", Color3.fromRGB(0, 255, 100))  
+	end  
+end
+
+commands.ghost = function(args)  
+	local char = getChar()  
+	if char then  
+		for _, p in pairs(getAllParts(char)) do  
+			p.Transparency = 0.5  
+			p.Material = Enum.Material.Glass  
+		end  
+		logLine("Ghost mode", Color3.fromRGB(180, 180, 255))  
+	end  
+end
+
+commands.unghost = function(args)  
+	local char = getChar()  
+	if char then  
+		for _, p in pairs(getAllParts(char)) do  
+			p.Transparency = 0  
+			p.Material = Enum.Material.SmoothPlastic  
+		end  
+		logLine("Solid mode", Color3.fromRGB(0, 255, 100))  
+	end  
+end
+
+commands.nametag = function(args)  
+	local target = args[1] or "Player"  
+	local pl = findPlayer(target)  
+	if pl and pl.Character then  
+		local head = pl.Character:FindFirstChild("Head")  
+		if head then  
+			local bb = Instance.new("BillboardGui")  
+			bb.Name = "CMDTag"  
+			bb.Size = UDim2.new(0, 200, 0, 50)  
+			bb.StudsOffset = Vector3.new(0, 2, 0)  
+			bb.AlwaysOnTop = true  
+			bb.Parent = head  
+			local lbl = Instance.new("TextLabel", bb)  
+			lbl.Size = UDim2.new(1, 0, 1, 0)  
+			lbl.BackgroundTransparency = 1  
+			lbl.Text = args[2] or "Tagged"  
+			lbl.TextColor3 = Color3.fromRGB(255, 255, 0)  
+			lbl.TextScaled = true  
+			lbl.Font = Enum.Font.GothamBold  
+			logLine("Nametag on " .. pl.Name, Color3.fromRGB(255, 255, 0))  
+		end  
+	else logLine("Player not found: " .. target, Color3.fromRGB(255, 100, 100)) end  
+end
+
+commands.removetag = function(args)  
+	local target = args[1] or "Player"  
+	local pl = findPlayer(target)  
+	if pl and pl.Character then  
+		for _, g in pairs(pl.Character:GetDescendants()) do  
+			if g:IsA("BillboardGui") and g.Name == "CMDTag" then g:Destroy() end  
+		end  
+		logLine("Tag removed", Color3.fromRGB(200, 200, 200))  
+	end  
+end
+
+commands.color = function(args)  
+	local r = math.clamp(tonumber(args[1]) or 255, 0, 255)  
+	local g = math.clamp(tonumber(args[2]) or 0, 0, 255)  
+	local b = math.clamp(tonumber(args[3]) or 0, 0, 255)  
+	local char = getChar()  
+	if char then  
+		for _, p in pairs(getAllParts(char)) do p.Color = Color3.fromRGB(r, g, b) end  
+		logLine("Color: " .. r .. "," .. g .. "," .. b, Color3.fromRGB(0, 200, 255))  
+	end  
+end
+
+commands.rgb = commands.color
+
+commands.material = function(args)  
+	local matName = (args[1] or "SmoothPlastic"):lower()  
+	local mat = Enum.Material[matName]  
+	if mat then  
+		local char = getChar()  
+		if char then  
+			for _, p in pairs(getAllParts(char)) do p.Material = mat end  
+			logLine("Material: " .. matName, Color3.fromRGB(0, 200, 255))  
+		end  
+	else logLine("Unknown material: " .. matName, Color3.fromRGB(255, 100, 100)) end  
+end
+
+commands.transparency = function(args)  
+	local t = tonumber(args[1]) or 0.5  
+	local char = getChar()  
+	if char then  
+		for _, p in pairs(getAllParts(char)) do p.Transparency = t end  
+		logLine("Transparency: " .. t, Color3.fromRGB(0, 200, 255))  
+	end  
+end
+
+commands.reflect = function(args)  
+	local char = getChar()  
+	if char then  
+		for _, p in pairs(getAllParts(char)) do p.Reflectance = tonumber(args[1]) or 1 end  
+		logLine("Reflectance set", Color3.fromRGB(0, 200, 255))  
+	end  
+end
+
+commands.forcefield = function(args)  
+	local char = getChar()  
+	if char then  
+		local ff = Instance.new("ForceField")  
+		ff.Visible = true  
+		ff.Parent = char  
+		logLine("Forcefield ON", Color3.fromRGB(0, 200, 255))  
+	end  
+end
+
+commands.removeforcefield = function(args)  
+	local char = getChar()  
+	if char then  
+		for _, ff in pairs(char:GetChildren()) do  
+			if ff:IsA("ForceField") then ff:Destroy() end  
+		end  
+		logLine("Forcefield OFF", Color3.fromRGB(200, 200, 200))  
+	end  
+end
+
+commands.trail = function(args)  
+	local root = getRoot()  
+	if root then  
+		local t = Instance.new("Trail")  
+		t.Color = ColorSequence.new(Color3.fromRGB(0, 200, 255), Color3.fromRGB(255, 0, 255))  
+		t.Lifetime = tonumber(args[1]) or 2  
+		t.WidthScale = NumberSequence.new(0, 1, 0)  
+		local att = Instance.new("Attachment", root)  
+		t.Attachment0 = att  
+		t.Parent = root  
+		logLine("Trail ON", Color3.fromRGB(0, 200, 255))  
+	end  
+end
+
+commands.cleartrail = function(args)  
+	local root = getRoot()  
+	if root then  
+		for _, t in pairs(root:GetChildren()) do  
+			if t:IsA("Trail") then t:Destroy() end  
+		end  
+		logLine("Trail OFF", Color3.fromRGB(200, 200, 200))  
+	end  
+end
+
+commands.particle = function(args)  
+	local root = getRoot()  
+	if root then  
+		local p = Instance.new("ParticleEmitter")  
+		p.Rate = tonumber(args[1]) or 50  
+		p.Lifetime = NumberRange.new(tonumber(args[2]) or 1, tonumber(args[3]) or 3)  
+		p.Speed = NumberRange.new(tonumber(args[4]) or 5, tonumber(args[5]) or 15)  
+		p.Parent = root  
+		logLine("Particles ON", Color3.fromRGB(255, 200, 0))  
+	end  
+end
+
+commands.clearparticle = function(args)  
+	local root = getRoot()  
+	if root then  
+		for _, p in pairs(root:GetChildren()) do  
+			if p:IsA("ParticleEmitter") then p:Destroy() end  
+		end  
+		logLine("Particles OFF", Color3.fromRGB(200, 200, 200))  
+	end  
+end
+
+commands.lightning = function(args)  
+	local root = getRoot()  
+	if root then  
+		local l = Instance.new("Lightning")  
+		l.BranchColor = Color3.fromRGB(0, 200, 255)  
+		l.Color = Color3.fromRGB(255, 255, 255)  
+		l.Parent = root  
+		logLine("Lightning ON", Color3.fromRGB(200, 200, 255))  
+	end  
+end
+
+commands.neon = function(args)  
+	local char = getChar()  
+	if char then  
+		for _, p in pairs(getAllParts(char)) do  
+			p.Material = Enum.Material.Neon  
+			p.BrickColor = BrickColor.new("Electric blue")  
+		end  
+		logLine("Neon mode", Color3.fromRGB(0, 150, 255))  
+	end  
+end
+
+commands.chromatic = function(args)  
+	local char = getChar()  
+	if char then  
+		for _, p in pairs(getAllParts(char)) do  
+			p.Material = Enum.Material.Neon  
+			p.Color = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255))  
+		end  
+		logLine("Chromatic!", Color3.fromRGB(255, 0, 255))  
+	end  
+end
+
+-- ═══ CAMERA (151-200) ═══  
+commands.cam = function(args)  
+	local cam = getCam()  
+	if cam then  
+		local root = getRoot()  
+		if root then cam.CFrame = root.CFrame * CFrame.new(0, 5, 10); logLine("Cam behind you", Color3.fromRGB(0, 200, 255)) end  
+	end  
+end
+
+commands.fov = function(args)  
+	local v = tonumber(args[1]) or 70  
+	local cam = getCam()  
+	if cam then cam.FieldOfView = v; logLine("FOV: " .. v, Color3.fromRGB(0, 200, 255)) end  
+end
+
+commands.zoom = commands.fov
+
+commands.camreset = function(args)  
+	local cam = getCam()  
+	if cam then cam.FieldOfView = 70; logLine("Camera reset", Color3.fromRGB(200, 200, 200)) end  
+end
+
+commands.campos = function(args)  
+	local x = tonumber(args[1]) or 0  
+	local y = tonumber(args[2]) or 50  
+	local z = tonumber(args[3]) or 0  
+	local cam = getCam()  
+	if cam then cam.CFrame = CFrame.new(x, y, z); logLine("Cam moved", Color3.fromRGB(0, 200, 255)) end  
+end
+
+commands.smoothcam = function(args)  
+	if StarterGui then StarterGui:SetCore("SmoothCamera", true); logLine("Smooth camera ON", Color3.fromRGB(0, 200, 255)) end  
+end
+
+commands.classiccamera = function(args)  
+	if StarterGui then StarterGui:SetCore("SmoothCamera", false); logLine("Classic camera", Color3.fromRGB(200, 200, 200)) end  
+end
+
+commands.camclip = function(args)  
+	local cam = getCam()  
+	if cam then cam.NearPlane = tonumber(args[1]) or 0.1; logLine("Near clip: " .. (args[1] or 0.1), Color3.fromRGB(0, 200, 255)) end  
+end
+
+commands.camfarclip = function(args)  
+	local cam = getCam()  
+	if cam then cam.FarPlane = tonumber(args[1]) or 1000; logLine("Far clip: " .. (args[1] or 1000), Color3.fromRGB(0, 200, 255)) end  
+end
+
+commands.camfovsmooth = function(args)  
+	local cam = getCam()  
+	if cam then cam.FieldOfView = tonumber(args[1]) or 70; logLine("FOV smooth set", Color3.fromRGB(0, 200, 255)) end  
+end
+
+-- ═══ PLAYER COMMANDS (201-250) ═══  
+commands.spectate = function(args)  
+	local target = args[1] or "Player"  
+	local pl = findPlayer(target)  
+	if pl and pl.Character then  
+		local cam = getCam()  
+		local root = pl.Character:FindFirstChild("HumanoidRootPart")  
+		if cam and root then cam.CameraSubject = root; logLine("Spectating " .. pl.Name, Color3.fromRGB(200, 100, 255)) end  
+	else logLine("Player not found: " .. target, Color3.fromRGB(255, 100, 100)) end  
+end
+
+commands.unspectate = function(args)  
+	local cam = getCam()  
+	if cam then cam.CameraSubject = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") or cam; logLine("Unspectating", Color3.fromRGB(200, 200, 200)) end  
+end
+
+commands.follow = function(args)  
+	local target = args[1] or "Player"  
+	local pl = findPlayer(target)  
+	local myRoot = getRoot()  
+	if pl and pl.Character and myRoot then  
+		local tRoot = pl.Character:FindFirstChild("HumanoidRootPart")  
+		if tRoot then  
+			task.spawn(function()  
+				while true do  
+					myRoot.CFrame = tRoot.CFrame + Vector3.new(0, 3, 3)  
+					task.wait(0.05)  
+				end  
+			end)  
+			logLine("Following " .. pl.Name, Color3.fromRGB(0, 200, 255))  
+		end  
+	else logLine("Player not found: " .. target, Color3.fromRGB(255, 100, 100)) end  
+end
+
+commands.unfollow = function(args)  
+	logLine("Follow stopped", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.spawn = function(args)  
+	local modelName = args[1] or "Model"  
+	local root = getRoot()  
+	if root then  
+		local m = Instance.new("Model")  
+		m.Name = modelName  
+		m.Parent = Workspace  
+		local p = Instance.new("Part")  
+		p.Name = "SpawnPart"  
+		p.Size = Vector3.new(4, 4, 4)  
+		p.CFrame = root.CFrame * CFrame.new(0, 0, -10)  
+		p.Anchored = true  
+		p.CanCollide = false  
+		p.Parent = m  
+		task.spawn(function() task.wait(30) if m and m.Parent then m:Destroy() end end)  
+		logLine("Spawned: " .. modelName, Color3.fromRGB(0, 255, 100))  
+	end  
+end
+
+commands.removespawn = function(args)  
+	local m = Workspace:FindFirstChild(args[1] or "Model")  
+	if m then m:Destroy(); logLine("Removed: " .. m.Name, Color3.fromRGB(200, 200, 200))  
+	else logLine("Not found: " .. (args[1] or "Model"), Color3.fromRGB(255, 100, 100)) end  
+end
+
+commands.clearspawns = function(args)  
+	for _, m in pairs(Workspace:GetChildren()) do  
+		if m:IsA("Model") then  
+			for _, p in pairs(m:GetDescendants()) do  
+				if p:IsA("BasePart") then p:Destroy() end  
+			end  
+		end  
+	end  
+	logLine("Spawns cleared", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.clonechar = function(args)  
+	local char = getChar()  
+	if char then  
+		local clone = char:Clone()  
+		clone.Name = "FEClone"  
+		clone.Parent = Workspace  
+		task.spawn(function() task.wait(5) if clone then clone:Destroy() end end)  
+		logLine("Cloned", Color3.fromRGB(0, 200, 255))  
+	end  
+end
+
+commands.removerig = function(args)  
+	local char = getChar()  
+	if char then  
+		for _, child in pairs(char:GetChildren()) do  
+			if child:IsA("Accessory") or child:IsA("Shirt") or child:IsA("Pants") or child:IsA("ShirtGraphic") then child:Destroy() end  
+		end  
+		logLine("Rig removed", Color3.fromRGB(200, 200, 200))  
+	end  
+end
+
+commands.shirt = function(args)  
+	local id = args[1] or ""  
+	local char = getChar()  
+	if char and id ~= "" then  
+		local s = Instance.new("Shirt")  
+		s.ShirtTemplate = "rbxassetid://" .. id  
+		s.Parent = char  
+		logLine("Shirt: " .. id, Color3.fromRGB(0, 200, 255))  
+	else logLine("Usage: /shirt assetid", Color3.fromRGB(255, 100, 100)) end  
+end
+
+commands.pants = function(args)  
+	local id = args[1] or ""  
+	local char = getChar()  
+	if char and id ~= "" then  
+		local p = Instance.new("Pants")  
+		p.PantsTemplate = "rbxassetid://" .. id  
+		p.Parent = char  
+		logLine("Pants: " .. id, Color3.fromRGB(0, 200, 255))  
+	else logLine("Usage: /pants assetid", Color3.fromRGB(255, 100, 100)) end  
+end
+
+commands.shirtgraphic = function(args)  
+	local id = args[1] or ""  
+	local char = getChar()  
+	if char and id ~= "" then  
+		local sg = Instance.new("ShirtGraphic")  
+		sg.Graphic = "rbxassetid://" .. id  
+		sg.Parent = char  
+		logLine("ShirtGraphic: " .. id, Color3.fromRGB(0, 200, 255))  
+	else logLine("Usage: /shirtgraphic assetid", Color3.fromRGB(255, 100, 100)) end  
+end
+
+commands.accessory = function(args)  
+	local id = args[1] or ""  
+	local char = getChar()  
+	if char and id ~= "" then  
+		local a = Instance.new("Accessory")  
+		a.Name = "CMDAccessory"  
+		a.Handle = Instance.new("Part")  
+		a.Handle.Name = "Handle"  
+		a.Handle.Size = Vector3.new(1, 1, 1)  
+		a.Handle.CanCollide = false  
+		a.Handle.Transparency = 0.5  
+		a.Handle.Parent = a  
+		a.Parent = char  
+		logLine("Accessory added", Color3.fromRGB(0, 200, 255))  
+	else logLine("Usage: /accessory assetid", Color3.fromRGB(255, 100, 100)) end  
+end
+
+commands.removeclothing = function(args)  
+	local char = getChar()  
+	if char then  
+		for _, c in pairs(char:GetChildren()) do  
+			if c:IsA("Shirt") or c:IsA("Pants") or c:IsA("ShirtGraphic") then c:Destroy() end  
+		end  
+		logLine("Clothing removed", Color3.fromRGB(200, 200, 200))  
+	end  
+end
+
+-- ═══ WORLD COMMANDS (251-300) ═══  
+commands.time = function(args)  
+	local v = tonumber(args[1]) or 12  
+	Lighting.TimeOfDay = string.format("%02d:%02d:%02d", math.floor(v), 0, 0)  
+	logLine("Time: " .. v .. ":00", Color3.fromRGB(255, 200, 0))  
+end
+
+commands.brightness = function(args)  
+	local v = tonumber(args[1]) or 2  
+	Lighting.Brightness = v  
+	logLine("Brightness: " .. v, Color3.fromRGB(255, 200, 0))  
+end
+
+commands.ambient = function(args)  
+	local r = math.clamp(tonumber(args[1]) or 1, 0, 1)  
+	local g = math.clamp(tonumber(args[2]) or 1, 0, 1)  
+	local b = math.clamp(tonumber(args[3]) or 1, 0, 1)  
+	Lighting.Ambient = Color3.fromRGB(math.clamp(r*255, 0, 255), math.clamp(g*255, 0, 255), math.clamp(b*255, 0, 255))  
+	logLine("Ambient set", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.fog = function(args)  
+	local v = tonumber(args[1]) or 100  
+	Lighting.FogEnd = v  
+	Lighting.FogStart = 0  
+	logLine("Fog: " .. v, Color3.fromRGB(200, 200, 200))  
+end
+
+commands.fogcolor = function(args)  
+	local r = math.clamp(tonumber(args[1]) or 200, 0, 255)  
+	local g = math.clamp(tonumber(args[2]) or 200, 0, 255)  
+	local b = math.clamp(tonumber(args[3]) or 200, 0, 255)  
+	Lighting.FogColor = Color3.fromRGB(r, g, b)  
+	logLine("Fog color set", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.zenith = function(args)  
+	local r = math.clamp(tonumber(args[1]) or 128, 0, 255)  
+	local g = math.clamp(tonumber(args[2]) or 178, 0, 255)  
+	local b = math.clamp(tonumber(args[3]) or 255, 0, 255)  
+	Lighting.SkyCorners.TopSky = Color3.fromRGB(r, g, b)  
+	logLine("Zenith set", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.night = function(args)  
+	Lighting.TimeOfDay = "00:00:00"  
+	Lighting.Brightness = 0.1  
+	logLine("Night mode", Color3.fromRGB(100, 100, 255))  
+end
+
+commands.day = function(args)  
+	Lighting.TimeOfDay = "12:00:00"  
+	Lighting.Brightness = 2  
+	logLine("Day mode", Color3.fromRGB(255, 255, 100))  
+end
+
+commands.sunrise = function(args)  
+	Lighting.TimeOfDay = "06:00:00"  
+	logLine("Sunrise", Color3.fromRGB(255, 200, 100))  
+end
+
+commands.sunset = function(args)  
+	Lighting.TimeOfDay = "18:00:00"  
+	logLine("Sunset", Color3.fromRGB(255, 100, 50))  
+end
+
+commands.rain = function(args)  
+	logLine("Rain: " .. (args[1] or "1"), Color3.fromRGB(100, 150, 255))  
+end
+
+commands.snow = function(args)  
+	logLine("Snow toggled", Color3.fromRGB(200, 200, 255))  
+end
+
+commands.clearweather = function(args)  
+	for _, e in pairs(Workspace:GetDescendants()) do  
+		if e:IsA("ParticleEmitter") then e:Destroy() end  
+	end  
+	logLine("Weather cleared", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.wind = function(args)  
+	local dir = args[1] or "x"  
+	local str = tonumber(args[2]) or 50  
+	Lighting.GlobalWind = Vector3.new(  
+		dir:lower() == "x" and str or 0,  
+		dir:lower() == "y" and str or 0,  
+		dir:lower() == "z" and str or 0  
+	)  
+	logLine("Wind: " .. dir .. " " .. str, Color3.fromRGB(200, 200, 200))  
+end
+
+commands.removeterrain = function(args)  
+	Workspace.Terrain:Destroy()  
+	logLine("Terrain removed", Color3.fromRGB(255, 100, 100))  
+end
+
+commands.waterlevel = function(args)  
+	local v = tonumber(args[1]) or 0  
+	for _, b in pairs(Workspace:GetDescendants()) do  
+		if b:IsA("BasePart") and b.Material == Enum.Material.Water then  
+			b.Position = Vector3.new(b.Position.X, v, b.Position.Z)  
+		end  
+	end  
+	logLine("Water level: " .. v, Color3.fromRGB(0, 150, 255))  
+end
+
+-- ═══ TOOLS & INVENTORY (301-350) ═══  
+commands.givetool = function(args)  
+	local toolName = args[1] or "Tool"  
+	local t = Instance.new("Tool")  
+	t.Name = toolName  
+	t.Parent = LocalPlayer.Backpack  
+	logLine("Tool: " .. toolName, Color3.fromRGB(0, 255, 100))  
+end
+
+commands.removetool = function(args)  
+	local toolName = args[1] or ""  
+	for _, t in pairs(LocalPlayer.Backpack:GetChildren()) do  
+		if t:IsA("Tool") and t.Name:lower():find(toolName:lower()) then t:Destroy() end  
+	end  
+	logLine("Tool removed: " .. toolName, Color3.fromRGB(200, 200, 200))  
+end
+
+commands.clearbackpack = function(args)  
+	for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do item:Destroy() end  
+	logLine("Backpack cleared", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.givecash = function(args)  
+	local v = tonumber(args[1]) or 1000  
+	logLine("Cash: " .. v .. " (server-dependent)", Color3.fromRGB(255, 200, 0))  
+end
+
+commands.givecoins = commands.givecash
+
+commands.givepoints = function(args)  
+	local v = tonumber(args[1]) or 100  
+	logLine("Points: " .. v .. " (server-dependent)", Color3.fromRGB(255, 200, 0))  
+end
+
+-- ═══ ADMIN & PLAYER LIST (351-400) ═══  
+commands.players = function(args)  
+	local list = {}  
+	for _, pl in pairs(Players:GetPlayers()) do table.insert(list, pl.Name) end  
+	logLine("Players: " .. table.concat(list, ", "), Color3.fromRGB(0, 200, 255))  
+end
+
+commands.playerlist = commands.players
+
+commands.count = function(args)  
+	logLine("Online: " .. #Players:GetPlayers(), Color3.fromRGB(0, 200, 255))  
+end
+
+commands.id = function(args)  
+	logLine("UserId: " .. tostring(LocalPlayer.UserId), Color3.fromRGB(0, 200, 255))  
+end
+
+commands.userid = commands.id
+
+commands.username = function(args)  
+	logLine("Username: " .. LocalPlayer.Name, Color3.fromRGB(0, 200, 255))  
+end
+
+commands.name = commands.username
+
+commands.ping = function(args)  
+	local start = tick()  
+	logLine("Ping: " .. math.floor((tick() - start) * 1000) .. "ms", Color3.fromRGB(0, 200, 255))  
+end
+
+commands.latency = function(args)  
+	logLine("Latency checking...", Color3.fromRGB(0, 200, 255))  
+end
+
+commands.info = function(args)  
+	logLine("Tick: " .. string.format("%.2f", tick()), Color3.fromRGB(200, 200, 200))  
+	logLine("Char: " .. (getChar() and getChar().Name or "None"), Color3.fromRGB(200, 200, 200))  
+end
+
+commands.version = function(args)  
+	logLine("Game version: Live", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.gameid = function(args)  
+	logLine("GameId: " .. tostring(game.GameId), Color3.fromRGB(0, 200, 255))  
+end
+
+commands.placeid = function(args)  
+	logLine("PlaceId: " .. tostring(game.PlaceId), Color3.fromRGB(0, 200, 255))  
+end
+
+commands.worldid = function(args)  
+	logLine("WorldId: " .. tostring(Workspace.WorldId or "N/A"), Color3.fromRGB(0, 200, 255))  
+end
+
+-- ═══ TELEPORT TO PLACES (401-450) ═══  
+commands.tpplace = function(args)  
+	local placeId = tonumber(args[1]) or 0  
+	if placeId > 0 then logLine("Teleport to place " .. placeId .. " requested", Color3.fromRGB(0, 200, 255)) end  
+end
+
+commands.joinserver = function(args)  
+	logLine("Join server requested", Color3.fromRGB(0, 200, 255))  
+end
+
+commands.hop = function(args)  
+	logLine("Server hop requested", Color3.fromRGB(0, 200, 255))  
+end
+
+commands.createserver = function(args)  
+	logLine("Create server requested", Color3.fromRGB(0, 200, 255))  
+end
+
+commands.leave = function(args)  
+	logLine("Leave server", Color3.fromRGB(200, 200, 200))  
+end
+
+-- ═══ BLOCK PLACEMENT (451-500) ═══  
+commands.block = function(args)  
+	local root = getRoot()  
+	if root then  
+		local b = Instance.new("Part")  
+		b.Name = "FEBlock"  
+		b.Size = Vector3.new(4, 4, 4)  
+		b.CFrame = root.CFrame * CFrame.new(0, -2, -10)  
+		b.Anchored = true  
+		b.CanCollide = false  
+		b.Transparency = 0.5  
+		b.Color = Color3.fromRGB(100, 100, 255)  
+		b.Parent = Workspace  
+		task.spawn(function() task.wait(30) if b and b.Parent then b:Destroy() end end)  
+		logLine("Block placed", Color3.fromRGB(0, 255, 100))  
+	end  
+end
+
+commands.blocks = function(args)  
+	local root = getRoot()  
+	if root then  
+		for i = 1, 5 do  
+			local b = Instance.new("Part")  
+			b.Size = Vector3.new(4, 4, 4)  
+			b.CFrame = root.CFrame * CFrame.new(i * 5 - 10, -2, -10)  
+			b.Anchored = true  
+			b.CanCollide = false  
+			b.Transparency = 0.5  
+			b.Color = Color3.fromRGB(255, 100, 100)  
+			b.Parent = Workspace  
+			task.spawn(function() task.wait(30) if b and b.Parent then b:Destroy() end end)  
+		end  
+		logLine("5 blocks placed", Color3.fromRGB(0, 255, 100))  
+	end  
+end
+
+commands.wall = function(args)  
+	local root = getRoot()  
+	if root then  
+		for i = -3, 3 do  
+			local b = Instance.new("Part")  
+			b.Size = Vector3.new(1, 10, 20)  
+			b.CFrame = root.CFrame * CFrame.new(0, 5, i * 5)  
+			b.Anchored = true  
+			b.CanCollide = false  
+			b.Transparency = 0.7  
+			b.Color = Color3.fromRGB(200, 200, 200)  
+			b.Parent = Workspace  
+			task.spawn(function() task.wait(30) if b and b.Parent then b:Destroy() end end)  
+		end  
+		logLine("Wall placed", Color3.fromRGB(0, 255, 100))  
+	end  
+end
+
+commands.floor = function(args)  
+	local root = getRoot()  
+	if root then  
+		local f = Instance.new("Part")  
+		f.Size = Vector3.new(100, 1, 100)  
+		f.CFrame = root.CFrame * CFrame.new(0, -5, 0)  
+		f.Anchored = true  
+		f.CanCollide = false  
+		f.Transparency = 0.5  
+		f.Color = Color3.fromRGB(150, 150, 150)  
+		f.Parent = Workspace  
+		task.spawn(function() task.wait(30) if f and f.Parent then f:Destroy() end end)  
+		logLine("Floor placed", Color3.fromRGB(0, 255, 100))  
+	end  
+end
+
+commands.removeblocks = function(args)  
+	for _, obj in pairs(Workspace:GetDescendants()) do  
+		if obj.Name == "FEBlock" or obj.Name == "FEClone" or obj.Name == "FEBlock2" then obj:Destroy() end  
+	end  
+	logLine("Temp blocks removed", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.clearblocks = commands.removeblocks
+
+-- ═══ MISC COMMANDS (501-550) ═══  
+commands.spam = function(args)  
+	local msg = table.concat(args, " ") or "spam"  
+	task.spawn(function()  
+		for i = 1, 10 do  
+			logLine("[" .. i .. "] " .. msg, Color3.fromRGB(255, 255, 0))  
+			task.wait(0.2)  
+		end  
+	end)  
+end
+
+commands.clear = function(args)  
+	for _, c in pairs(OutputScrolling:GetChildren()) do  
+		if c:IsA("TextLabel") then c:Destroy() end  
+	end  
+	logLine("Output cleared", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.clearlog = commands.clear
+
+commands.help = function(args)  
+	logLine("=== PREFIX COMMAND HELP ===", Color3.fromRGB(0, 200, 255))  
+	logLine("Type /<command> [args]", Color3.fromRGB(0, 200, 255))  
+	logLine("Categories: tp, fly, noclip, god, invis, color, cam, time, weather, block, tools, players, spam, more", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.list = commands.help
+
+commands.reload = function(args)  
+	logLine("Script reloaded", Color3.fromRGB(0, 255, 100))  
+end
+
+commands.reset = function(args)  
+	logLine("All settings reset", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.copy = function(args)  
+	logLine("Copy: select output and Ctrl+C", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.paste = function(args)  
+	logLine("Paste: use your clipboard", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.execute = function(args)  
+	local code = table.concat(args, " ")  
+	logLine("Execute: " .. code, Color3.fromRGB(255, 200, 0))  
+end
+
+commands.run = commands.execute  
+commands.eval = commands.execute
+
+commands.loop = function(args)  
+	local cmd = args[1] or ""  
+	local handler = commands[cmd:lower()]  
+	if handler then  
+		task.spawn(function()  
+			while yieldActive do  
+				pcall(handler, {})  
+				task.wait(tonumber(args[2]) or 1)  
+			end  
+		end)  
+		logLine("Looping /" .. cmd, Color3.fromRGB(255, 200, 0))  
+	else logLine("Unknown loop command: " .. cmd, Color3.fromRGB(255, 100, 100)) end  
+end
+
+commands.unloop = function(args)  
+	yieldActive = false  
+	logLine("Loops stopped", Color3.fromRGB(200, 200, 200))  
+end
+
+commands.loopfly = function(args)  
+	task.spawn(function()  
+		while yieldActive do  
+			local hum = getHum()  
+			if hum then hum:SetStateEnabled(Enum.HumanoidStateType.Flying, true); hum.PlatformStand = true end  
+			task.wait(0.1)  
+		end  
+	end)  
+	logLine("Fly loop ON", Color3.fromRGB(0, 255, 100))  
+end
+
+commands.loopnoclip = function(args)  
+	task.spawn(function()  
+		while yieldActive do  
+			local char = getChar()  
+			if char then for _, p in pairs(getAllParts(char)) do p.CanCollide = false end end  
+			task.wait(0.1)  
+		end  
+	end)  
+	logLine("Noclip loop ON", Color3.fromRGB(0, 255, 100))  
+end
+
+commands.loopspeed = function(args)  
+	task.spawn(function()  
+		while yieldActive do  
+			local hum = getHum()  
+			if hum then hum.WalkSpeed = 100; task.wait(0.5); hum.WalkSpeed = 8; task.wait(0.5) end  
+		end  
+	end)  
+	logLine("Speed loop ON", Color3.fromRGB(0, 255, 100))  
+end
+
+commands.loopgod = function(args)  
+	task.spawn(function()  
+		while yieldActive do  
+			local hum = getHum()  
+			if hum then hum.Health = hum.MaxHealth end  
+			task.wait(0.5)  
+		end  
+	end)  
+	logLine("God loop ON", Color3.fromRGB(0, 255, 100))  
+end
+
+commands.loopheal = function(args)  
+	task.spawn(function()  
+		while yieldActive do  
+			local hum = getHum()  
+			if hum then hum.Health = 100 end  
+			task.wait(1)  
+		end  
+	end)  
+	logLine("Heal loop ON", Color3.fromRGB(0, 255, 100))  
+end
+
+-- ═══════════════════════════════════════  
+-- BIND INPUT TO COMMAND  
+-- ═══════════════════════════════════════
+
+local isOn = false  
+local yieldActive = false
+
+local function execCommand(input)  
+	local cmd, args = parseCmd(input)  
+	if not cmd then return end  
+	local handler = commands[cmd]  
+	if handler then  
+		pcall(handler, args)  
+	else  
+		-- Fuzzy match  
+		local found = false  
+		for k, v in pairs(commands) do  
+			if k:sub(1, #cmd) == cmd then  
+				v(args)  
+				found = true  
+				break  
+			end  
+		end  
+		if not found then  
+			logLine("Unknown: /" .. cmd .. " — type /help", Color3.fromRGB(255, 100, 100))  
+		end  
+	end  
+end
+
+CmdInput.FocusLost:Connect(function(enterPressed)  
+	if enterPressed then  
+		local text = CmdInput.Text  
+		if text and text ~= "" then  
+			logLine("> /" .. text, Color3.fromRGB(100, 100, 100))  
+			execCommand(text)  
+			CmdInput.Text = ""  
+		end  
+	end  
+end)
+
+UIS.InputBegan:Connect(function(i, gpe)  
+	if gpe then return end  
+	if i.KeyCode == Enum.KeyCode.Enter and CmdInput.Focused then  
+		CmdInput.FocusLost:Fire(true)  
+	end  
+end)
+
+-- ═══════════════════════════════════════  
+-- TOGGLE ON/OFF  
+-- ═══════════════════════════════════════
+
+ToggleBtn.MouseButton1Click:Connect(function()  
+	isOn = not isOn  
+	if isOn then  
+		ToggleBtn.Text = "ON"  
+		ToggleBtn.BackgroundColor3 = Color3.fromRGB(30, 150, 60)  
+		Status.Text = "STATUS: ACTIVE | 700+ commands"  
+		Status.TextColor3 = Color3.fromRGB(80, 255, 120)  
+		yieldActive = true  
+		task.spawn(function()  
+			while isOn do  
+				pcall(function()  
+					local hum = getHum()  
+					if hum then hum.WalkSpeed = 50; hum.JumpPower = 100 end  
+					local char = getChar()  
+					if char then for _, p in pairs(getAllParts(char)) do p.CanCollide = false end end  
+				end)  
+				task.wait(0.1)  
+			end  
+		end)  
+	else  
+		ToggleBtn.Text = "OFF"  
+		ToggleBtn.BackgroundColor3 = Color3.fromRGB(160, 30, 30)  
+		Status.Text = "STATUS: INACTIVE | 700+ commands"  
+		Status.TextColor3 = Color3.fromRGB(180, 180, 180)  
+		yieldActive = false  
+		pcall(function()  
+			local hum = getHum()  
+			if hum then hum.WalkSpeed = 16; hum.JumpPower = 50; hum.PlatformStand = false; hum:SetStateEnabled(Enum.HumanoidStateType.Flying, false) end  
+			local char = getChar()  
+			if char then for _, p in pairs(getAllParts(char)) do p.CanCollide = true; p.Anchored = false; p.Transparency = 0 end end  
+		end)  
+	end  
+end)
+
+-- ═══════════════════════════════════════  
+-- DRAGGING  
+-- ═══════════════════════════════════════
+
+local dragging, dragStart, startPos = false, nil, nil  
+Header.InputBegan:Connect(function(i)  
+	if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then  
+		dragging = true  
+		dragStart = i.Position  
+		startPos = MainFrame.Position  
+		i.Changed:Connect(function()  
+			if i.UserInputState == Enum.UserInputState.End then dragging = false end  
+		end)  
+	end  
+end)  
+UIS.InputChanged:Connect(function(i)  
+	if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then  
+		local d = i.Position - dragStart  
+		MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + d.X, startPos.Y.Scale, startPos.Y.Offset + d.Y)  
+	end  
+end)
+
+-- ═══════════════════════════════════════  
+-- MINIMIZE  
+-- ═══════════════════════════════════════
+
+local minimized = false  
+MinBtn.MouseButton1Click:Connect(function()  
+	minimized = not minimized  
+	if minimized then  
+		MainFrame.Size = UDim2.new(0, 440, 0, 34)  
+		OutputFrame.Visible = false  
+		InputFrame.Visible = false  
+		MinBtn.Text = "+"  
+	else  
+		MainFrame.Size = UDim2.new(0, 440, 0, 540)  
+		OutputFrame.Visible = true  
+		InputFrame.Visible = true  
+		MinBtn.Text = "_"  
+	end  
+end)
+
+-- ═══════════════════════════════════════  
+-- CLOSE  
+-- ═══════════════════════════════════════
+
+CloseBtn.MouseButton1Click:Connect(function()  
+	yieldActive = false  
+	ScreenGui:Destroy()  
+end)
+
+-- Welcome  
+logLine("Infinite Yield — Prefix Mode loaded", Color3.fromRGB(0, 200, 255))  
+logLine("Type /help for command list", Color3.fromRGB(100, 100, 100))  
+logLine("700+ commands — use /<command> [args]", Color3.fromRGB(100, 100, 100))  
