@@ -79,13 +79,13 @@ local stopAllEffects = false
 -- Day/Night cycle control
 local dayNightLoop = nil
 
--- Universal effect functions (all visible to everyone)
+-- Universal effect functions (all visible/audible to everyone)
 local function showHintToAll()
     spawn(function()
         while not stopAllEffects do
             for _, p in pairs(Players:GetPlayers()) do
                 local h = Instance.new("Hint", workspace)
-                h.Text = "😈The server got hacked by Corrupted IjeehDBq😈"
+                h.Text = "ðŸ˜ˆThe server got hacked by Corrupted IjeehDBqðŸ˜ˆ"
                 game:GetService("Debris"):AddItem(h, 3)
             end
             wait(5)
@@ -159,8 +159,8 @@ local function playMusic()
 end
 
 local function playSaxGuy()
-    if not ReplicatedStorage:FindFirstChild("EpicSaxGuy") then
-        local music = Instance.new("Sound", ReplicatedStorage)
+    if not workspace:FindFirstChild("EpicSaxGuy") then
+        local music = Instance.new("Sound", workspace)
         music.Name = "EpicSaxGuy"
         music.SoundId = "rbxassetid://135308045"
         music.Looped = true
@@ -294,6 +294,17 @@ local function darkMode()
     lighting.FogColor = Color3.fromRGB(0, 0, 0)
 end
 
+local function nightMode()
+    local lighting = game:GetService("Lighting")
+    lighting.Ambient = Color3.fromRGB(10, 10, 30)
+    lighting.OutdoorAmbient = Color3.fromRGB(10, 10, 30)
+    lighting.Brightness = 0.2
+    lighting.ClockTime = 0
+    lighting.FogEnd = 10000
+    lighting.FogStart = 0
+    lighting.FogColor = Color3.fromRGB(0, 0, 0)
+end
+
 local function dayNightCycle()
     local lighting = game:GetService("Lighting")
     
@@ -305,19 +316,25 @@ local function dayNightCycle()
     -- Start day/night cycle
     dayNightLoop = spawn(function()
         while not stopAllEffects do
-            -- Day time
+            -- Day time (6 AM to 6 PM)
             for i = 0, 1, 0.01 do
-                lighting.ClockTime = 6 + (i * 12) -- 6 AM to 6 PM
-                lighting.Brightness = 1 + (i * 1)
-                lighting.Ambient = Color3.fromRGB(255 * (1 - i * 0.5), 255 * (1 - i * 0.5), 255 * (1 - i * 0.5))
+                lighting.ClockTime = 6 + (i * 12)
+                lighting.Brightness = 0.5 + (i * 1.5)
+                lighting.Ambient = Color3.fromRGB(128 + (i * 127), 128 + (i * 127), 128 + (i * 127))
+                lighting.OutdoorAmbient = Color3.fromRGB(128 + (i * 127), 128 + (i * 127), 128 + (i * 127))
+                lighting.ColorShift_Top = Color3.fromRGB(255, 255, 255)
+                lighting.ColorShift_Bottom = Color3.fromRGB(255, 255, 255)
                 wait(0.1)
             end
             
-            -- Night time
+            -- Night time (6 PM to 6 AM)
             for i = 0, 1, 0.01 do
-                lighting.ClockTime = 18 + (i * 12) -- 6 PM to 6 AM
-                lighting.Brightness = 1 - (i * 0.9)
-                lighting.Ambient = Color3.fromRGB(255 * (1 - i * 0.8), 255 * (1 - i * 0.8), 255 * (1 - i * 0.8))
+                lighting.ClockTime = 18 + (i * 12)
+                lighting.Brightness = 2 - (i * 1.8)
+                lighting.Ambient = Color3.fromRGB(255 - (i * 245), 255 - (i * 245), 255 - (i * 225))
+                lighting.OutdoorAmbient = Color3.fromRGB(255 - (i * 245), 255 - (i * 245), 255 - (i * 225))
+                lighting.ColorShift_Top = Color3.fromRGB(255 - (i * 200), 255 - (i * 200), 255 - (i * 150))
+                lighting.ColorShift_Bottom = Color3.fromRGB(255 - (i * 200), 255 - (i * 200), 255 - (i * 150))
                 wait(0.1)
             end
         end
@@ -327,7 +344,7 @@ end
 local function stopAll()
     stopAllEffects = true
     
-    -- Reset lighting
+    -- Reset lighting to normal
     local lighting = game:GetService("Lighting")
     lighting.Ambient = Color3.fromRGB(128, 128, 128)
     lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
@@ -355,8 +372,14 @@ local function stopAll()
         end
     end
     
-    -- Stop all sounds
+    -- Stop and remove all sounds
     for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("Sound") then
+            v:Stop()
+            v:Destroy()
+        end
+    end
+    for _, v in pairs(ReplicatedStorage:GetDescendants()) do
         if v:IsA("Sound") then
             v:Stop()
             v:Destroy()
@@ -398,12 +421,22 @@ local function stopAll()
         end
     end
     
+    -- Remove disconnect GUIs
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr:FindFirstChild("PlayerGui") then
+            local disconnect = plr.PlayerGui:FindFirstChild("Disconnect")
+            if disconnect then
+                disconnect:Destroy()
+            end
+        end
+    end
+    
     -- Reset after 5 seconds so effects can be used again
     wait(5)
     stopAllEffects = false
 end
 
--- Buttons
+-- Buttons (All FE - visible/audible to everyone)
 makeButton("Hint", function()
     if not stopAllEffects then showHintToAll() end
 end, 0, 0)
@@ -412,7 +445,7 @@ makeButton("Hack", function()
     if not stopAllEffects then hackAllParts() end
 end, 120, 0)
 
-makeButton("Glitch map", function()
+makeButton("Glitch", function()
     if not stopAllEffects then glitchMap() end
 end, 0, 40)
 
@@ -420,7 +453,7 @@ makeButton("Music", function()
     if not stopAllEffects then playMusic() end
 end, 120, 40)
 
-makeButton("EpicSaxGuy", function()
+makeButton("SaxGuy", function()
     if not stopAllEffects then playSaxGuy() end
 end, 240, 40)
 
@@ -440,7 +473,7 @@ makeButton("Disco", function()
     if not stopAllEffects then disco() end
 end, 240, 0)
 
-makeButton("Ban all", function()
+makeButton("Ban All", function()
     if not stopAllEffects then banAll() end
 end, 0, 280)
 
@@ -452,10 +485,14 @@ makeButton("Dark", function()
     if not stopAllEffects then darkMode() end
 end, 0, 200)
 
+makeButton("Night", function()
+    if not stopAllEffects then nightMode() end
+end, 0, 240)
+
 makeButton("Day/Night", function()
     if not stopAllEffects then dayNightCycle() end
-end, 0, 240)
+end, 120, 240)
 
 makeButton("Stop", function()
     stopAll()
-end, 120, 240)
+end, 240, 240)
