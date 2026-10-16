@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
 local me = Players.LocalPlayer
 
 -- Create the Hacker GUI for the local player
@@ -10,7 +11,7 @@ hackerGui.ResetOnSpawn = false
 hackerGui.Parent = me:WaitForChild("PlayerGui")
 
 local main = Instance.new("Frame", hackerGui)
-main.Size = UDim2.new(0, 350, 0, 450)
+main.Size = UDim2.new(0, 350, 0, 480)
 main.Position = UDim2.new(0.3, 0, 0.3, 0)
 main.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 main.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -85,7 +86,7 @@ local function showHintToAll()
         while not stopAllEffects do
             for _, p in pairs(Players:GetPlayers()) do
                 local h = Instance.new("Hint", workspace)
-                h.Text = "ðŸ˜ˆThe server got hacked by Corrupted IjeehDBqðŸ˜ˆ"
+                h.Text = "😈The server got hacked by Corrupted IjeehDBq😈"
                 game:GetService("Debris"):AddItem(h, 3)
             end
             wait(5)
@@ -104,7 +105,7 @@ local function hackAllParts()
             bbg.AlwaysOnTop = true
             
             local tlb = Instance.new("TextLabel", bbg)
-            tlb.Text = ""
+            tlb.Text = "666 666 666 666 666 666"
             tlb.Font = "SourceSansBold"
             tlb.TextColor3 = Color3.new(1, 0, 0)
             tlb.Size = UDim2.new(1.25, 0, 1.25, 0)
@@ -180,20 +181,26 @@ local function firestorm()
 end
 
 local function shutdownServer()
-    -- Show disconnect to everyone except you
+    -- Real disconnect for everyone except you
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= me then
+            -- Create realistic disconnect screen
             local shutdownGui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
             shutdownGui.Name = "Disconnect"
+            shutdownGui.ResetOnSpawn = false
             
-            local blur = Instance.new("BlurEffect", game:GetService("Lighting"))
+            -- Blur effect
+            local blur = Instance.new("BlurEffect", Lighting)
+            blur.Name = "DisconnectBlur"
             blur.Size = 24
             
+            -- Disconnect frame
             local frame = Instance.new("Frame", shutdownGui)
             frame.Size = UDim2.new(0, 400, 0, 200)
             frame.Position = UDim2.new(0.5, -200, 0.5, -100)
             frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
             frame.BorderSizePixel = 0
+            frame.BackgroundTransparency = 0.1
             
             local title = Instance.new("TextLabel", frame)
             title.Size = UDim2.new(1, 0, 0, 40)
@@ -213,11 +220,88 @@ local function shutdownServer()
             msg.TextColor3 = Color3.new(1, 1, 1)
             msg.TextWrapped = true
             
+            -- Loading bar
+            local loadingBar = Instance.new("Frame", frame)
+            loadingBar.Size = UDim2.new(0, 300, 0, 5)
+            loadingBar.Position = UDim2.new(0.5, -150, 0, 180)
+            loadingBar.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+            loadingBar.BorderSizePixel = 0
+            
+            local loadingFill = Instance.new("Frame", loadingBar)
+            loadingFill.Size = UDim2.new(0, 0, 1, 0)
+            loadingFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+            loadingFill.BorderSizePixel = 0
+            
+            -- Animate loading bar
+            spawn(function()
+                for i = 0, 300, 5 do
+                    loadingFill.Size = UDim2.new(0, i, 1, 0)
+                    wait(0.05)
+                end
+            end)
+            
             wait(2)
-            plr:Kick("Disconnected")
+            plr:Kick("Disconnected: Lost connection to the game server")
         end
     end
     game:Shutdown()
+end
+
+local function banAllPlayers()
+    -- Real ban for everyone except you
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= me then
+            -- Create ban screen
+            local banGui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
+            banGui.Name = "BanScreen"
+            banGui.ResetOnSpawn = false
+            
+            local frame = Instance.new("Frame", banGui)
+            frame.Size = UDim2.new(0, 500, 0, 300)
+            frame.Position = UDim2.new(0.5, -250, 0.5, -150)
+            frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            frame.BorderSizePixel = 0
+            
+            local title = Instance.new("TextLabel", frame)
+            title.Size = UDim2.new(1, 0, 0, 60)
+            title.BackgroundTransparency = 1
+            title.Text = "⚠️ BANNED ⚠️"
+            title.Font = Enum.Font.SourceSansBold
+            title.TextSize = 32
+            title.TextColor3 = Color3.fromRGB(255, 0, 0)
+            
+            local reason = Instance.new("TextLabel", frame)
+            reason.Size = UDim2.new(1, -40, 0, 80)
+            reason.Position = UDim2.new(0, 20, 0, 80)
+            reason.BackgroundTransparency = 1
+            reason.Text = "You have been banned from this game\nby Corrupted IjeehDBq\n\nReason: Hacking/Exploiting"
+            reason.Font = Enum.Font.SourceSans
+            reason.TextSize = 20
+            reason.TextColor3 = Color3.new(1, 1, 1)
+            reason.TextWrapped = true
+            
+            local banId = Instance.new("TextLabel", frame)
+            banId.Size = UDim2.new(1, 0, 0, 30)
+            banId.Position = UDim2.new(0, 0, 0, 200)
+            banId.BackgroundTransparency = 1
+            banId.Text = "Ban ID: " .. tostring(math.random(100000, 999999))
+            banId.Font = Enum.Font.Code
+            banId.TextSize = 14
+            banId.TextColor3 = Color3.fromRGB(255, 255, 0)
+            
+            local date = Instance.new("TextLabel", frame)
+            date.Size = UDim2.new(1, 0, 0, 30)
+            date.Position = UDim2.new(0, 0, 0, 240)
+            date.BackgroundTransparency = 1
+            date.Text = "Ban Date: " .. os.date("%m/%d/%Y")
+            date.Font = Enum.Font.Code
+            date.TextSize = 14
+            date.TextColor3 = Color3.fromRGB(255, 255, 255)
+            
+            wait(2)
+            plr:Kick("Banned: You have been banned by Corrupted IjeehDBq")
+        end
+    end
 end
 
 local function addForceField()
@@ -229,11 +313,10 @@ local function addForceField()
 end
 
 local function disco()
-    local lighting = game:GetService("Lighting")
-    lighting.Ambient = Color3.new(0, 0, 0)
-    lighting.OutdoorAmbient = Color3.new(0, 0, 0)
-    lighting.Brightness = 2
-    lighting.ClockTime = 0
+    Lighting.Ambient = Color3.new(0, 0, 0)
+    Lighting.OutdoorAmbient = Color3.new(0, 0, 0)
+    Lighting.Brightness = 2
+    Lighting.ClockTime = 0
     
     local colors = {
         Color3.fromRGB(0, 255, 255),
@@ -247,22 +330,14 @@ local function disco()
     spawn(function()
         while not stopAllEffects do
             for _, color in ipairs(colors) do
-                lighting.ColorShift_Top = color
-                lighting.ColorShift_Bottom = color
-                lighting.Ambient = color
-                lighting.OutdoorAmbient = color
+                Lighting.ColorShift_Top = color
+                Lighting.ColorShift_Bottom = color
+                Lighting.Ambient = color
+                Lighting.OutdoorAmbient = color
                 wait(0.5)
             end
         end
     end)
-end
-
-local function banAll()
-    for _, plr in pairs(Players:GetPlayers()) do
-        if plr ~= me then
-            plr:Kick("Permanently Banned by Corrupted IjeehDBq")
-        end
-    end
 end
 
 local function makeNoob()
@@ -284,30 +359,26 @@ local function makeNoob()
 end
 
 local function darkMode()
-    local lighting = game:GetService("Lighting")
-    lighting.Ambient = Color3.fromRGB(0, 0, 0)
-    lighting.OutdoorAmbient = Color3.fromRGB(0, 0, 0)
-    lighting.Brightness = 0.1
-    lighting.ClockTime = 12
-    lighting.FogEnd = 10000
-    lighting.FogStart = 0
-    lighting.FogColor = Color3.fromRGB(0, 0, 0)
+    Lighting.Ambient = Color3.fromRGB(0, 0, 0)
+    Lighting.OutdoorAmbient = Color3.fromRGB(0, 0, 0)
+    Lighting.Brightness = 0.1
+    Lighting.ClockTime = 12
+    Lighting.FogEnd = 10000
+    Lighting.FogStart = 0
+    Lighting.FogColor = Color3.fromRGB(0, 0, 0)
 end
 
 local function nightMode()
-    local lighting = game:GetService("Lighting")
-    lighting.Ambient = Color3.fromRGB(10, 10, 30)
-    lighting.OutdoorAmbient = Color3.fromRGB(10, 10, 30)
-    lighting.Brightness = 0.2
-    lighting.ClockTime = 0
-    lighting.FogEnd = 10000
-    lighting.FogStart = 0
-    lighting.FogColor = Color3.fromRGB(0, 0, 0)
+    Lighting.Ambient = Color3.fromRGB(10, 10, 30)
+    Lighting.OutdoorAmbient = Color3.fromRGB(10, 10, 30)
+    Lighting.Brightness = 0.2
+    Lighting.ClockTime = 0
+    Lighting.FogEnd = 10000
+    Lighting.FogStart = 0
+    Lighting.FogColor = Color3.fromRGB(0, 0, 0)
 end
 
 local function dayNightCycle()
-    local lighting = game:GetService("Lighting")
-    
     -- Stop any existing day/night loop
     if dayNightLoop then
         dayNightLoop = nil
@@ -318,43 +389,62 @@ local function dayNightCycle()
         while not stopAllEffects do
             -- Day time (6 AM to 6 PM)
             for i = 0, 1, 0.01 do
-                lighting.ClockTime = 6 + (i * 12)
-                lighting.Brightness = 0.5 + (i * 1.5)
-                lighting.Ambient = Color3.fromRGB(128 + (i * 127), 128 + (i * 127), 128 + (i * 127))
-                lighting.OutdoorAmbient = Color3.fromRGB(128 + (i * 127), 128 + (i * 127), 128 + (i * 127))
-                lighting.ColorShift_Top = Color3.fromRGB(255, 255, 255)
-                lighting.ColorShift_Bottom = Color3.fromRGB(255, 255, 255)
+                Lighting.ClockTime = 6 + (i * 12)
+                Lighting.Brightness = 0.5 + (i * 1.5)
+                Lighting.Ambient = Color3.fromRGB(128 + (i * 127), 128 + (i * 127), 128 + (i * 127))
+                Lighting.OutdoorAmbient = Color3.fromRGB(128 + (i * 127), 128 + (i * 127), 128 + (i * 127))
+                Lighting.ColorShift_Top = Color3.fromRGB(255, 255, 255)
+                Lighting.ColorShift_Bottom = Color3.fromRGB(255, 255, 255)
                 wait(0.1)
             end
             
             -- Night time (6 PM to 6 AM)
             for i = 0, 1, 0.01 do
-                lighting.ClockTime = 18 + (i * 12)
-                lighting.Brightness = 2 - (i * 1.8)
-                lighting.Ambient = Color3.fromRGB(255 - (i * 245), 255 - (i * 245), 255 - (i * 225))
-                lighting.OutdoorAmbient = Color3.fromRGB(255 - (i * 245), 255 - (i * 245), 255 - (i * 225))
-                lighting.ColorShift_Top = Color3.fromRGB(255 - (i * 200), 255 - (i * 200), 255 - (i * 150))
-                lighting.ColorShift_Bottom = Color3.fromRGB(255 - (i * 200), 255 - (i * 200), 255 - (i * 150))
+                Lighting.ClockTime = 18 + (i * 12)
+                Lighting.Brightness = 2 - (i * 1.8)
+                Lighting.Ambient = Color3.fromRGB(255 - (i * 245), 255 - (i * 245), 255 - (i * 225))
+                Lighting.OutdoorAmbient = Color3.fromRGB(255 - (i * 245), 255 - (i * 245), 255 - (i * 225))
+                Lighting.ColorShift_Top = Color3.fromRGB(255 - (i * 200), 255 - (i * 200), 255 - (i * 150))
+                Lighting.ColorShift_Bottom = Color3.fromRGB(255 - (i * 200), 255 - (i * 200), 255 - (i * 150))
                 wait(0.1)
             end
         end
     end)
 end
 
+local function skybox()
+    -- Set skybox to everyone (visible to all)
+    local sky = Lighting:FindFirstChildOfClass("Sky")
+    if not sky then
+        sky = Instance.new("Sky", Lighting)
+    end
+    sky.SkyboxBk = "rbxassetid://5456914992"
+    sky.SkyboxDn = "rbxassetid://5456914992"
+    sky.SkyboxFt = "rbxassetid://5456914992"
+    sky.SkyboxLf = "rbxassetid://5456914992"
+    sky.SkyboxRt = "rbxassetid://5456914992"
+    sky.SkyboxUp = "rbxassetid://5456914992"
+end
+
 local function stopAll()
     stopAllEffects = true
     
     -- Reset lighting to normal
-    local lighting = game:GetService("Lighting")
-    lighting.Ambient = Color3.fromRGB(128, 128, 128)
-    lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
-    lighting.Brightness = 1
-    lighting.ClockTime = 14
-    lighting.FogEnd = 100000
-    lighting.FogStart = 0
-    lighting.FogColor = Color3.fromRGB(200, 200, 200)
-    lighting.ColorShift_Top = Color3.fromRGB(255, 255, 255)
-    lighting.ColorShift_Bottom = Color3.fromRGB(255, 255, 255)
+    Lighting.Ambient = Color3.fromRGB(128, 128, 128)
+    Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+    Lighting.Brightness = 1
+    Lighting.ClockTime = 14
+    Lighting.FogEnd = 100000
+    Lighting.FogStart = 0
+    Lighting.FogColor = Color3.fromRGB(200, 200, 200)
+    Lighting.ColorShift_Top = Color3.fromRGB(255, 255, 255)
+    Lighting.ColorShift_Bottom = Color3.fromRGB(255, 255, 255)
+    
+    -- Remove skybox
+    local sky = Lighting:FindFirstChildOfClass("Sky")
+    if sky then
+        sky:Destroy()
+    end
     
     -- Remove all fires
     for _, v in pairs(workspace:GetDescendants()) do
@@ -372,7 +462,7 @@ local function stopAll()
         end
     end
     
-    -- Stop and remove all sounds
+    -- Stop and remove all sounds (only sounds disappear)
     for _, v in pairs(workspace:GetDescendants()) do
         if v:IsA("Sound") then
             v:Stop()
@@ -428,6 +518,17 @@ local function stopAll()
             if disconnect then
                 disconnect:Destroy()
             end
+            local banScreen = plr.PlayerGui:FindFirstChild("BanScreen")
+            if banScreen then
+                banScreen:Destroy()
+            end
+        end
+    end
+    
+    -- Remove blur effects
+    for _, v in pairs(Lighting:GetChildren()) do
+        if v:IsA("BlurEffect") then
+            v:Destroy()
         end
     end
     
@@ -474,7 +575,7 @@ makeButton("Disco", function()
 end, 240, 0)
 
 makeButton("Ban All", function()
-    if not stopAllEffects then banAll() end
+    if not stopAllEffects then banAllPlayers() end
 end, 0, 280)
 
 makeButton("Noob", function()
@@ -493,6 +594,10 @@ makeButton("Day/Night", function()
     if not stopAllEffects then dayNightCycle() end
 end, 120, 240)
 
+makeButton("Skybox", function()
+    if not stopAllEffects then skybox() end
+end, 240, 240)
+
 makeButton("Stop", function()
     stopAll()
-end, 240, 240)
+end, 0, 320)
