@@ -12,7 +12,7 @@ hackerGui.ResetOnSpawn = false
 hackerGui.Parent = me:WaitForChild("PlayerGui")
 
 local main = Instance.new("Frame", hackerGui)
-main.Size = UDim2.new(0, 350, 0, 520)
+main.Size = UDim2.new(0, 350, 0, 560)
 main.Position = UDim2.new(0.3, 0, 0.3, 0)
 main.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 main.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -157,6 +157,17 @@ local function playMusic()
         Music.Looped = true
         Music.Volume = 10
         Music:Play()
+    end
+end
+
+local function playMusic2()
+    if not workspace:FindFirstChild("Music2") then
+        local Music2 = Instance.new("Sound", workspace)
+        Music2.Name = "Music2"
+        Music2.SoundId = "rbxassetid://1835925883"
+        Music2.Looped = true
+        Music2.Volume = 10
+        Music2:Play()
     end
 end
 
@@ -650,6 +661,10 @@ makeButton("Skybox", function()
     if not stopAllEffects then skybox() end
 end, 240, 240)
 
+makeButton("Music2", function()
+    if not stopAllEffects then playMusic2() end
+end, 0, 320)
+
 makeButton("Stop", function()
     stopAll()
-end, 0, 320)
+end, 120, 320)
