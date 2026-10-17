@@ -164,7 +164,7 @@ local function playMusic2()
     if not workspace:FindFirstChild("Music2") then
         local Music2 = Instance.new("Sound", workspace)
         Music2.Name = "Music2"
-        Music2.SoundId = "rbxassetid://1835925883"
+        Music2.SoundId = "rbxassetid://1847661821"
         Music2.Looped = true
         Music2.Volume = 10
         Music2:Play()
@@ -315,7 +315,7 @@ local function banAllPlayers()
             local title = Instance.new("TextLabel", frame)
             title.Size = UDim2.new(1, 0, 0, 60)
             title.BackgroundTransparency = 1
-            title.Text = "⚠️ BANNED ⚠️"
+            title.Text = "Ban by Corrupted IjeehDBq"
             title.Font = Enum.Font.SourceSansBold
             title.TextSize = 32
             title.TextColor3 = Color3.fromRGB(255, 0, 0)
@@ -325,7 +325,7 @@ local function banAllPlayers()
             reason.Size = UDim2.new(1, -40, 0, 80)
             reason.Position = UDim2.new(0, 20, 0, 80)
             reason.BackgroundTransparency = 1
-            reason.Text = "You have been banned from this game\nby Corrupted IjeehDBq\n\nReason: Hacking/Exploiting"
+            reason.Text = "You have been banned from this game by Corrupted IjeehDBq\n\nReason: Hacking/Exploiting"
             reason.Font = Enum.Font.SourceSans
             reason.TextSize = 20
             reason.TextColor3 = Color3.new(1, 1, 1)
