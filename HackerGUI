@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
+local TweenService = game:GetService("TweenService")
 local me = Players.LocalPlayer
 
 -- Create the Hacker GUI for the local player
@@ -11,7 +12,7 @@ hackerGui.ResetOnSpawn = false
 hackerGui.Parent = me:WaitForChild("PlayerGui")
 
 local main = Instance.new("Frame", hackerGui)
-main.Size = UDim2.new(0, 350, 0, 480)
+main.Size = UDim2.new(0, 350, 0, 520)
 main.Position = UDim2.new(0.3, 0, 0.3, 0)
 main.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 main.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -105,7 +106,7 @@ local function hackAllParts()
             bbg.AlwaysOnTop = true
             
             local tlb = Instance.new("TextLabel", bbg)
-            tlb.Text = ""
+            tlb.Text = "666 666 666 666 666 666"
             tlb.Font = "SourceSansBold"
             tlb.TextColor3 = Color3.new(1, 0, 0)
             tlb.Size = UDim2.new(1.25, 0, 1.25, 0)
@@ -181,7 +182,7 @@ local function firestorm()
 end
 
 local function shutdownServer()
-    -- Real disconnect for everyone except you
+    -- Real disconnect with lag for everyone except you
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= me then
             -- Create realistic disconnect screen
@@ -189,10 +190,19 @@ local function shutdownServer()
             shutdownGui.Name = "Disconnect"
             shutdownGui.ResetOnSpawn = false
             
-            -- Blur effect
+            -- Blur effect (causes visual lag)
             local blur = Instance.new("BlurEffect", Lighting)
             blur.Name = "DisconnectBlur"
-            blur.Size = 24
+            blur.Size = 50
+            
+            -- Create lag effects
+            for i = 1, 5 do
+                local lagFrame = Instance.new("Frame", shutdownGui)
+                lagFrame.Size = UDim2.new(1, 0, 1, 0)
+                lagFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                lagFrame.BackgroundTransparency = 0.5 + (i * 0.1)
+                lagFrame.ZIndex = i
+            end
             
             -- Disconnect frame
             local frame = Instance.new("Frame", shutdownGui)
@@ -201,6 +211,7 @@ local function shutdownServer()
             frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
             frame.BorderSizePixel = 0
             frame.BackgroundTransparency = 0.1
+            frame.ZIndex = 10
             
             local title = Instance.new("TextLabel", frame)
             title.Size = UDim2.new(1, 0, 0, 40)
@@ -209,6 +220,7 @@ local function shutdownServer()
             title.Font = Enum.Font.SourceSansBold
             title.TextSize = 24
             title.TextColor3 = Color3.new(1, 1, 1)
+            title.ZIndex = 11
             
             local msg = Instance.new("TextLabel", frame)
             msg.Size = UDim2.new(1, -40, 0, 100)
@@ -219,6 +231,7 @@ local function shutdownServer()
             msg.TextSize = 18
             msg.TextColor3 = Color3.new(1, 1, 1)
             msg.TextWrapped = true
+            msg.ZIndex = 11
             
             -- Loading bar
             local loadingBar = Instance.new("Frame", frame)
@@ -226,11 +239,13 @@ local function shutdownServer()
             loadingBar.Position = UDim2.new(0.5, -150, 0, 180)
             loadingBar.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
             loadingBar.BorderSizePixel = 0
+            loadingBar.ZIndex = 11
             
             local loadingFill = Instance.new("Frame", loadingBar)
             loadingFill.Size = UDim2.new(0, 0, 1, 0)
             loadingFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
             loadingFill.BorderSizePixel = 0
+            loadingFill.ZIndex = 12
             
             -- Animate loading bar
             spawn(function()
@@ -240,7 +255,16 @@ local function shutdownServer()
                 end
             end)
             
-            wait(2)
+            -- Make player lag by slowing them down
+            if plr.Character then
+                local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = 0
+                    humanoid.JumpPower = 0
+                end
+            end
+            
+            wait(3)
             plr:Kick("Disconnected: Lost connection to the game server")
         end
     end
@@ -248,7 +272,7 @@ local function shutdownServer()
 end
 
 local function banAllPlayers()
-    -- Real ban for everyone except you
+    -- Real ban with lag for everyone except you
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= me then
             -- Create ban screen
@@ -256,11 +280,26 @@ local function banAllPlayers()
             banGui.Name = "BanScreen"
             banGui.ResetOnSpawn = false
             
+            -- Blur effect (causes visual lag)
+            local blur = Instance.new("BlurEffect", Lighting)
+            blur.Name = "BanBlur"
+            blur.Size = 40
+            
+            -- Create lag effects
+            for i = 1, 5 do
+                local lagFrame = Instance.new("Frame", banGui)
+                lagFrame.Size = UDim2.new(1, 0, 1, 0)
+                lagFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                lagFrame.BackgroundTransparency = 0.4 + (i * 0.1)
+                lagFrame.ZIndex = i
+            end
+            
             local frame = Instance.new("Frame", banGui)
             frame.Size = UDim2.new(0, 500, 0, 300)
             frame.Position = UDim2.new(0.5, -250, 0.5, -150)
             frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
             frame.BorderSizePixel = 0
+            frame.ZIndex = 10
             
             local title = Instance.new("TextLabel", frame)
             title.Size = UDim2.new(1, 0, 0, 60)
@@ -269,6 +308,7 @@ local function banAllPlayers()
             title.Font = Enum.Font.SourceSansBold
             title.TextSize = 32
             title.TextColor3 = Color3.fromRGB(255, 0, 0)
+            title.ZIndex = 11
             
             local reason = Instance.new("TextLabel", frame)
             reason.Size = UDim2.new(1, -40, 0, 80)
@@ -279,6 +319,7 @@ local function banAllPlayers()
             reason.TextSize = 20
             reason.TextColor3 = Color3.new(1, 1, 1)
             reason.TextWrapped = true
+            reason.ZIndex = 11
             
             local banId = Instance.new("TextLabel", frame)
             banId.Size = UDim2.new(1, 0, 0, 30)
@@ -288,6 +329,7 @@ local function banAllPlayers()
             banId.Font = Enum.Font.Code
             banId.TextSize = 14
             banId.TextColor3 = Color3.fromRGB(255, 255, 0)
+            banId.ZIndex = 11
             
             local date = Instance.new("TextLabel", frame)
             date.Size = UDim2.new(1, 0, 0, 30)
@@ -297,8 +339,18 @@ local function banAllPlayers()
             date.Font = Enum.Font.Code
             date.TextSize = 14
             date.TextColor3 = Color3.fromRGB(255, 255, 255)
+            date.ZIndex = 11
             
-            wait(2)
+            -- Make player lag by slowing them down
+            if plr.Character then
+                local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = 0
+                    humanoid.JumpPower = 0
+                end
+            end
+            
+            wait(3)
             plr:Kick("Banned: You have been banned by Corrupted IjeehDBq")
         end
     end
