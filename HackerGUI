@@ -206,7 +206,7 @@ local function shutdownServer()
             blur.Name = "DisconnectBlur"
             blur.Size = 50
             
-            -- Create lag effects
+            -- Create lag effects with black overlay
             for i = 1, 5 do
                 local lagFrame = Instance.new("Frame", shutdownGui)
                 lagFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -266,17 +266,29 @@ local function shutdownServer()
                 end
             end)
             
-            -- Make player lag by slowing them down
+            -- Make player lag by slowing them down and making them disappear
             if plr.Character then
                 local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
                 if humanoid then
                     humanoid.WalkSpeed = 0
                     humanoid.JumpPower = 0
                 end
+                
+                -- Make character disappear gradually
+                spawn(function()
+                    for i = 0, 1, 0.1 do
+                        for _, part in pairs(plr.Character:GetChildren()) do
+                            if part:IsA("BasePart") then
+                                part.Transparency = i
+                            end
+                        end
+                        wait(0.2)
+                    end
+                end)
             end
             
             wait(3)
-            plr:Kick("Disconnected: Lost connection to the game server")
+            plr:Kick("Disconnected: Lost connection to the game server (Error Code: 1001)")
         end
     end
     game:Shutdown()
@@ -296,7 +308,7 @@ local function banAllPlayers()
             blur.Name = "BanBlur"
             blur.Size = 40
             
-            -- Create lag effects
+            -- Create lag effects with black overlay
             for i = 1, 5 do
                 local lagFrame = Instance.new("Frame", banGui)
                 lagFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -315,17 +327,27 @@ local function banAllPlayers()
             local title = Instance.new("TextLabel", frame)
             title.Size = UDim2.new(1, 0, 0, 60)
             title.BackgroundTransparency = 1
-            title.Text = "Ban by Corrupted IjeehDBq"
+            title.Text = "⚠️ BANNED ⚠️"
             title.Font = Enum.Font.SourceSansBold
             title.TextSize = 32
             title.TextColor3 = Color3.fromRGB(255, 0, 0)
             title.ZIndex = 11
             
+            local hacked = Instance.new("TextLabel", frame)
+            hacked.Size = UDim2.new(1, 0, 0, 30)
+            hacked.Position = UDim2.new(0, 0, 0, 55)
+            hacked.BackgroundTransparency = 1
+            hacked.Text = "Hacked by Corrupted IjeehDBq"
+            hacked.Font = Enum.Font.SourceSansBold
+            hacked.TextSize = 18
+            hacked.TextColor3 = Color3.fromRGB(255, 255, 0)
+            hacked.ZIndex = 11
+            
             local reason = Instance.new("TextLabel", frame)
             reason.Size = UDim2.new(1, -40, 0, 80)
-            reason.Position = UDim2.new(0, 20, 0, 80)
+            reason.Position = UDim2.new(0, 20, 0, 90)
             reason.BackgroundTransparency = 1
-            reason.Text = "You have been banned from this game by Corrupted IjeehDBq\n\nReason: Hacking/Exploiting"
+            reason.Text = "You have been banned from this game\nby Corrupted IjeehDBq\n\nReason: Hacking/Exploiting\nError Code: 1001"
             reason.Font = Enum.Font.SourceSans
             reason.TextSize = 20
             reason.TextColor3 = Color3.new(1, 1, 1)
@@ -352,17 +374,29 @@ local function banAllPlayers()
             date.TextColor3 = Color3.fromRGB(255, 255, 255)
             date.ZIndex = 11
             
-            -- Make player lag by slowing them down
+            -- Make player lag by slowing them down and making them disappear
             if plr.Character then
                 local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
                 if humanoid then
                     humanoid.WalkSpeed = 0
                     humanoid.JumpPower = 0
                 end
+                
+                -- Make character disappear gradually
+                spawn(function()
+                    for i = 0, 1, 0.1 do
+                        for _, part in pairs(plr.Character:GetChildren()) do
+                            if part:IsA("BasePart") then
+                                part.Transparency = i
+                            end
+                        end
+                        wait(0.2)
+                    end
+                end)
             end
             
             wait(3)
-            plr:Kick("Banned: You have been banned by Corrupted IjeehDBq")
+            plr:Kick("Banned: You have been banned by Corrupted IjeehDBq (Error Code: 1001)")
         end
     end
 end
@@ -558,6 +592,7 @@ local function stopAll()
             for _, part in pairs(plr.Character:GetChildren()) do
                 if part:IsA("BasePart") then
                     part.BrickColor = BrickColor.new("Bright blue")
+                    part.Transparency = 0
                 end
             end
         end
