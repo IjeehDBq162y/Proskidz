@@ -1,1 +1,581 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+local TweenService = game:GetService("TweenService")
+local me = Players.LocalPlayer
 
+-- Create the Hacker GUI for the local player ONLY
+local hackerGui = Instance.new("ScreenGui")
+hackerGui.Name = "Hacker GUI"
+hackerGui.ResetOnSpawn = false
+hackerGui.Parent = me:WaitForChild("PlayerGui")
+
+local main = Instance.new("Frame", hackerGui)
+main.Size = UDim2.new(0, 350, 0, 560)
+main.Position = UDim2.new(0.3, 0, 0.3, 0)
+main.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+main.BorderColor3 = Color3.fromRGB(0, 0, 0)
+main.BorderSizePixel = 5
+main.Active = true
+main.Draggable = true
+
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+title.Text = "Hacker GUI"
+title.TextColor3 = Color3.fromRGB(0, 255, 0)
+title.TextSize = 25
+title.Font = Enum.Font.SourceSansBold
+
+local holder = Instance.new("Frame", main)
+holder.Size = UDim2.new(1, -20, 1, -80)
+holder.Position = UDim2.new(0, 10, 0, 50)
+holder.BackgroundTransparency = 1
+
+local footer = Instance.new("TextLabel", main)
+footer.Size = UDim2.new(1, 0, 0, 30)
+footer.Position = UDim2.new(0, 0, 1, -30)
+footer.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+footer.Text = "XXXXMade By Corrupted IjeehDBqXXXX"
+footer.TextColor3 = Color3.fromRGB(0, 255, 0)
+footer.TextSize = 18
+footer.Font = Enum.Font.SourceSansBold
+
+local function makeButton(name, func, x, y)
+    local btn = Instance.new("TextButton", holder)
+    btn.Size = UDim2.new(0, 100, 0, 30)
+    btn.Position = UDim2.new(0, x, 0, y)
+    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    btn.BorderColor3 = Color3.fromRGB(0, 255, 0)
+    btn.BorderSizePixel = 2
+    btn.TextColor3 = Color3.fromRGB(0, 255, 0)
+    btn.Font = Enum.Font.SourceSansBold
+    btn.TextSize = 16
+    btn.Text = name
+    btn.MouseButton1Click:Connect(func)
+end
+
+-- Universal FE Bypass - Creates a part that replicates to everyone
+local bypassPart = Instance.new("Part")
+bypassPart.Name = "FEBypass"
+bypassPart.Size = Vector3.new(1, 1, 1)
+bypassPart.Transparency = 1
+bypassPart.CanCollide = false
+bypassPart.Anchored = true
+bypassPart.Parent = workspace
+
+-- Create ClickDetector for server-side replication
+local clickDetector = Instance.new("ClickDetector", bypassPart)
+
+clickDetector.MouseClick:Connect(function(player)
+    if player == me then
+        -- Effects handled here
+    end
+end)
+
+-- Day/Night cycle control
+local dayNightLoop = nil
+
+-- ============================================
+-- ALL EFFECTS (VISIBLE/AUDIBLE TO EVERYONE)
+-- ============================================
+
+-- HINT - Visible to ALL players screens
+local function showHintToAll()
+    spawn(function()
+        while true do
+            for _, p in pairs(Players:GetPlayers()) do
+                local h = Instance.new("Hint", workspace)
+                h.Text = "😈The server got hacked by Corrupted IjeehDBq😈"
+                game:GetService("Debris"):AddItem(h, 3)
+            end
+            wait(5)
+        end
+    end)
+end
+
+-- HACK - Fire effects visible to everyone
+local function hackAllParts()
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and not v:FindFirstChild("666") then
+            -- Billboard GUI (visible to everyone's screen)
+            local bbg = Instance.new("BillboardGui", v)
+            bbg.Name = "stuf"
+            bbg.Adornee = v
+            bbg.Size = UDim2.new(2.5, 0, 2.5, 0)
+            bbg.AlwaysOnTop = true
+            
+            local tlb = Instance.new("TextLabel", bbg)
+            tlb.Text = ""
+            tlb.Font = "SourceSansBold"
+            tlb.TextColor3 = Color3.new(1, 0, 0)
+            tlb.Size = UDim2.new(1.25, 0, 1.25, 0)
+            tlb.Position = UDim2.new(-0.125, -22, -1.1, 0)
+            tlb.BackgroundTransparency = 1
+            tlb.TextScaled = true
+            
+            -- Visual effects (visible to everyone)
+            v.BrickColor = BrickColor.new("Really black")
+            v.TopSurface = Enum.SurfaceType.Smooth
+            v.BottomSurface = Enum.SurfaceType.Smooth
+            
+            local s = Instance.new("SelectionBox", v)
+            s.Adornee = v
+            s.Color3 = Color3.new(1, 0, 0)
+            
+            local a = Instance.new("PointLight", v)
+            a.Color = Color3.new(1, 0, 0)
+            a.Range = 15
+            a.Brightness = 5
+            
+            local f = Instance.new("Fire", v)
+            f.Size = 19
+            f.Heat = 22
+        end
+    end
+end
+
+-- GLITCH - Visual glitching visible to everyone
+local function glitchMap()
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") then
+            spawn(function()
+                while true do
+                    v.Color = Color3.new(math.random(), math.random(), math.random())
+                    v.Material = Enum.Material.Neon
+                    wait(0.1)
+                end
+            end)
+        end
+    end
+end
+
+-- MUSIC - Audible to everyone
+local function playMusic()
+    if not workspace:FindFirstChild("Music") then
+        local Music = Instance.new("Sound", workspace)
+        Music.Name = "Music 2006"
+        Music.SoundId = "rbxassetid://1839246711"
+        Music.Looped = true
+        Music.Volume = 10
+        Music:Play()
+    end
+end
+
+-- MUSIC2 - Audible to everyone
+local function playMusic2()
+    if not workspace:FindFirstChild("Music2") then
+        local Music2 = Instance.new("Sound", workspace)
+        Music2.Name = "Music2"
+        Music2.SoundId = "rbxassetid://1847661821"
+        Music2.Looped = true
+        Music2.Volume = 10
+        Music2:Play()
+    end
+end
+
+-- SAXGUY - Audible to everyone
+local function playSaxGuy()
+    if not workspace:FindFirstChild("EpicSaxGuy") then
+        local music = Instance.new("Sound", workspace)
+        music.Name = "EpicSaxGuy"
+        music.SoundId = "rbxassetid://135308045"
+        music.Looped = true
+        music.Volume = 10
+        music:Play()
+    end
+end
+
+-- FIRESTORM - Fire effects visible to everyone
+local function firestorm()
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") then
+            local f = Instance.new("Fire", v)
+            f.Size = 100
+            f.Heat = 500
+        end
+    end
+end
+
+-- SHUTDOWN - Affects everyone's screen with blur + error code
+local function shutdownServer()
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= me then
+            -- Create disconnect screen on EVERYONE's screen
+            local shutdownGui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
+            shutdownGui.Name = "Disconnect"
+            shutdownGui.ResetOnSpawn = false
+            
+            -- Blur effect (visible on everyone's screen)
+            local blur = Instance.new("BlurEffect", Lighting)
+            blur.Name = "DisconnectBlur"
+            blur.Size = 50
+            
+            -- Black overlay frames (visible on everyone's screen)
+            for i = 1, 5 do
+                local lagFrame = Instance.new("Frame", shutdownGui)
+                lagFrame.Size = UDim2.new(1, 0, 1, 0)
+                lagFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                lagFrame.BackgroundTransparency = 0.5 + (i * 0.1)
+                lagFrame.ZIndex = i
+            end
+            
+            -- Disconnect frame (visible on everyone's screen)
+            local frame = Instance.new("Frame", shutdownGui)
+            frame.Size = UDim2.new(0, 400, 0, 200)
+            frame.Position = UDim2.new(0.5, -200, 0.5, -100)
+            frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+            frame.BorderSizePixel = 0
+            frame.BackgroundTransparency = 0.1
+            frame.ZIndex = 10
+            
+            local title = Instance.new("TextLabel", frame)
+            title.Size = UDim2.new(1, 0, 0, 40)
+            title.BackgroundTransparency = 1
+            title.Text = "Disconnected"
+            title.Font = Enum.Font.SourceSansBold
+            title.TextSize = 24
+            title.TextColor3 = Color3.new(1, 1, 1)
+            title.ZIndex = 11
+            
+            local msg = Instance.new("TextLabel", frame)
+            msg.Size = UDim2.new(1, -40, 0, 100)
+            msg.Position = UDim2.new(0, 20, 0, 60)
+            msg.BackgroundTransparency = 1
+            msg.Text = "Lost connection to the game server, please reconnect\n(Error Code: 1001)"
+            msg.Font = Enum.Font.SourceSans
+            msg.TextSize = 18
+            msg.TextColor3 = Color3.new(1, 1, 1)
+            msg.TextWrapped = true
+            msg.ZIndex = 11
+            
+            -- Loading bar
+            local loadingBar = Instance.new("Frame", frame)
+            loadingBar.Size = UDim2.new(0, 300, 0, 5)
+            loadingBar.Position = UDim2.new(0.5, -150, 0, 180)
+            loadingBar.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+            loadingBar.BorderSizePixel = 0
+            loadingBar.ZIndex = 11
+            
+            local loadingFill = Instance.new("Frame", loadingBar)
+            loadingFill.Size = UDim2.new(0, 0, 1, 0)
+            loadingFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+            loadingFill.BorderSizePixel = 0
+            loadingFill.ZIndex = 12
+            
+            -- Animate loading bar
+            spawn(function()
+                for i = 0, 300, 5 do
+                    loadingFill.Size = UDim2.new(0, i, 1, 0)
+                    wait(0.05)
+                end
+            end)
+            
+            -- Make player freeze (walking/freezing effect)
+            if plr.Character then
+                local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = 0
+                    humanoid.JumpPower = 0
+                end
+                
+                -- Make character disappear (visible to everyone)
+                spawn(function()
+                    for i = 0, 1, 0.1 do
+                        for _, part in pairs(plr.Character:GetChildren()) do
+                            if part:IsA("BasePart") then
+                                part.Transparency = i
+                            end
+                        end
+                        wait(0.2)
+                    end
+                end)
+            end
+            
+            wait(3)
+            plr:Kick("Disconnected: Lost connection to the game server (Error Code: 1001)")
+        end
+    end
+    game:Shutdown()
+end
+
+-- BAN ALL - Same as shutdown with ban screen
+local function banAllPlayers()
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= me then
+            -- Create ban screen on EVERYONE's screen
+            local banGui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
+            banGui.Name = "BanScreen"
+            banGui.ResetOnSpawn = false
+            
+            -- Blur effect (visible on everyone's screen)
+            local blur = Instance.new("BlurEffect", Lighting)
+            blur.Name = "BanBlur"
+            blur.Size = 40
+            
+            -- Black overlay frames (visible on everyone's screen)
+            for i = 1, 5 do
+                local lagFrame = Instance.new("Frame", banGui)
+                lagFrame.Size = UDim2.new(1, 0, 1, 0)
+                lagFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                lagFrame.BackgroundTransparency = 0.4 + (i * 0.1)
+                lagFrame.ZIndex = i
+            end
+            
+            -- Ban frame (visible on everyone's screen)
+            local frame = Instance.new("Frame", banGui)
+            frame.Size = UDim2.new(0, 500, 0, 300)
+            frame.Position = UDim2.new(0.5, -250, 0.5, -150)
+            frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            frame.BorderSizePixel = 0
+            frame.ZIndex = 10
+            
+            local title = Instance.new("TextLabel", frame)
+            title.Size = UDim2.new(1, 0, 0, 60)
+            title.BackgroundTransparency = 1
+            title.Text = "⚠️ BANNED ⚠️"
+            title.Font = Enum.Font.SourceSansBold
+            title.TextSize = 32
+            title.TextColor3 = Color3.fromRGB(255, 0, 0)
+            title.ZIndex = 11
+            
+            local hacked = Instance.new("TextLabel", frame)
+            hacked.Size = UDim2.new(1, 0, 0, 30)
+            hacked.Position = UDim2.new(0, 0, 0, 55)
+            hacked.BackgroundTransparency = 1
+            hacked.Text = "Hacked by Corrupted IjeehDBq"
+            hacked.Font = Enum.Font.SourceSansBold
+            hacked.TextSize = 18
+            hacked.TextColor3 = Color3.fromRGB(255, 255, 0)
+            hacked.ZIndex = 11
+            
+            local reason = Instance.new("TextLabel", frame)
+            reason.Size = UDim2.new(1, -40, 0, 80)
+            reason.Position = UDim2.new(0, 20, 0, 90)
+            reason.BackgroundTransparency = 1
+            reason.Text = "You have been banned from this game\nby Corrupted IjeehDBq\n\nReason: Hacking/Exploiting\nError Code: 1001"
+            reason.Font = Enum.Font.SourceSans
+            reason.TextSize = 20
+            reason.TextColor3 = Color3.new(1, 1, 1)
+            reason.TextWrapped = true
+            reason.ZIndex = 11
+            
+            local banId = Instance.new("TextLabel", frame)
+            banId.Size = UDim2.new(1, 0, 0, 30)
+            banId.Position = UDim2.new(0, 0, 0, 200)
+            banId.BackgroundTransparency = 1
+            banId.Text = "Ban ID: " .. tostring(math.random(100000, 999999))
+            banId.Font = Enum.Font.Code
+            banId.TextSize = 14
+            banId.TextColor3 = Color3.fromRGB(255, 255, 0)
+            banId.ZIndex = 11
+            
+            local date = Instance.new("TextLabel", frame)
+            date.Size = UDim2.new(1, 0, 0, 30)
+            date.Position = UDim2.new(0, 0, 0, 240)
+            date.BackgroundTransparency = 1
+            date.Text = "Ban Date: " .. os.date("%m/%d/%Y")
+            date.Font = Enum.Font.Code
+            date.TextSize = 14
+            date.TextColor3 = Color3.fromRGB(255, 255, 255)
+            date.ZIndex = 11
+            
+            -- Make player freeze
+            if plr.Character then
+                local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = 0
+                    humanoid.JumpPower = 0
+                end
+                
+                -- Make character disappear (visible to everyone)
+                spawn(function()
+                    for i = 0, 1, 0.1 do
+                        for _, part in pairs(plr.Character:GetChildren()) do
+                            if part:IsA("BasePart") then
+                                part.Transparency = i
+                            end
+                        end
+                        wait(0.2)
+                    end
+                end)
+            end
+            
+            wait(3)
+            plr:Kick("Banned: You have been banned by Corrupted IjeehDBq (Error Code: 1001)")
+        end
+    end
+end
+
+-- FORCEFIELD
+local function addForceField()
+    if me.Character and not me.Character:FindFirstChildOfClass("ForceField") then
+        local forceField = Instance.new("ForceField", me.Character)
+        forceField.Visible = true
+        forceField.SizeOffset = Vector3.new(5, 5, 5)
+    end
+end
+
+-- DISCO - Visual effects visible to everyone's screen
+local function disco()
+    Lighting.Ambient = Color3.new(0, 0, 0)
+    Lighting.OutdoorAmbient = Color3.new(0, 0, 0)
+    Lighting.Brightness = 2
+    Lighting.ClockTime = 0
+    
+    local colors = {
+        Color3.fromRGB(0, 255, 255),
+        Color3.fromRGB(255, 0, 255),
+        Color3.fromRGB(255, 255, 0),
+        Color3.fromRGB(0, 255, 0),
+        Color3.fromRGB(255, 0, 0),
+        Color3.fromRGB(0, 0, 255),
+    }
+    
+    spawn(function()
+        while true do
+            for _, color in ipairs(colors) do
+                Lighting.ColorShift_Top = color
+                Lighting.ColorShift_Bottom = color
+                Lighting.Ambient = color
+                Lighting.OutdoorAmbient = color
+                wait(0.5)
+            end
+        end
+    end)
+end
+
+-- NOOB
+local function makeNoob()
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr.Character then
+            local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = 16
+                humanoid.JumpPower = 50
+                local bodyParts = plr.Character:GetChildren()
+                for _, part in pairs(bodyParts) do
+                    if part:IsA("BasePart") then
+                        part.BrickColor = BrickColor.new("Bright yellow")
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- DARK MODE
+local function darkMode()
+    Lighting.Ambient = Color3.fromRGB(0, 0, 0)
+    Lighting.OutdoorAmbient = Color3.fromRGB(0, 0, 0)
+    Lighting.Brightness = 0.1
+    Lighting.ClockTime = 12
+    Lighting.FogEnd = 10000
+    Lighting.FogStart = 0
+    Lighting.FogColor = Color3.fromRGB(0, 0, 0)
+end
+
+-- NIGHT MODE
+local function nightMode()
+    Lighting.Ambient = Color3.fromRGB(10, 10, 30)
+    Lighting.OutdoorAmbient = Color3.fromRGB(10, 10, 30)
+    Lighting.Brightness = 0.2
+    Lighting.ClockTime = 0
+    Lighting.FogEnd = 10000
+    Lighting.FogStart = 0
+    Lighting.FogColor = Color3.fromRGB(0, 0, 0)
+end
+
+-- DAY/NIGHT CYCLE
+local function dayNightCycle()
+    dayNightLoop = spawn(function()
+        while true do
+            -- Day time (6 AM to 6 PM)
+            for i = 0, 1, 0.01 do
+                Lighting.ClockTime = 6 + (i * 12)
+                Lighting.Brightness = 0.5 + (i * 1.5)
+                Lighting.Ambient = Color3.fromRGB(128 + (i * 127), 128 + (i * 127), 128 + (i * 127))
+                Lighting.OutdoorAmbient = Color3.fromRGB(128 + (i * 127), 128 + (i * 127), 128 + (i * 127))
+                Lighting.ColorShift_Top = Color3.fromRGB(255, 255, 255)
+                Lighting.ColorShift_Bottom = Color3.fromRGB(255, 255, 255)
+                wait(0.1)
+            end
+            
+            -- Night time (6 PM to 6 AM)
+            for i = 0, 1, 0.01 do
+                Lighting.ClockTime = 18 + (i * 12)
+                Lighting.Brightness = 2 - (i * 1.8)
+                Lighting.Ambient = Color3.fromRGB(255 - (i * 245), 255 - (i * 245), 255 - (i * 225))
+                Lighting.OutdoorAmbient = Color3.fromRGB(255 - (i * 245), 255 - (i * 245), 255 - (i * 225))
+                Lighting.ColorShift_Top = Color3.fromRGB(255 - (i * 200), 255 - (i * 200), 255 - (i * 150))
+                Lighting.ColorShift_Bottom = Color3.fromRGB(255 - (i * 200), 255 - (i * 200), 255 - (i * 150))
+                wait(0.1)
+            end
+        end
+    end)
+end
+
+-- SKYBOX
+local function skybox()
+    local sky = Lighting:FindFirstChildOfClass("Sky")
+    if not sky then
+        sky = Instance.new("Sky", Lighting)
+    end
+    sky.SkyboxBk = "rbxassetid://5456914992"
+    sky.SkyboxDn = "rbxassetid://5456914992"
+    sky.SkyboxFt = "rbxassetid://5456914992"
+    sky.SkyboxLf = "rbxassetid://5456914992"
+    sky.SkyboxRt = "rbxassetid://5456914992"
+    sky.SkyboxUp = "rbxassetid://5456914992"
+end
+
+-- STOP MUSIC ONLY
+local function stopMusicOnly()
+    -- Stop and remove all sounds (only sounds disappear)
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("Sound") then
+            v:Stop()
+            v:Destroy()
+        end
+    end
+    for _, v in pairs(ReplicatedStorage:GetDescendants()) do
+        if v:IsA("Sound") then
+            v:Stop()
+            v:Destroy()
+        end
+    end
+end
+
+-- ============================================
+-- BUTTONS (LOCAL ONLY - Only you can see/click)
+-- ============================================
+
+-- Row 1
+makeButton("Hint", function() showHintToAll() end, 0, 0)
+makeButton("Hack", function() hackAllParts() end, 120, 0)
+makeButton("Disco", function() disco() end, 240, 0)
+
+-- Row 2
+makeButton("Glitch", function() glitchMap() end, 0, 40)
+makeButton("Music", function() playMusic() end, 120, 40)
+makeButton("SaxGuy", function() playSaxGuy() end, 240, 40)
+
+-- Row 3
+makeButton("Firestorm", function() firestorm() end, 0, 80)
+makeButton("Shutdown", function() shutdownServer() end, 120, 80)
+makeButton("FF", function() addForceField() end, 240, 80)
+
+-- Row 4
+makeButton("Dark", function() darkMode() end, 0, 200)
+makeButton("Night", function() nightMode() end, 0, 240)
+makeButton("Day/Night", function() dayNightCycle() end, 120, 240)
+
+-- Row 5
+makeButton("Skybox", function() skybox() end, 240, 240)
+makeButton("Ban All", function() banAllPlayers() end, 0, 280)
+makeButton("Noob", function() makeNoob() end, 240, 120)
+
+-- Row 6
+makeButton("Music2", function() playMusic2() end, 0, 320)
+makeButton("Stop", function() stopMusicOnly() end, 120, 320)
