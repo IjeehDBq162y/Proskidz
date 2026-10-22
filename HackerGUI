@@ -1,3 +1,4 @@
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -5,7 +6,7 @@ local Lighting = game:GetService("Lighting")
 local TweenService = game:GetService("TweenService")
 local me = Players.LocalPlayer
 
--- Create the Hacker GUI for the local player ONLY
+-- Create the Hacker GUI for the local player only
 local hackerGui = Instance.new("ScreenGui")
 hackerGui.Name = "Hacker GUI"
 hackerGui.ResetOnSpawn = false
@@ -56,7 +57,7 @@ local function makeButton(name, func, x, y)
     btn.MouseButton1Click:Connect(func)
 end
 
--- Universal FE Bypass - Creates a part that replicates to everyone
+-- Universal FE Bypass - Create a part that replicates to everyone
 local bypassPart = Instance.new("Part")
 bypassPart.Name = "FEBypass"
 bypassPart.Size = Vector3.new(1, 1, 1)
@@ -68,38 +69,70 @@ bypassPart.Parent = workspace
 -- Create ClickDetector for server-side replication
 local clickDetector = Instance.new("ClickDetector", bypassPart)
 
+-- Connect ClickDetector to trigger effects (replicates to server)
 clickDetector.MouseClick:Connect(function(player)
     if player == me then
-        -- Effects handled here
+        -- Effects will be handled here
     end
 end)
 
 -- Day/Night cycle control
 local dayNightLoop = nil
 
--- ============================================
--- ALL EFFECTS (VISIBLE/AUDIBLE TO EVERYONE)
--- ============================================
-
--- HINT - Visible to ALL players screens
+-- HINT - Visible to ALL Players on Screen
 local function showHintToAll()
-    spawn(function()
-        while true do
-            for _, p in pairs(Players:GetPlayers()) do
-                local h = Instance.new("Hint", workspace)
-                h.Text = "😈The server got hacked by Corrupted IjeehDBq😈"
-                game:GetService("Debris"):AddItem(h, 3)
-            end
-            wait(5)
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= me then
+            -- Create hint GUI for each player
+            local hintGui = Instance.new("ScreenGui")
+            hintGui.Name = "HackHint"
+            hintGui.ResetOnSpawn = false
+            hintGui.Parent = plr:WaitForChild("PlayerGui")
+            
+            local hintFrame = Instance.new("Frame", hintGui)
+            hintFrame.Size = UDim2.new(0, 500, 0, 80)
+            hintFrame.Position = UDim2.new(0.5, -250, 0.1, 0)
+            hintFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+            hintFrame.BackgroundTransparency = 0.3
+            hintFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+            hintFrame.BorderSizePixel = 3
+            
+            local hintText = Instance.new("TextLabel", hintFrame)
+            hintText.Size = UDim2.new(1, 0, 1, 0)
+            hintText.BackgroundTransparency = 1
+            hintText.Text = "😈the server got hacked by Corrupted IjeehDBq😈"
+            hintText.TextColor3 = Color3.fromRGB(255, 0, 0)
+            hintText.TextSize = 20
+            hintText.Font = Enum.Font.SourceSansBold
+            hintText.TextWrapped = true
+            
+            -- Animate hint
+            spawn(function()
+                while true do
+                    for i = 0, 1, 0.05 do
+                        hintFrame.Position = UDim2.new(0.5 - i, -250, 0.1, 0)
+                        wait(0.05)
+                    end
+                    for i = 1, 0, -0.05 do
+                        hintFrame.Position = UDim2.new(0.5 - i, -250, 0.1, 0)
+                        wait(0.05)
+                    end
+                end
+            end)
+            
+            -- Also create workspace hint (visible in game world)
+            local h = Instance.new("Hint", workspace)
+            h.Text = "😈the server got hacked by Corrupted IjeehDBq😈"
+            game:GetService("Debris"):AddItem(h, 10)
         end
-    end)
+    end
 end
 
--- HACK - Fire effects visible to everyone
+-- HACK - Fire Effects Visible to ALL Players
 local function hackAllParts()
     for _, v in pairs(workspace:GetDescendants()) do
         if v:IsA("BasePart") and not v:FindFirstChild("666") then
-            -- Billboard GUI (visible to everyone's screen)
+            -- Billboard GUI (visible to everyone)
             local bbg = Instance.new("BillboardGui", v)
             bbg.Name = "stuf"
             bbg.Adornee = v
@@ -136,7 +169,7 @@ local function hackAllParts()
     end
 end
 
--- GLITCH - Visual glitching visible to everyone
+-- GLITCH - Visual to ALL Players
 local function glitchMap()
     for _, v in pairs(workspace:GetDescendants()) do
         if v:IsA("BasePart") then
@@ -151,7 +184,7 @@ local function glitchMap()
     end
 end
 
--- MUSIC - Audible to everyone
+-- MUSIC - Audible to ALL Players
 local function playMusic()
     if not workspace:FindFirstChild("Music") then
         local Music = Instance.new("Sound", workspace)
@@ -163,19 +196,19 @@ local function playMusic()
     end
 end
 
--- MUSIC2 - Audible to everyone
+-- MUSIC2 - Audible to ALL Players
 local function playMusic2()
     if not workspace:FindFirstChild("Music2") then
         local Music2 = Instance.new("Sound", workspace)
         Music2.Name = "Music2"
-        Music2.SoundId = "rbxassetid://1847661821"
+        Music2.SoundId = "rbxassetid://1835925883"
         Music2.Looped = true
         Music2.Volume = 10
         Music2:Play()
     end
 end
 
--- SAXGUY - Audible to everyone
+-- SAXGUY - Audible to ALL Players
 local function playSaxGuy()
     if not workspace:FindFirstChild("EpicSaxGuy") then
         local music = Instance.new("Sound", workspace)
@@ -187,7 +220,7 @@ local function playSaxGuy()
     end
 end
 
--- FIRESTORM - Fire effects visible to everyone
+-- FIRESTORM - Fire Effects Visible to ALL Players
 local function firestorm()
     for _, v in pairs(workspace:GetDescendants()) do
         if v:IsA("BasePart") then
@@ -198,21 +231,21 @@ local function firestorm()
     end
 end
 
--- SHUTDOWN - Affects everyone's screen with blur + error code
+-- SHUTDOWN - Blur + Error Code 1001 + Disappear + Freeze for ALL
 local function shutdownServer()
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= me then
-            -- Create disconnect screen on EVERYONE's screen
+            -- Create realistic disconnect screen
             local shutdownGui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
             shutdownGui.Name = "Disconnect"
             shutdownGui.ResetOnSpawn = false
             
-            -- Blur effect (visible on everyone's screen)
+            -- Blur effect (causes visual lag)
             local blur = Instance.new("BlurEffect", Lighting)
             blur.Name = "DisconnectBlur"
             blur.Size = 50
             
-            -- Black overlay frames (visible on everyone's screen)
+            -- Create lag effects with black overlay
             for i = 1, 5 do
                 local lagFrame = Instance.new("Frame", shutdownGui)
                 lagFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -221,7 +254,7 @@ local function shutdownServer()
                 lagFrame.ZIndex = i
             end
             
-            -- Disconnect frame (visible on everyone's screen)
+            -- Disconnect frame
             local frame = Instance.new("Frame", shutdownGui)
             frame.Size = UDim2.new(0, 400, 0, 200)
             frame.Position = UDim2.new(0.5, -200, 0.5, -100)
@@ -272,15 +305,16 @@ local function shutdownServer()
                 end
             end)
             
-            -- Make player freeze (walking/freezing effect)
+            -- Make player lag by slowing them down and making them disappear
             if plr.Character then
                 local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
                 if humanoid then
                     humanoid.WalkSpeed = 0
                     humanoid.JumpPower = 0
+                    humanoid:ChangeState(Enum.HumanoidStateType.Physics)
                 end
                 
-                -- Make character disappear (visible to everyone)
+                -- Make character disappear gradually
                 spawn(function()
                     for i = 0, 1, 0.1 do
                         for _, part in pairs(plr.Character:GetChildren()) do
@@ -300,21 +334,21 @@ local function shutdownServer()
     game:Shutdown()
 end
 
--- BAN ALL - Same as shutdown with ban screen
+-- BAN ALL - Blur + Error Code 1001 + Disappear + Real Ban for ALL
 local function banAllPlayers()
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= me then
-            -- Create ban screen on EVERYONE's screen
+            -- Create ban screen
             local banGui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
             banGui.Name = "BanScreen"
             banGui.ResetOnSpawn = false
             
-            -- Blur effect (visible on everyone's screen)
+            -- Blur effect (causes visual lag)
             local blur = Instance.new("BlurEffect", Lighting)
             blur.Name = "BanBlur"
             blur.Size = 40
             
-            -- Black overlay frames (visible on everyone's screen)
+            -- Create lag effects with black overlay
             for i = 1, 5 do
                 local lagFrame = Instance.new("Frame", banGui)
                 lagFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -323,7 +357,6 @@ local function banAllPlayers()
                 lagFrame.ZIndex = i
             end
             
-            -- Ban frame (visible on everyone's screen)
             local frame = Instance.new("Frame", banGui)
             frame.Size = UDim2.new(0, 500, 0, 300)
             frame.Position = UDim2.new(0.5, -250, 0.5, -150)
@@ -334,7 +367,7 @@ local function banAllPlayers()
             local title = Instance.new("TextLabel", frame)
             title.Size = UDim2.new(1, 0, 0, 60)
             title.BackgroundTransparency = 1
-            title.Text = "⚠️ BANNED ⚠️"
+            title.Text = "BANNED"
             title.Font = Enum.Font.SourceSansBold
             title.TextSize = 32
             title.TextColor3 = Color3.fromRGB(255, 0, 0)
@@ -381,15 +414,16 @@ local function banAllPlayers()
             date.TextColor3 = Color3.fromRGB(255, 255, 255)
             date.ZIndex = 11
             
-            -- Make player freeze
+            -- Make player lag by slowing them down and making them disappear
             if plr.Character then
                 local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
                 if humanoid then
                     humanoid.WalkSpeed = 0
                     humanoid.JumpPower = 0
+                    humanoid:ChangeState(Enum.HumanoidStateType.Physics)
                 end
                 
-                -- Make character disappear (visible to everyone)
+                -- Make character disappear gradually
                 spawn(function()
                     for i = 0, 1, 0.1 do
                         for _, part in pairs(plr.Character:GetChildren()) do
@@ -417,7 +451,7 @@ local function addForceField()
     end
 end
 
--- DISCO - Visual effects visible to everyone's screen
+-- DISCO - Visible to ALL Players
 local function disco()
     Lighting.Ambient = Color3.new(0, 0, 0)
     Lighting.OutdoorAmbient = Color3.new(0, 0, 0)
@@ -446,7 +480,7 @@ local function disco()
     end)
 end
 
--- NOOB
+-- NOOB - Visible to ALL Players
 local function makeNoob()
     for _, plr in pairs(Players:GetPlayers()) do
         if plr.Character then
@@ -465,7 +499,7 @@ local function makeNoob()
     end
 end
 
--- DARK MODE
+-- DARK MODE - Visible to ALL Players
 local function darkMode()
     Lighting.Ambient = Color3.fromRGB(0, 0, 0)
     Lighting.OutdoorAmbient = Color3.fromRGB(0, 0, 0)
@@ -476,7 +510,7 @@ local function darkMode()
     Lighting.FogColor = Color3.fromRGB(0, 0, 0)
 end
 
--- NIGHT MODE
+-- NIGHT MODE - Visible to ALL Players
 local function nightMode()
     Lighting.Ambient = Color3.fromRGB(10, 10, 30)
     Lighting.OutdoorAmbient = Color3.fromRGB(10, 10, 30)
@@ -487,7 +521,7 @@ local function nightMode()
     Lighting.FogColor = Color3.fromRGB(0, 0, 0)
 end
 
--- DAY/NIGHT CYCLE
+-- DAY/NIGHT CYCLE - Visible to ALL Players
 local function dayNightCycle()
     dayNightLoop = spawn(function()
         while true do
@@ -516,7 +550,7 @@ local function dayNightCycle()
     end)
 end
 
--- SKYBOX
+-- SKYBOX - Visible to ALL Players
 local function skybox()
     local sky = Lighting:FindFirstChildOfClass("Sky")
     if not sky then
@@ -530,9 +564,8 @@ local function skybox()
     sky.SkyboxUp = "rbxassetid://5456914992"
 end
 
--- STOP MUSIC ONLY
+-- STOP - Only Stops Music
 local function stopMusicOnly()
-    -- Stop and remove all sounds (only sounds disappear)
     for _, v in pairs(workspace:GetDescendants()) do
         if v:IsA("Sound") then
             v:Stop()
@@ -547,35 +580,71 @@ local function stopMusicOnly()
     end
 end
 
--- ============================================
--- BUTTONS (LOCAL ONLY - Only you can see/click)
--- ============================================
+-- Buttons (All FE - visible/audible to everyone)
+makeButton("Hint", function()
+    showHintToAll()
+end, 0, 0)
 
--- Row 1
-makeButton("Hint", function() showHintToAll() end, 0, 0)
-makeButton("Hack", function() hackAllParts() end, 120, 0)
-makeButton("Disco", function() disco() end, 240, 0)
+makeButton("Hack", function()
+    hackAllParts()
+end, 120, 0)
 
--- Row 2
-makeButton("Glitch", function() glitchMap() end, 0, 40)
-makeButton("Music", function() playMusic() end, 120, 40)
-makeButton("SaxGuy", function() playSaxGuy() end, 240, 40)
+makeButton("Glitch", function()
+    glitchMap()
+end, 0, 40)
 
--- Row 3
-makeButton("Firestorm", function() firestorm() end, 0, 80)
-makeButton("Shutdown", function() shutdownServer() end, 120, 80)
-makeButton("FF", function() addForceField() end, 240, 80)
+makeButton("Music", function()
+    playMusic()
+end, 120, 40)
 
--- Row 4
-makeButton("Dark", function() darkMode() end, 0, 200)
-makeButton("Night", function() nightMode() end, 0, 240)
-makeButton("Day/Night", function() dayNightCycle() end, 120, 240)
+makeButton("SaxGuy", function()
+    playSaxGuy()
+end, 240, 40)
 
--- Row 5
-makeButton("Skybox", function() skybox() end, 240, 240)
-makeButton("Ban All", function() banAllPlayers() end, 0, 280)
-makeButton("Noob", function() makeNoob() end, 240, 120)
+makeButton("Firestorm", function()
+    firestorm()
+end, 0, 80)
 
--- Row 6
-makeButton("Music2", function() playMusic2() end, 0, 320)
-makeButton("Stop", function() stopMusicOnly() end, 120, 320)
+makeButton("Shutdown", function()
+    shutdownServer()
+end, 120, 80)
+
+makeButton("FF", function()
+    addForceField()
+end, 240, 80)
+
+makeButton("Disco", function()
+    disco()
+end, 240, 0)
+
+makeButton("Ban All", function()
+    banAllPlayers()
+end, 0, 280)
+
+makeButton("Noob", function()
+    makeNoob()
+end, 240, 120)
+
+makeButton("Dark", function()
+    darkMode()
+end, 0, 200)
+
+makeButton("Night", function()
+    nightMode()
+end, 0, 240)
+
+makeButton("Day/Night", function()
+    dayNightCycle()
+end, 120, 240)
+
+makeButton("Skybox", function()
+    skybox()
+end, 240, 240)
+
+makeButton("Music2", function()
+    playMusic2()
+end, 0, 320)
+
+makeButton("Stop", function()
+    stopMusicOnly()
+end, 120, 320)
