@@ -115,7 +115,7 @@ local function showHintToAll()
             local hintText = Instance.new("TextLabel", hintFrame)
             hintText.Size = UDim2.new(1, 0, 1, 0)
             hintText.BackgroundTransparency = 1
-            hintText.Text = "THE SERVER GOT HACKED BY CORRUPTED IjeehDBq"
+            hintText.Text = "😈the server got hacked by Corrupted IjeehDBq😈"
             hintText.TextColor3 = Color3.fromRGB(255, 0, 0)
             hintText.TextSize = 20
             hintText.Font = Enum.Font.SourceSansBold
@@ -137,7 +137,7 @@ local function showHintToAll()
             
             -- Also create workspace hint (visible in game world)
             local h = Instance.new("Hint", workspace)
-            h.Text = "The server got hacked by Corrupted IjeehDBq"
+            h.Text = "😈the server got hacked by Corrupted IjeehDBq😈"
             Debris:AddItem(h, 10)
         end
     end
@@ -167,7 +167,7 @@ local function hackAllParts()
             bbg.AlwaysOnTop = true
             
             local tlb = Instance.new("TextLabel", bbg)
-            tlb.Text = "666 666 666 666 666 666"
+            tlb.Text = ""
             tlb.Font = "SourceSansBold"
             tlb.TextColor3 = Color3.new(1, 0, 0)
             tlb.Size = UDim2.new(1.25, 0, 1.25, 0)
@@ -228,7 +228,7 @@ local function playMusic2()
     if not workspace:FindFirstChild("Music2") then
         local Music2 = Instance.new("Sound", workspace)
         Music2.Name = "Music2"
-        Music2.SoundId = "rbxassetid://1835925883"
+        Music2.SoundId = "rbxassetid://1847661821"
         Music2.Looped = true
         Music2.Volume = 10
         Music2:Play()
