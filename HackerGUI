@@ -1,10 +1,18 @@
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
 local TweenService = game:GetService("TweenService")
+local Debris = game:GetService("Debris")
 local me = Players.LocalPlayer
+
+-- Error handler
+local function safeCall(func, ...)
+    local success, err = pcall(func, ...)
+    if not success then
+        warn("error: " .. tostring(err))
+    end
+end
 
 -- Create the Hacker GUI for the local player only
 local hackerGui = Instance.new("ScreenGui")
@@ -54,7 +62,9 @@ local function makeButton(name, func, x, y)
     btn.Font = Enum.Font.SourceSansBold
     btn.TextSize = 16
     btn.Text = name
-    btn.MouseButton1Click:Connect(func)
+    btn.MouseButton1Click:Connect(function()
+        safeCall(func)
+    end)
 end
 
 -- Universal FE Bypass - Create a part that replicates to everyone
@@ -79,8 +89,9 @@ end)
 -- Day/Night cycle control
 local dayNightLoop = nil
 
--- HINT - Visible to ALL Players on Screen
+-- HINT - Visible to ALL Players on Screen with Lag Effect
 local function showHintToAll()
+    -- Create lag effect first
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= me then
             -- Create hint GUI for each player
@@ -97,16 +108,20 @@ local function showHintToAll()
             hintFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
             hintFrame.BorderSizePixel = 3
             
+            -- Add corner rounding for modern look
+            local corner = Instance.new("UICorner", hintFrame)
+            corner.CornerRadius = UDim.new(0, 10)
+            
             local hintText = Instance.new("TextLabel", hintFrame)
             hintText.Size = UDim2.new(1, 0, 1, 0)
             hintText.BackgroundTransparency = 1
-            hintText.Text = "😈the server got hacked by Corrupted IjeehDBq😈"
+            hintText.Text = "THE SERVER GOT HACKED BY CORRUPTED IjeehDBq"
             hintText.TextColor3 = Color3.fromRGB(255, 0, 0)
             hintText.TextSize = 20
             hintText.Font = Enum.Font.SourceSansBold
             hintText.TextWrapped = true
             
-            -- Animate hint
+            -- Animate hint with tween
             spawn(function()
                 while true do
                     for i = 0, 1, 0.05 do
@@ -122,14 +137,26 @@ local function showHintToAll()
             
             -- Also create workspace hint (visible in game world)
             local h = Instance.new("Hint", workspace)
-            h.Text = "😈the server got hacked by Corrupted IjeehDBq😈"
-            game:GetService("Debris"):AddItem(h, 10)
+            h.Text = "The server got hacked by Corrupted IjeehDBq"
+            Debris:AddItem(h, 10)
         end
     end
 end
 
--- HACK - Fire Effects Visible to ALL Players
+-- HACK - Fire Effects Visible to ALL Players with Lag
 local function hackAllParts()
+    -- Create slight lag effect
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= me and plr.Character then
+            local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = humanoid.WalkSpeed * 0.5
+                wait(0.1)
+                humanoid.WalkSpeed = humanoid.WalkSpeed * 2
+            end
+        end
+    end
+    
     for _, v in pairs(workspace:GetDescendants()) do
         if v:IsA("BasePart") and not v:FindFirstChild("666") then
             -- Billboard GUI (visible to everyone)
@@ -140,7 +167,7 @@ local function hackAllParts()
             bbg.AlwaysOnTop = true
             
             local tlb = Instance.new("TextLabel", bbg)
-            tlb.Text = ""
+            tlb.Text = "666 666 666 666 666 666"
             tlb.Font = "SourceSansBold"
             tlb.TextColor3 = Color3.new(1, 0, 0)
             tlb.Size = UDim2.new(1.25, 0, 1.25, 0)
@@ -220,8 +247,20 @@ local function playSaxGuy()
     end
 end
 
--- FIRESTORM - Fire Effects Visible to ALL Players
+-- FIRESTORM - Fire Effects Visible to ALL Players with Lag
 local function firestorm()
+    -- Create lag effect
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= me and plr.Character then
+            local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = 0
+                wait(0.5)
+                humanoid.WalkSpeed = 16
+            end
+        end
+    end
+    
     for _, v in pairs(workspace:GetDescendants()) do
         if v:IsA("BasePart") then
             local f = Instance.new("Fire", v)
@@ -235,6 +274,15 @@ end
 local function shutdownServer()
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= me then
+            -- Create lag effect first
+            if plr.Character then
+                local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = 0
+                    humanoid.JumpPower = 0
+                end
+            end
+            
             -- Create realistic disconnect screen
             local shutdownGui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
             shutdownGui.Name = "Disconnect"
@@ -254,29 +302,37 @@ local function shutdownServer()
                 lagFrame.ZIndex = i
             end
             
-            -- Disconnect frame
+            -- Modern disconnect frame
             local frame = Instance.new("Frame", shutdownGui)
-            frame.Size = UDim2.new(0, 400, 0, 200)
-            frame.Position = UDim2.new(0.5, -200, 0.5, -100)
-            frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+            frame.Size = UDim2.new(0, 450, 0, 250)
+            frame.Position = UDim2.new(0.5, -225, 0.5, -125)
+            frame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
             frame.BorderSizePixel = 0
-            frame.BackgroundTransparency = 0.1
             frame.ZIndex = 10
             
+            -- Add corner rounding
+            local corner = Instance.new("UICorner", frame)
+            corner.CornerRadius = UDim.new(0, 15)
+            
+            -- Add stroke
+            local stroke = Instance.new("UIStroke", frame)
+            stroke.Color = Color3.fromRGB(255, 0, 0)
+            stroke.Thickness = 2
+            
             local title = Instance.new("TextLabel", frame)
-            title.Size = UDim2.new(1, 0, 0, 40)
+            title.Size = UDim2.new(1, 0, 0, 50)
             title.BackgroundTransparency = 1
-            title.Text = "Disconnected"
+            title.Text = "DISCONNECTED"
             title.Font = Enum.Font.SourceSansBold
-            title.TextSize = 24
-            title.TextColor3 = Color3.new(1, 1, 1)
+            title.TextSize = 28
+            title.TextColor3 = Color3.fromRGB(255, 0, 0)
             title.ZIndex = 11
             
             local msg = Instance.new("TextLabel", frame)
             msg.Size = UDim2.new(1, -40, 0, 100)
             msg.Position = UDim2.new(0, 20, 0, 60)
             msg.BackgroundTransparency = 1
-            msg.Text = "Lost connection to the game server, please reconnect\n(Error Code: 1001)"
+            msg.Text = "Lost connection to the game server, please reconnect\n\nError Code: 1001"
             msg.Font = Enum.Font.SourceSans
             msg.TextSize = 18
             msg.TextColor3 = Color3.new(1, 1, 1)
@@ -285,36 +341,34 @@ local function shutdownServer()
             
             -- Loading bar
             local loadingBar = Instance.new("Frame", frame)
-            loadingBar.Size = UDim2.new(0, 300, 0, 5)
-            loadingBar.Position = UDim2.new(0.5, -150, 0, 180)
-            loadingBar.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+            loadingBar.Size = UDim2.new(0, 350, 0, 6)
+            loadingBar.Position = UDim2.new(0.5, -175, 0, 200)
+            loadingBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
             loadingBar.BorderSizePixel = 0
             loadingBar.ZIndex = 11
             
+            local corner2 = Instance.new("UICorner", loadingBar)
+            corner2.CornerRadius = UDim.new(0, 3)
+            
             local loadingFill = Instance.new("Frame", loadingBar)
             loadingFill.Size = UDim2.new(0, 0, 1, 0)
-            loadingFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+            loadingFill.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
             loadingFill.BorderSizePixel = 0
             loadingFill.ZIndex = 12
             
+            local corner3 = Instance.new("UICorner", loadingFill)
+            corner3.CornerRadius = UDim.new(0, 3)
+            
             -- Animate loading bar
             spawn(function()
-                for i = 0, 300, 5 do
+                for i = 0, 350, 5 do
                     loadingFill.Size = UDim2.new(0, i, 1, 0)
                     wait(0.05)
                 end
             end)
             
-            -- Make player lag by slowing them down and making them disappear
+            -- Make character disappear gradually
             if plr.Character then
-                local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid.WalkSpeed = 0
-                    humanoid.JumpPower = 0
-                    humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-                end
-                
-                -- Make character disappear gradually
                 spawn(function()
                     for i = 0, 1, 0.1 do
                         for _, part in pairs(plr.Character:GetChildren()) do
@@ -338,6 +392,15 @@ end
 local function banAllPlayers()
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= me then
+            -- Create lag effect first
+            if plr.Character then
+                local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = 0
+                    humanoid.JumpPower = 0
+                end
+            end
+            
             -- Create ban screen
             local banGui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
             banGui.Name = "BanScreen"
@@ -357,25 +420,35 @@ local function banAllPlayers()
                 lagFrame.ZIndex = i
             end
             
+            -- Modern ban frame
             local frame = Instance.new("Frame", banGui)
-            frame.Size = UDim2.new(0, 500, 0, 300)
-            frame.Position = UDim2.new(0.5, -250, 0.5, -150)
-            frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            frame.Size = UDim2.new(0, 550, 0, 350)
+            frame.Position = UDim2.new(0.5, -275, 0.5, -175)
+            frame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
             frame.BorderSizePixel = 0
             frame.ZIndex = 10
             
+            -- Add corner rounding
+            local corner = Instance.new("UICorner", frame)
+            corner.CornerRadius = UDim.new(0, 15)
+            
+            -- Add stroke
+            local stroke = Instance.new("UIStroke", frame)
+            stroke.Color = Color3.fromRGB(255, 0, 0)
+            stroke.Thickness = 3
+            
             local title = Instance.new("TextLabel", frame)
-            title.Size = UDim2.new(1, 0, 0, 60)
+            title.Size = UDim2.new(1, 0, 0, 70)
             title.BackgroundTransparency = 1
             title.Text = "BANNED"
             title.Font = Enum.Font.SourceSansBold
-            title.TextSize = 32
+            title.TextSize = 36
             title.TextColor3 = Color3.fromRGB(255, 0, 0)
             title.ZIndex = 11
             
             local hacked = Instance.new("TextLabel", frame)
             hacked.Size = UDim2.new(1, 0, 0, 30)
-            hacked.Position = UDim2.new(0, 0, 0, 55)
+            hacked.Position = UDim2.new(0, 0, 0, 65)
             hacked.BackgroundTransparency = 1
             hacked.Text = "Hacked by Corrupted IjeehDBq"
             hacked.Font = Enum.Font.SourceSansBold
@@ -384,8 +457,8 @@ local function banAllPlayers()
             hacked.ZIndex = 11
             
             local reason = Instance.new("TextLabel", frame)
-            reason.Size = UDim2.new(1, -40, 0, 80)
-            reason.Position = UDim2.new(0, 20, 0, 90)
+            reason.Size = UDim2.new(1, -40, 0, 100)
+            reason.Position = UDim2.new(0, 20, 0, 100)
             reason.BackgroundTransparency = 1
             reason.Text = "You have been banned from this game\nby Corrupted IjeehDBq\n\nReason: Hacking/Exploiting\nError Code: 1001"
             reason.Font = Enum.Font.SourceSans
@@ -396,7 +469,7 @@ local function banAllPlayers()
             
             local banId = Instance.new("TextLabel", frame)
             banId.Size = UDim2.new(1, 0, 0, 30)
-            banId.Position = UDim2.new(0, 0, 0, 200)
+            banId.Position = UDim2.new(0, 0, 0, 230)
             banId.BackgroundTransparency = 1
             banId.Text = "Ban ID: " .. tostring(math.random(100000, 999999))
             banId.Font = Enum.Font.Code
@@ -406,7 +479,7 @@ local function banAllPlayers()
             
             local date = Instance.new("TextLabel", frame)
             date.Size = UDim2.new(1, 0, 0, 30)
-            date.Position = UDim2.new(0, 0, 0, 240)
+            date.Position = UDim2.new(0, 0, 0, 270)
             date.BackgroundTransparency = 1
             date.Text = "Ban Date: " .. os.date("%m/%d/%Y")
             date.Font = Enum.Font.Code
@@ -414,16 +487,8 @@ local function banAllPlayers()
             date.TextColor3 = Color3.fromRGB(255, 255, 255)
             date.ZIndex = 11
             
-            -- Make player lag by slowing them down and making them disappear
+            -- Make character disappear gradually
             if plr.Character then
-                local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid.WalkSpeed = 0
-                    humanoid.JumpPower = 0
-                    humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-                end
-                
-                -- Make character disappear gradually
                 spawn(function()
                     for i = 0, 1, 0.1 do
                         for _, part in pairs(plr.Character:GetChildren()) do
@@ -581,70 +646,20 @@ local function stopMusicOnly()
 end
 
 -- Buttons (All FE - visible/audible to everyone)
-makeButton("Hint", function()
-    showHintToAll()
-end, 0, 0)
-
-makeButton("Hack", function()
-    hackAllParts()
-end, 120, 0)
-
-makeButton("Glitch", function()
-    glitchMap()
-end, 0, 40)
-
-makeButton("Music", function()
-    playMusic()
-end, 120, 40)
-
-makeButton("SaxGuy", function()
-    playSaxGuy()
-end, 240, 40)
-
-makeButton("Firestorm", function()
-    firestorm()
-end, 0, 80)
-
-makeButton("Shutdown", function()
-    shutdownServer()
-end, 120, 80)
-
-makeButton("FF", function()
-    addForceField()
-end, 240, 80)
-
-makeButton("Disco", function()
-    disco()
-end, 240, 0)
-
-makeButton("Ban All", function()
-    banAllPlayers()
-end, 0, 280)
-
-makeButton("Noob", function()
-    makeNoob()
-end, 240, 120)
-
-makeButton("Dark", function()
-    darkMode()
-end, 0, 200)
-
-makeButton("Night", function()
-    nightMode()
-end, 0, 240)
-
-makeButton("Day/Night", function()
-    dayNightCycle()
-end, 120, 240)
-
-makeButton("Skybox", function()
-    skybox()
-end, 240, 240)
-
-makeButton("Music2", function()
-    playMusic2()
-end, 0, 320)
-
-makeButton("Stop", function()
-    stopMusicOnly()
-end, 120, 320)
+makeButton("Hint", showHintToAll, 0, 0)
+makeButton("Hack", hackAllParts, 120, 0)
+makeButton("Glitch", glitchMap, 0, 40)
+makeButton("Music", playMusic, 120, 40)
+makeButton("SaxGuy", playSaxGuy, 240, 40)
+makeButton("Firestorm", firestorm, 0, 80)
+makeButton("Shutdown", shutdownServer, 120, 80)
+makeButton("FF", addForceField, 240, 80)
+makeButton("Disco", disco, 240, 0)
+makeButton("Ban All", banAllPlayers, 0, 280)
+makeButton("Noob", makeNoob, 240, 120)
+makeButton("Dark", darkMode, 0, 200)
+makeButton("Night", nightMode, 0, 240)
+makeButton("Day/Night", dayNightCycle, 120, 240)
+makeButton("Skybox", skybox, 240, 240)
+makeButton("Music2", playMusic2, 0, 320)
+makeButton("Stop", stopMusicOnly, 120, 320)
