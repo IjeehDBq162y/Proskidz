@@ -1,10 +1,10 @@
 --[[
-    ULTIMATE ANTIFLING BYPASS - TOTAL ANNIHILATION
-    - Makes everyone DISAPPEAR and get flung
-    - Kills them like a regular fling exploit
+    ULTIMATE ANTIFLING BYPASS - VISIBLE MASS FLAY
+    - Everyone VISIBLE and launched into the air
+    - Everyone gets KILLED and respawns
+    - Everyone can SEE the fling happening
     - Bypasses ALL antifling systems
     - Multiple force methods simultaneously
-    - Targets every physics component
     - Flings EVERYONE except you
     - You remain completely normal
     - 5000+ POWER - INSTANT DEATH
@@ -17,6 +17,7 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 local Debris = game:GetService("Debris")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Local player
 local player = Players.LocalPlayer
@@ -79,7 +80,7 @@ local gameLabel = Instance.new("TextLabel")
 gameLabel.Size = UDim2.new(1, 0, 0, 15)
 gameLabel.Position = UDim2.new(0, 0, 0.4, 0)
 gameLabel.BackgroundTransparency = 1
-gameLabel.Text = "Game: " .. game.Name .. " | Mode: ANNIHILATION"
+gameLabel.Text = "Game: " .. game.Name .. " | Mode: MASS FLAY"
 gameLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
 gameLabel.TextSize = 10
 gameLabel.Font = Enum.Font.Gotham
@@ -174,6 +175,11 @@ end)
 local flingEnabled = false
 local lastFlingTime = 0
 
+-- FE RemoteEvent for visible fling to everyone
+local flingRemote = Instance.new("RemoteEvent")
+flingRemote.Name = "VisibleFlingRemote"
+flingRemote.Parent = ReplicatedStorage
+
 -- Find ALL possible character parts
 local function findAllCharacterParts(character)
     if not character then return {} end
@@ -206,7 +212,7 @@ local function findAllCharacterParts(character)
     return parts
 end
 
--- ULTIMATE ANNIHILATION function - makes them disappear and die
+-- VISIBLE MASS FLAY function - everyone can see them fly and die
 local function ultimateFling(targetPlayer)
     if targetPlayer == player then return end
     
@@ -228,20 +234,35 @@ local function ultimateFling(targetPlayer)
     
     local flingVelocity = Vector3.new(
         randomDir.X * 500,        -- 5000 POWER horizontal
-        GUI_CONFIG.FlingHeight * 5, -- 5000 POWER vertical
+        GUI_CONFIG.FlingHeight * 5, -- 5000 POWER vertical (launch into air)
         randomDir.Z * 500         -- 5000 POWER horizontal
     )
     
-    -- METHOD 1: INSTANT DISAPPEARANCE - Teleport them to the void
+    -- MAKE THEM VISIBLE (ensure transparency is 0)
+    for _, part in ipairs(allParts) do
+        if part:IsA("BasePart") then
+            pcall(function()
+                part.Transparency = 0
+                part.CanCollide = true
+                part.CanTouch = true
+            end)
+        end
+    end
+    
+    -- METHOD 1: LAUNCH THEM INTO THE AIR (visible to everyone)
     pcall(function()
         local rootPart = targetCharacter:FindFirstChild("HumanoidRootPart") or targetCharacter:FindFirstChild("Torso")
         if rootPart then
-            -- Teleport them to the void (below map)
-            rootPart.CFrame = CFrame.new(rootPart.Position.X, -500, rootPart.Position.Z)
+            -- Launch them straight up into the air
+            rootPart.AssemblyLinearVelocity = Vector3.new(
+                randomDir.X * 500,
+                5000,  -- LAUNCH INTO THE AIR
+                randomDir.Z * 500
+            )
         end
     end)
     
-    -- METHOD 2: Direct velocity on EVERY part (5000+ power)
+    -- METHOD 2: Direct velocity on EVERY part (visible fling)
     for _, part in ipairs(allParts) do
         if part:IsA("BasePart") then
             pcall(function()
@@ -252,14 +273,11 @@ local function ultimateFling(targetPlayer)
                     math.random(-500, 500),
                     math.random(-500, 500)
                 )
-                -- Make them invisible (disappear effect)
-                part.Transparency = 1
-                part.CanCollide = false
             end)
         end
     end
     
-    -- METHOD 3: BodyVelocity on root parts (5000+ power)
+    -- METHOD 3: BodyVelocity on root parts (launch into air)
     for _, part in ipairs(allParts) do
         if part:IsA("BasePart") and (part.Name == "HumanoidRootPart" or part.Name == "Torso" or part.Name == "UpperTorso") then
             pcall(function()
@@ -270,31 +288,35 @@ local function ultimateFling(targetPlayer)
                     end
                 end
                 
-                -- Add multiple BodyVelocities (5000+ power)
+                -- Add multiple BodyVelocities (launch into air)
                 for i = 1, 5 do
                     local bodyVelocity = Instance.new("BodyVelocity")
                     bodyVelocity.Name = "BypassVelocity" .. i
                     bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-                    bodyVelocity.Velocity = flingVelocity * (1 + i * 0.5)
+                    bodyVelocity.Velocity = Vector3.new(
+                        randomDir.X * 500,
+                        5000 + (i * 1000),  -- EXTREME AIR LAUNCH
+                        randomDir.Z * 500
+                    )
                     bodyVelocity.P = math.huge
                     bodyVelocity.Parent = part
                 end
                 
-                -- Add BodyForce (5000+ power)
+                -- Add BodyForce (5000+ power upward)
                 local bodyForce = Instance.new("BodyForce")
                 bodyForce.Force = Vector3.new(0, 1000000, 0)
                 bodyForce.Parent = part
                 
-                -- Add BodyThrust (5000+ power)
+                -- Add BodyThrust (5000+ power upward)
                 local bodyThrust = Instance.new("BodyThrust")
                 bodyThrust.Force = Vector3.new(0, 500000, 0)
                 bodyThrust.Parent = part
                 
-                -- Add BodyPosition (teleport them to the void)
+                -- Add BodyPosition (keep them in the air)
                 local bodyPosition = Instance.new("BodyPosition")
                 bodyPosition.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
                 bodyPosition.P = math.huge
-                bodyPosition.Position = Vector3.new(part.Position.X, -500, part.Position.Z)
+                bodyPosition.Position = part.Position + Vector3.new(0, 1000, 0)
                 bodyPosition.Parent = part
                 
                 -- Add BodyGyro for spinning
@@ -314,10 +336,14 @@ local function ultimateFling(targetPlayer)
     pcall(function()
         local rootPart = targetCharacter:FindFirstChild("HumanoidRootPart") or targetCharacter:FindFirstChild("Torso")
         if rootPart then
-            -- LinearVelocity constraint (5000+ power)
+            -- LinearVelocity constraint (launch into air)
             local linearVelocity = Instance.new("LinearVelocity")
             linearVelocity.MaxForce = math.huge
-            linearVelocity.VectorVelocity = flingVelocity
+            linearVelocity.VectorVelocity = Vector3.new(
+                randomDir.X * 500,
+                5000,
+                randomDir.Z * 500
+            )
             linearVelocity.Parent = rootPart
             
             -- AngularVelocity constraint
@@ -330,21 +356,21 @@ local function ultimateFling(targetPlayer)
             )
             angularVelocity.Parent = rootPart
             
-            -- AlignPosition to force them to the void
+            -- AlignPosition to keep them in the air
             local alignPosition = Instance.new("AlignPosition")
             alignPosition.MaxForce = math.huge
             alignPosition.Responsiveness = 10
             alignPosition.Mode = Enum.PositionAlignmentMode.OneAttachment
-            alignPosition.Position = Vector3.new(rootPart.Position.X, -500, rootPart.Position.Z)
+            alignPosition.Position = rootPart.Position + Vector3.new(0, 1000, 0)
             alignPosition.Parent = rootPart
         end
     end)
     
-    -- METHOD 5: Direct CFrame manipulation (teleport them to the void)
+    -- METHOD 5: Direct CFrame manipulation (visible launch)
     pcall(function()
         local rootPart = targetCharacter:FindFirstChild("HumanoidRootPart") or targetCharacter:FindFirstChild("Torso")
         if rootPart then
-            rootPart.CFrame = CFrame.new(rootPart.Position.X, -500, rootPart.Position.Z)
+            rootPart.CFrame = rootPart.CFrame + Vector3.new(0, 500, 0)
         end
     end)
     
@@ -355,17 +381,17 @@ local function ultimateFling(targetPlayer)
         humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
         humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
         humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
-        -- Try to damage them
-        humanoid:TakeDamage(humanoid.MaxHealth)
+        -- Kill them after they're launched
+        task.delay(0.1, function()
+            pcall(function()
+                humanoid:TakeDamage(humanoid.MaxHealth)
+            end)
+        end)
     end)
     
-    -- METHOD 7: Force them through the map
+    -- METHOD 7: Replicate to ALL clients so everyone sees it
     pcall(function()
-        local rootPart = targetCharacter:FindFirstChild("HumanoidRootPart") or targetCharacter:FindFirstChild("Torso")
-        if rootPart then
-            -- Launch them at extreme speed
-            rootPart.AssemblyLinearVelocity = Vector3.new(0, -5000, 0) -- Straight down through map
-        end
+        flingRemote:FireAllClients(targetPlayer)
     end)
     
     -- Cleanup after very short time (allows re-application)
@@ -387,6 +413,13 @@ local function ultimateFling(targetPlayer)
     end)
 end
 
+-- Remote event handler for FE replication
+flingRemote.OnServerEvent:Connect(function(flingingPlayer, targetPlayer)
+    if flingingPlayer == player and targetPlayer then
+        flingRemote:FireAllClients(targetPlayer)
+    end
+end)
+
 -- GUARANTEED WORKING TOGGLE FUNCTION
 local function toggleFling()
     flingEnabled = not flingEnabled
@@ -398,7 +431,7 @@ local function toggleFling()
         statusDot.BackgroundTransparency = 0
         shadow.Color = Color3.fromRGB(0, 255, 0)
         shadow.Transparency = 0
-        print("ANNIHILATION MODE ENABLED - EVERYONE WILL DIE")
+        print("MASS FLAY ENABLED - EVERYONE WILL FLY AND DIE")
     else
         toggleButton.Text = "OFF"
         toggleButton.BackgroundColor3 = GUI_CONFIG.ToggleOffColor
@@ -406,7 +439,7 @@ local function toggleFling()
         statusDot.BackgroundTransparency = 0.3
         shadow.Color = Color3.fromRGB(255, 0, 0)
         shadow.Transparency = 0.3
-        print("ANNIHILATION MODE DISABLED")
+        print("MASS FLAY DISABLED - NOTHING HAPPENS")
     end
     
     TweenService:Create(toggleButton, TweenInfo.new(0.1), {
@@ -452,10 +485,12 @@ player.OnTeleport:Connect(function()
     screenGui:Destroy()
 end)
 
-print("ULTIMATE ANTIFLING BYPASS - ANNIHILATION MODE LOADED!")
+print("ULTIMATE ANTIFLING BYPASS - VISIBLE MASS FLAY LOADED!")
 print("Bypasses ALL antifling systems!")
-print("5000+ POWER - EVERYONE WILL DIE!")
-print("Makes everyone DISAPPEAR and get flung!")
+print("5000+ POWER - EVERYONE WILL FLY AND DIE!")
+print("Everyone VISIBLE - Everyone can SEE the fling!")
+print("Everyone gets LAUNCHED into the air and KILLED!")
+print("Everyone RESPAWNS after dying!")
 print("Works in: Natural Disaster, Brookhaven, ANY game!")
-print("Toggle ON to annihilate everyone except you!")
+print("Toggle ON to launch everyone except you!")
 print("CLICK THE BUTTON TO TOGGLE - DRAG BY TOP BAR")
