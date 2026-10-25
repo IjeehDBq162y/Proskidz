@@ -1,0 +1,165 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+
+-- Colors (adjust to match your picture)
+local BROWN = Color3.fromRGB(139, 94, 60)
+local DARK_BROWN = Color3.fromRGB(110, 72, 45)
+local OUTLINE = Color3.fromRGB(40, 25, 15)
+local TEXT = Color3.fromRGB(255, 240, 220)
+
+-- ScreenGui
+local gui = Instance.new("ScreenGui")
+gui.Name = "SpectatorGui"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local function style(obj, radius)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, radius)
+	corner.Parent = obj
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = 3
+	stroke.Color = OUTLINE
+	stroke.Parent = obj
+end
+
+local function makeButton(parent, text, pos, size, color, onClick)
+	local b = Instance.new("TextButton")
+	b.Position = pos
+	b.Size = size
+	b.BackgroundColor3 = color
+	b.BorderSizePixel = 0
+	b.Font = Enum.Font.GothamBold
+	b.TextSize = 18
+	b.TextColor3 = TEXT
+	b.Text = text
+	b.Parent = parent
+	style(b, 8)
+	b.Activated:Connect(onClick)
+	return b
+end
+
+-- Forward declare so the Stop button can use it
+local toggleButton
+
+-- Main panel (visible right away)
+local panel = Instance.new("Frame")
+panel.AnchorPoint = Vector2.new(0.5, 1)
+panel.Position = UDim2.new(0.5, 0, 1, -20)
+panel.Size = UDim2.new(0, 420, 0, 120)
+panel.BackgroundColor3 = BROWN
+panel.BorderSizePixel = 0
+panel.Visible = true
+panel.Parent = gui
+style(panel, 10)
+
+local nameLabel = Instance.new("TextLabel")
+nameLabel.Position = UDim2.new(0, 10, 0, 8)
+nameLabel.Size = UDim2.new(1, -20, 0, 30)
+nameLabel.BackgroundTransparency = 1
+nameLabel.Font = Enum.Font.GothamBold
+nameLabel.TextSize = 20
+nameLabel.TextColor3 = TEXT
+nameLabel.Text = "Spectating: None"
+nameLabel.Parent = panel
+
+-- State
+local spectating = false
+local index = 0
+
+local function getTargets()
+	local list = {}
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= player and p.Character then
+			local hum = p.Character:FindFirstChildOfClass("Humanoid")
+			if hum and hum.Health > 0 then
+				table.insert(list, p)
+			end
+		end
+	end
+	return list
+end
+
+local function resetCamera()
+	local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if hum then
+		camera.CameraSubject = hum
+	end
+end
+
+local function watch(target)
+	local hum = target.Character and target.Character:FindFirstChildOfClass("Humanoid")
+	if hum then
+		camera.CameraSubject = hum
+		nameLabel.Text = "Spectating: " .. target.DisplayName
+	end
+end
+
+local function cycle(step)
+	spectating = true
+	local list = getTargets()
+	if #list == 0 then
+		nameLabel.Text = "No players to watch"
+		return
+	end
+	index = ((index - 1 + step) % #list) + 1
+	watch(list[index])
+end
+
+local function stopSpectating()
+	spectating = false
+	index = 0
+	nameLabel.Text = "Spectating: None"
+	resetCamera()
+end
+
+-- Panel buttons: Prev on the left, Stop in the middle, Next on the right edge
+makeButton(panel, "Prev", UDim2.new(0, 10, 0, 50), UDim2.new(0, 125, 0, 60), DARK_BROWN, function()
+	cycle(-1)
+end)
+
+makeButton(panel, "Stop", UDim2.new(0, 145, 0, 50), UDim2.new(0, 125, 0, 60), DARK_BROWN, function()
+	stopSpectating()
+	panel.Visible = false
+	toggleButton.Text = "Spectate"
+end)
+
+makeButton(panel, "Next", UDim2.new(0, 285, 0, 50), UDim2.new(0, 125, 0, 60), DARK_BROWN, function()
+	cycle(1)
+end)
+
+-- Open/close button, top-left (below Roblox's top bar)
+toggleButton = makeButton(gui, "Close", UDim2.new(0, 20, 0, 70), UDim2.new(0, 120, 0, 40), DARK_BROWN, function()
+	if panel.Visible then
+		stopSpectating()
+		panel.Visible = false
+		toggleButton.Text = "Spectate"
+	else
+		panel.Visible = true
+		toggleButton.Text = "Close"
+		cycle(1)
+	end
+end)
+
+-- Arrow keys to switch players
+UserInputService.InputBegan:Connect(function(input, processed)
+	if processed then return end
+	if spectating and input.KeyCode == Enum.KeyCode.Right then
+		cycle(1)
+	elseif spectating and input.KeyCode == Enum.KeyCode.Left then
+		cycle(-1)
+	end
+end)
+
+-- If the watched player leaves, move to the next one
+Players.PlayerRemoving:Connect(function()
+	if spectating then
+		task.defer(function()
+			cycle(1)
+		end)
+	end
+end)
