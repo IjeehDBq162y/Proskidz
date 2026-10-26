@@ -24,58 +24,58 @@ end
 local BROWN = Color3.fromRGB(139, 94, 60)
 local DARK = Color3.fromRGB(110, 70, 40)
 
--- Top-left toggle (smaller)
+-- Top-left toggle
 local toggle = make("TextButton", {
-	Size = UDim2.fromOffset(64, 22),
+	Size = UDim2.fromOffset(72, 24),
 	Position = UDim2.new(0, 10, 0, 60),
 	BackgroundColor3 = DARK,
 	TextColor3 = Color3.new(1, 1, 1),
 	Font = Enum.Font.GothamBold,
-	TextSize = 11,
+	TextSize = 12,
 	Text = "Spectate",
 }, gui)
 corner(toggle, 5)
 
--- Bottom panel (smaller)
+-- Bottom panel
 local panel = make("Frame", {
 	AnchorPoint = Vector2.new(0.5, 1),
 	Position = UDim2.new(0.5, 0, 1, -20),
-	Size = UDim2.fromOffset(180, 60),
+	Size = UDim2.fromOffset(220, 80),
 	BackgroundColor3 = BROWN,
 	BorderSizePixel = 0,
 	Visible = false,
 }, gui)
-corner(panel, 6)
+corner(panel, 7)
 make("UIStroke", { Color = Color3.fromRGB(60, 35, 20), Thickness = 1.5 }, panel)
 
 local title = make("TextLabel", {
-	Size = UDim2.new(1, -8, 0, 16),
-	Position = UDim2.fromOffset(4, 4),
+	Size = UDim2.new(1, -8, 0, 20),
+	Position = UDim2.fromOffset(4, 5),
 	BackgroundTransparency = 1,
 	TextColor3 = Color3.fromRGB(255, 240, 220),
 	Font = Enum.Font.GothamBold,
-	TextSize = 11,
+	TextSize = 12,
 	Text = "Not spectating",
 	TextTruncate = Enum.TextTruncate.AtEnd,
 }, panel)
 
 local function makeBtn(text, pos)
 	local b = make("TextButton", {
-		Size = UDim2.fromOffset(52, 22),
+		Size = UDim2.fromOffset(64, 26),
 		Position = pos,
 		BackgroundColor3 = DARK,
 		TextColor3 = Color3.new(1, 1, 1),
 		Font = Enum.Font.GothamBold,
-		TextSize = 11,
+		TextSize = 12,
 		Text = text,
 	}, panel)
 	corner(b, 5)
 	return b
 end
 
-local prevBtn = makeBtn("Prev", UDim2.new(0, 6, 1, -28))        -- left edge
-local stopBtn = makeBtn("Stop", UDim2.new(0.5, -26, 1, -28))    -- middle
-local nextBtn = makeBtn(NEXT_LABEL, UDim2.new(1, -58, 1, -28))  -- right edge
+local prevBtn = makeBtn("Prev", UDim2.new(0, 6, 1, -34))        -- left edge
+local stopBtn = makeBtn("Stop", UDim2.new(0.5, -32, 1, -34))    -- middle
+local nextBtn = makeBtn(NEXT_LABEL, UDim2.new(1, -70, 1, -34))  -- right edge
 
 -- Spectate logic
 local target = nil
@@ -141,21 +141,20 @@ toggle.MouseButton1Click:Connect(function()
 	toggle.Text = panel.Visible and "Close" or "Spectate"
 end)
 
--- If the player you're watching leaves, automatically switch to another player
+-- Only acts when the player you're currently spectating leaves
 Players.PlayerRemoving:Connect(function(leaving)
 	if leaving ~= target then return end
 
-	-- Remember where the leaving player was in the list
-	local oldList = getOthers()
-	local oldIdx = 1
-	for i, p in ipairs(oldList) do
-		if p == leaving then oldIdx = i break end
-	end
-
-	-- Build a list without the leaving player
 	local list = {}
-	for _, p in ipairs(oldList) do
-		if p ~= leaving then table.insert(list, p) end
+	local leavingIdx = nil
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= player then
+			if p == leaving then
+				leavingIdx = #list + 1
+			else
+				table.insert(list, p)
+			end
+		end
 	end
 
 	if #list == 0 then
@@ -163,8 +162,7 @@ Players.PlayerRemoving:Connect(function(leaving)
 		return
 	end
 
-	-- Pick the player who took the leaving player's spot (clamped to list size)
-	local newIdx = math.min(oldIdx, #list)
+	-- Move to the player who took the leaving player's spot
+	local newIdx = math.min(leavingIdx or 1, #list)
 	setTarget(list[newIdx])
 end)
-
