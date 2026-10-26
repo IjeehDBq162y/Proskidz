@@ -24,64 +24,63 @@ end
 local BROWN = Color3.fromRGB(139, 94, 60)
 local DARK = Color3.fromRGB(110, 70, 40)
 
--- Top-left toggle
+-- Top-left toggle (smaller)
 local toggle = make("TextButton", {
-	Size = UDim2.fromOffset(80, 26),
+	Size = UDim2.fromOffset(64, 22),
 	Position = UDim2.new(0, 10, 0, 60),
 	BackgroundColor3 = DARK,
 	TextColor3 = Color3.new(1, 1, 1),
 	Font = Enum.Font.GothamBold,
-	TextSize = 13,
+	TextSize = 11,
 	Text = "Spectate",
 }, gui)
-corner(toggle, 6)
+corner(toggle, 5)
 
--- Bottom panel
+-- Bottom panel (smaller)
 local panel = make("Frame", {
 	AnchorPoint = Vector2.new(0.5, 1),
 	Position = UDim2.new(0.5, 0, 1, -20),
-	Size = UDim2.fromOffset(260, 100),
+	Size = UDim2.fromOffset(180, 60),
 	BackgroundColor3 = BROWN,
 	BorderSizePixel = 0,
 	Visible = false,
 }, gui)
-corner(panel, 8)
-make("UIStroke", { Color = Color3.fromRGB(60, 35, 20), Thickness = 2 }, panel)
+corner(panel, 6)
+make("UIStroke", { Color = Color3.fromRGB(60, 35, 20), Thickness = 1.5 }, panel)
 
 local title = make("TextLabel", {
-	Size = UDim2.new(1, -10, 0, 24),
-	Position = UDim2.fromOffset(5, 6),
+	Size = UDim2.new(1, -8, 0, 16),
+	Position = UDim2.fromOffset(4, 4),
 	BackgroundTransparency = 1,
 	TextColor3 = Color3.fromRGB(255, 240, 220),
 	Font = Enum.Font.GothamBold,
-	TextSize = 14,
+	TextSize = 11,
 	Text = "Not spectating",
+	TextTruncate = Enum.TextTruncate.AtEnd,
 }, panel)
 
 local function makeBtn(text, pos)
 	local b = make("TextButton", {
-		Size = UDim2.fromOffset(76, 30),
+		Size = UDim2.fromOffset(52, 22),
 		Position = pos,
 		BackgroundColor3 = DARK,
 		TextColor3 = Color3.new(1, 1, 1),
 		Font = Enum.Font.GothamBold,
-		TextSize = 13,
+		TextSize = 11,
 		Text = text,
 	}, panel)
-	corner(b, 6)
+	corner(b, 5)
 	return b
 end
 
-local prevBtn = makeBtn("Prev", UDim2.new(0, 8, 1, -38))        -- left edge
-local stopBtn = makeBtn("Stop", UDim2.new(0.5, -38, 1, -38))    -- middle
-local nextBtn = makeBtn(NEXT_LABEL, UDim2.new(1, -84, 1, -38))  -- right edge
+local prevBtn = makeBtn("Prev", UDim2.new(0, 6, 1, -28))        -- left edge
+local stopBtn = makeBtn("Stop", UDim2.new(0.5, -26, 1, -28))    -- middle
+local nextBtn = makeBtn(NEXT_LABEL, UDim2.new(1, -58, 1, -28))  -- right edge
 
 -- Spectate logic
 local target = nil
 
 -- Keeps the camera on the target's humanoid every frame.
--- This survives YOUR death/respawn (the default camera script
--- tries to reset to your new character) and the TARGET's respawns.
 RunService.RenderStepped:Connect(function()
 	if not target then return end
 	local char = target.Character
@@ -114,7 +113,7 @@ local function getOthers()
 	return t
 end
 
--- Only changes target when you press Prev or Next
+-- Only changes target when you press Prev or Next (or the target leaves)
 local function step(dir)
 	local list = getOthers()
 	if #list == 0 then
@@ -142,8 +141,30 @@ toggle.MouseButton1Click:Connect(function()
 	toggle.Text = panel.Visible and "Close" or "Spectate"
 end)
 
+-- If the player you're watching leaves, automatically switch to another player
 Players.PlayerRemoving:Connect(function(leaving)
-	if leaving == target then
-		stop()
+	if leaving ~= target then return end
+
+	-- Remember where the leaving player was in the list
+	local oldList = getOthers()
+	local oldIdx = 1
+	for i, p in ipairs(oldList) do
+		if p == leaving then oldIdx = i break end
 	end
+
+	-- Build a list without the leaving player
+	local list = {}
+	for _, p in ipairs(oldList) do
+		if p ~= leaving then table.insert(list, p) end
+	end
+
+	if #list == 0 then
+		stop()
+		return
+	end
+
+	-- Pick the player who took the leaving player's spot (clamped to list size)
+	local newIdx = math.min(oldIdx, #list)
+	setTarget(list[newIdx])
 end)
+
