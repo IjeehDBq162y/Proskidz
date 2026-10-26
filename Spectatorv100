@@ -1,165 +1,162 @@
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-
 local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
--- Colors (adjust to match your picture)
-local BROWN = Color3.fromRGB(139, 94, 60)
-local DARK_BROWN = Color3.fromRGB(110, 72, 45)
-local OUTLINE = Color3.fromRGB(40, 25, 15)
-local TEXT = Color3.fromRGB(255, 240, 220)
+local NEXT_LABEL = "Next" -- change this to the text from your image
 
--- ScreenGui
 local gui = Instance.new("ScreenGui")
-gui.Name = "SpectatorGui"
+gui.Name = "SpectateGui"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
-local function style(obj, radius)
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, radius)
-	corner.Parent = obj
-
-	local stroke = Instance.new("UIStroke")
-	stroke.Thickness = 3
-	stroke.Color = OUTLINE
-	stroke.Parent = obj
+local function make(class, props, parent)
+	local o = Instance.new(class)
+	for k, v in pairs(props) do o[k] = v end
+	o.Parent = parent
+	return o
 end
 
-local function makeButton(parent, text, pos, size, color, onClick)
-	local b = Instance.new("TextButton")
-	b.Position = pos
-	b.Size = size
-	b.BackgroundColor3 = color
-	b.BorderSizePixel = 0
-	b.Font = Enum.Font.GothamBold
-	b.TextSize = 18
-	b.TextColor3 = TEXT
-	b.Text = text
-	b.Parent = parent
-	style(b, 8)
-	b.Activated:Connect(onClick)
+local function corner(o, r)
+	Instance.new("UICorner", o).CornerRadius = UDim.new(0, r)
+end
+
+local BROWN = Color3.fromRGB(139, 94, 60)
+local DARK = Color3.fromRGB(110, 70, 40)
+
+-- Top-left toggle
+local toggle = make("TextButton", {
+	Size = UDim2.fromOffset(80, 26),
+	Position = UDim2.new(0, 10, 0, 60),
+	BackgroundColor3 = DARK,
+	TextColor3 = Color3.new(1, 1, 1),
+	Font = Enum.Font.GothamBold,
+	TextSize = 13,
+	Text = "Spectate",
+}, gui)
+corner(toggle, 6)
+
+-- Bottom panel
+local panel = make("Frame", {
+	AnchorPoint = Vector2.new(0.5, 1),
+	Position = UDim2.new(0.5, 0, 1, -20),
+	Size = UDim2.fromOffset(260, 100),
+	BackgroundColor3 = BROWN,
+	BorderSizePixel = 0,
+	Visible = false,
+}, gui)
+corner(panel, 8)
+make("UIStroke", { Color = Color3.fromRGB(60, 35, 20), Thickness = 2 }, panel)
+
+local title = make("TextLabel", {
+	Size = UDim2.new(1, -10, 0, 24),
+	Position = UDim2.fromOffset(5, 6),
+	BackgroundTransparency = 1,
+	TextColor3 = Color3.fromRGB(255, 240, 220),
+	Font = Enum.Font.GothamBold,
+	TextSize = 14,
+	Text = "Not spectating",
+}, panel)
+
+local function makeBtn(text, pos)
+	local b = make("TextButton", {
+		Size = UDim2.fromOffset(76, 30),
+		Position = pos,
+		BackgroundColor3 = DARK,
+		TextColor3 = Color3.new(1, 1, 1),
+		Font = Enum.Font.GothamBold,
+		TextSize = 13,
+		Text = text,
+	}, panel)
+	corner(b, 6)
 	return b
 end
 
--- Forward declare so the Stop button can use it
-local toggleButton
+local prevBtn = makeBtn("Prev", UDim2.new(0, 8, 1, -38))        -- left edge
+local stopBtn = makeBtn("Stop", UDim2.new(0.5, -38, 1, -38))    -- middle
+local nextBtn = makeBtn(NEXT_LABEL, UDim2.new(1, -84, 1, -38))  -- right edge
 
--- Main panel (visible right away)
-local panel = Instance.new("Frame")
-panel.AnchorPoint = Vector2.new(0.5, 1)
-panel.Position = UDim2.new(0.5, 0, 1, -20)
-panel.Size = UDim2.new(0, 420, 0, 120)
-panel.BackgroundColor3 = BROWN
-panel.BorderSizePixel = 0
-panel.Visible = true
-panel.Parent = gui
-style(panel, 10)
+-- Spectate logic
+local target = nil
+local charConn = nil
 
-local nameLabel = Instance.new("TextLabel")
-nameLabel.Position = UDim2.new(0, 10, 0, 8)
-nameLabel.Size = UDim2.new(1, -20, 0, 30)
-nameLabel.BackgroundTransparency = 1
-nameLabel.Font = Enum.Font.GothamBold
-nameLabel.TextSize = 20
-nameLabel.TextColor3 = TEXT
-nameLabel.Text = "Spectating: None"
-nameLabel.Parent = panel
-
--- State
-local spectating = false
-local index = 0
-
-local function getTargets()
-	local list = {}
-	for _, p in ipairs(Players:GetPlayers()) do
-		if p ~= player and p.Character then
-			local hum = p.Character:FindFirstChildOfClass("Humanoid")
-			if hum and hum.Health > 0 then
-				table.insert(list, p)
-			end
-		end
+local function stop()
+	target = nil
+	if charConn then
+		charConn:Disconnect()
+		charConn = nil
 	end
-	return list
-end
-
-local function resetCamera()
+	title.Text = "Not spectating"
 	local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-	if hum then
-		camera.CameraSubject = hum
-	end
+	if hum then camera.CameraSubject = hum end
 end
 
-local function watch(target)
-	local hum = target.Character and target.Character:FindFirstChildOfClass("Humanoid")
-	if hum then
-		camera.CameraSubject = hum
-		nameLabel.Text = "Spectating: " .. target.DisplayName
-	end
+local function attachToTarget()
+	if not target or not target.Character then return end
+	local hum = target.Character:FindFirstChildOfClass("Humanoid")
+	if hum then camera.CameraSubject = hum end
 end
 
-local function cycle(step)
-	spectating = true
-	local list = getTargets()
+local function setTarget(p)
+	target = p
+	title.Text = "Spectating: " .. p.Name
+	if charConn then charConn:Disconnect() end
+	-- Keep following the target through their respawns
+	charConn = p.CharacterAdded:Connect(function(char)
+		local hum = char:WaitForChild("Humanoid", 10)
+		if hum and target == p then
+			camera.CameraSubject = hum
+		end
+	end)
+	attachToTarget()
+end
+
+-- Keep spectating after YOU die and respawn
+player.CharacterAdded:Connect(function(char)
+	if not target then return end
+	char:WaitForChild("Humanoid", 10)
+	-- Wait a moment so the default camera script finishes resetting first
+	task.wait(0.2)
+	attachToTarget()
+end)
+
+local function getOthers()
+	local t = {}
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= player then table.insert(t, p) end
+	end
+	return t
+end
+
+-- Only changes target when you press Prev or Next
+local function step(dir)
+	local list = getOthers()
 	if #list == 0 then
-		nameLabel.Text = "No players to watch"
+		stop()
 		return
 	end
-	index = ((index - 1 + step) % #list) + 1
-	watch(list[index])
-end
-
-local function stopSpectating()
-	spectating = false
-	index = 0
-	nameLabel.Text = "Spectating: None"
-	resetCamera()
-end
-
--- Panel buttons: Prev on the left, Stop in the middle, Next on the right edge
-makeButton(panel, "Prev", UDim2.new(0, 10, 0, 50), UDim2.new(0, 125, 0, 60), DARK_BROWN, function()
-	cycle(-1)
-end)
-
-makeButton(panel, "Stop", UDim2.new(0, 145, 0, 50), UDim2.new(0, 125, 0, 60), DARK_BROWN, function()
-	stopSpectating()
-	panel.Visible = false
-	toggleButton.Text = "Spectate"
-end)
-
-makeButton(panel, "Next", UDim2.new(0, 285, 0, 50), UDim2.new(0, 125, 0, 60), DARK_BROWN, function()
-	cycle(1)
-end)
-
--- Open/close button, top-left (below Roblox's top bar)
-toggleButton = makeButton(gui, "Close", UDim2.new(0, 20, 0, 70), UDim2.new(0, 120, 0, 40), DARK_BROWN, function()
-	if panel.Visible then
-		stopSpectating()
-		panel.Visible = false
-		toggleButton.Text = "Spectate"
+	local idx = 0
+	for i, p in ipairs(list) do
+		if p == target then idx = i end
+	end
+	if idx == 0 then
+		idx = dir > 0 and 1 or #list
 	else
-		panel.Visible = true
-		toggleButton.Text = "Close"
-		cycle(1)
+		idx = ((idx - 1 + dir) % #list) + 1
 	end
+	setTarget(list[idx])
+end
+
+prevBtn.MouseButton1Click:Connect(function() step(-1) end)
+stopBtn.MouseButton1Click:Connect(stop)
+nextBtn.MouseButton1Click:Connect(function() step(1) end)
+
+toggle.MouseButton1Click:Connect(function()
+	panel.Visible = not panel.Visible
+	toggle.Text = panel.Visible and "Close" or "Spectate"
 end)
 
--- Arrow keys to switch players
-UserInputService.InputBegan:Connect(function(input, processed)
-	if processed then return end
-	if spectating and input.KeyCode == Enum.KeyCode.Right then
-		cycle(1)
-	elseif spectating and input.KeyCode == Enum.KeyCode.Left then
-		cycle(-1)
-	end
-end)
-
--- If the watched player leaves, move to the next one
-Players.PlayerRemoving:Connect(function()
-	if spectating then
-		task.defer(function()
-			cycle(1)
-		end)
+Players.PlayerRemoving:Connect(function(leaving)
+	if leaving == target then
+		stop()
 	end
 end)
