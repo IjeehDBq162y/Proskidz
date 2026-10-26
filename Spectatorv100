@@ -1,4 +1,5 @@
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
@@ -77,47 +78,33 @@ local nextBtn = makeBtn(NEXT_LABEL, UDim2.new(1, -84, 1, -38))  -- right edge
 
 -- Spectate logic
 local target = nil
-local charConn = nil
+
+-- Keeps the camera on the target's humanoid every frame.
+-- This survives YOUR death/respawn (the default camera script
+-- tries to reset to your new character) and the TARGET's respawns.
+RunService.RenderStepped:Connect(function()
+	if not target then return end
+	local char = target.Character
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	if hum and camera.CameraSubject ~= hum then
+		camera.CameraSubject = hum
+	end
+end)
 
 local function stop()
 	target = nil
-	if charConn then
-		charConn:Disconnect()
-		charConn = nil
-	end
 	title.Text = "Not spectating"
 	local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-	if hum then camera.CameraSubject = hum end
-end
-
-local function attachToTarget()
-	if not target or not target.Character then return end
-	local hum = target.Character:FindFirstChildOfClass("Humanoid")
 	if hum then camera.CameraSubject = hum end
 end
 
 local function setTarget(p)
 	target = p
 	title.Text = "Spectating: " .. p.Name
-	if charConn then charConn:Disconnect() end
-	-- Keep following the target through their respawns
-	charConn = p.CharacterAdded:Connect(function(char)
-		local hum = char:WaitForChild("Humanoid", 10)
-		if hum and target == p then
-			camera.CameraSubject = hum
-		end
-	end)
-	attachToTarget()
+	local char = p.Character
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	if hum then camera.CameraSubject = hum end
 end
-
--- Keep spectating after YOU die and respawn
-player.CharacterAdded:Connect(function(char)
-	if not target then return end
-	char:WaitForChild("Humanoid", 10)
-	-- Wait a moment so the default camera script finishes resetting first
-	task.wait(0.2)
-	attachToTarget()
-end)
 
 local function getOthers()
 	local t = {}
