@@ -1,4 +1,4 @@
--- // TOTAL BODY INVISIBILITY - EVERY PART HIDDEN
+-- // PERMANENT INVISIBILITY - ALWAYS ON - NO OFF SWITCH
 -- Works in ALL games: Natural Disaster, Brookhaven, Doors, Baseplate, etc.
 
 local Players = game:GetService("Players")
@@ -16,7 +16,7 @@ local Humanoid = nil
 local function SetInvisibility()
 	if not Humanoid then return end
 	
-	-- Hide Nameplate & Health Bar
+	-- Hide Nameplate & Health Bar (Bypasses ESP Box Anchors)
 	Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 
 	-- Make ALL parts of your character transparent
@@ -74,4 +74,4 @@ end
 -- Listen for respawns/joins
 LocalPlayer.CharacterAdded:Connect(OnCharacterLoad)
 
-print("Total Body Invis Loaded. Your whole body is now invisible.")
+print("Permanent Invis Loaded. Always on.")
