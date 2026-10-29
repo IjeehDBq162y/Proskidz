@@ -1,0 +1,77 @@
+-- // PERMANENT INVISIBILITY - NO GUI - ALWAYS ON
+-- Works in all games: Brookhaven, Natural Disaster, Baseplate, etc.
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- // 1. CONFIGURATION
+local SETTINGS = {
+	TransparencyValue = 1, -- 1 = Fully Invisible
+}
+
+local Character = nil
+local Humanoid = nil
+
+-- // 2. MAKE EVERYONE SEE YOU AS INVISIBLE
+local function SetInvisibility()
+	if not Humanoid then return end
+	
+	-- Hide Nameplate & Health Bar
+	Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+
+	-- Make ALL parts of your character transparent
+	for _, Descendant in ipairs(Character:GetDescendants()) do
+		if Descendant:IsA("BasePart") then
+			Descendant.Transparency = SETTINGS.TransparencyValue
+			
+			-- Ensure Tools are also hidden
+			if Descendant.Parent and Descendant.Parent:IsA("Tool") then
+				Descendant.Transparency = SETTINGS.TransparencyValue
+			end
+		end
+		
+		-- Handle Accessories explicitly
+		if Descendant:IsA("Accessory") then
+			local handle = Descendant:FindFirstChild("Handle")
+			if handle then
+				handle.Transparency = SETTINGS.TransparencyValue
+			end
+		end
+	end
+end
+
+-- Helper function to apply invisibility when character loads
+local function OnCharacterLoad(Char)
+	Character = Char
+	Humanoid = Character:WaitForChild("Humanoid")
+	
+	SetInvisibility()
+	
+	-- Apply to new items added (Tools/Accessories)
+	Character.ChildAdded:Connect(function(Child)
+		task.wait(0.1)
+		if Child:IsA("BasePart") then
+			Child.Transparency = SETTINGS.TransparencyValue
+		elseif Child:IsA("Accessory") then
+			local handle = Child:FindFirstChild("Handle")
+			if handle then
+				handle.Transparency = SETTINGS.TransparencyValue
+			end
+		elseif Child:IsA("Tool") then
+			local handle = Child:FindFirstChild("Handle")
+			if handle then
+				handle.Transparency = SETTINGS.TransparencyValue
+			end
+		end
+	end)
+end
+
+-- Initialize for current character
+if LocalPlayer.Character then
+	OnCharacterLoad(LocalPlayer.Character)
+end
+
+-- Listen for respawns/joins
+LocalPlayer.CharacterAdded:Connect(OnCharacterLoad)
+
+print("Permanent Invis Loaded. You are now invisible to everyone.")
