@@ -1,4 +1,4 @@
--- // PERMANENT INVISIBILITY - ESP & TRACKER BYPASS - RESPAWN PROOF
+-- // TOTAL BODY INVISIBILITY - EVERY PART HIDDEN
 -- Works in ALL games: Natural Disaster, Brookhaven, Doors, Baseplate, etc.
 
 local Players = game:GetService("Players")
@@ -7,7 +7,6 @@ local LocalPlayer = Players.LocalPlayer
 -- // 1. CONFIGURATION
 local SETTINGS = {
 	TransparencyValue = 1, -- 1 = Fully Invisible
-	CanCollideValue = false, -- Makes you pass through walls (Ghost mode)
 }
 
 local Character = nil
@@ -17,19 +16,17 @@ local Humanoid = nil
 local function SetInvisibility()
 	if not Humanoid then return end
 	
-	-- Hide Nameplate & Health Bar (Bypasses ESP Box Anchors)
+	-- Hide Nameplate & Health Bar
 	Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 
 	-- Make ALL parts of your character transparent
 	for _, Descendant in ipairs(Character:GetDescendants()) do
 		if Descendant:IsA("BasePart") then
 			Descendant.Transparency = SETTINGS.TransparencyValue
-			Descendant.CanCollide = SETTINGS.CanCollideValue
 			
 			-- Ensure Tools are also hidden
 			if Descendant.Parent and Descendant.Parent:IsA("Tool") then
 				Descendant.Transparency = SETTINGS.TransparencyValue
-				Descendant.CanCollide = SETTINGS.CanCollideValue
 			end
 		end
 		
@@ -38,7 +35,6 @@ local function SetInvisibility()
 			local handle = Descendant:FindFirstChild("Handle")
 			if handle then
 				handle.Transparency = SETTINGS.TransparencyValue
-				handle.CanCollide = SETTINGS.CanCollideValue
 			end
 		end
 	end
@@ -56,18 +52,15 @@ local function OnCharacterLoad(Char)
 		task.wait(0.1)
 		if Child:IsA("BasePart") then
 			Child.Transparency = SETTINGS.TransparencyValue
-			Child.CanCollide = SETTINGS.CanCollideValue
 		elseif Child:IsA("Accessory") then
 			local handle = Child:FindFirstChild("Handle")
 			if handle then
 				handle.Transparency = SETTINGS.TransparencyValue
-				handle.CanCollide = SETTINGS.CanCollideValue
 			end
 		elseif Child:IsA("Tool") then
 			local handle = Child:FindFirstChild("Handle")
 			if handle then
 				handle.Transparency = SETTINGS.TransparencyValue
-				handle.CanCollide = SETTINGS.CanCollideValue
 			end
 		end
 	end)
@@ -81,4 +74,4 @@ end
 -- Listen for respawns/joins
 LocalPlayer.CharacterAdded:Connect(OnCharacterLoad)
 
-print("Permanent Invis Loaded. Respawning, ESP, and Trackers bypassed.")
+print("Total Body Invis Loaded. Your whole body is now invisible.")
