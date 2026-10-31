@@ -273,6 +273,23 @@ local function unanchorMap()
     end
 end
 
+-- Function to FREEZE a player (can't move)
+local function freezePlayer(plr)
+    if plr.Character then
+        local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = 0
+            humanoid.JumpPower = 0
+            -- Also anchor all their parts
+            for _, part in pairs(plr.Character:GetChildren()) do
+                if part:IsA("BasePart") then
+                    part.Anchored = true
+                end
+            end
+        end
+    end
+end
+
 -- Function to create EXACT Roblox Moderation Disconnect Screen (Error 1001)
 local function createRobloxDisconnectScreen(plr, errorCode)
     -- Create the disconnect GUI
@@ -496,21 +513,26 @@ local function createRobloxBanScreen(plr, errorCode)
     end
 end
 
--- SHUTDOWN - Official Roblox Disconnect (Error 1001)
+-- SHUTDOWN - Official Roblox Disconnect (Error 1001) - FREEZES everyone including you
 local function shutdownServer()
-    -- Step 1: Create lag effect for EVERYONE
+    -- Step 1: FREEZE EVERYONE (including you) - Can't move
     for _, plr in pairs(Players:GetPlayers()) do
-        if plr.Character then
-            local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.WalkSpeed = 0
-                humanoid.JumpPower = 0
-            end
-        end
+        freezePlayer(plr)
     end
     
-    -- Step 2: Wait for lag to be felt
-    wait(2)
+    -- Step 2: Create heavy lag effect for EVERYONE
+    for i = 1, 10 do
+        for _, plr in pairs(Players:GetPlayers()) do
+            if plr.Character then
+                local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = 0
+                    humanoid.JumpPower = 0
+                end
+            end
+        end
+        wait(0.1)
+    end
     
     -- Step 3: Create blur effect for EVERYONE
     for _, plr in pairs(Players:GetPlayers()) do
@@ -532,23 +554,30 @@ local function shutdownServer()
     game:Shutdown()
 end
 
--- BAN ALL - Official Roblox Ban (Error 2002 - Kick from Experience)
+-- BAN ALL - Official Roblox Ban (Error 2002 - Kick from Experience) - FREEZES others, NOT you
 local function banAllPlayers()
-    -- Step 1: Create lag effect for OTHER players
+    -- Step 1: FREEZE OTHER PLAYERS (NOT you) - Can't move
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= me then
-            if plr.Character then
-                local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid.WalkSpeed = 0
-                    humanoid.JumpPower = 0
-                end
-            end
+            freezePlayer(plr)
         end
     end
     
-    -- Step 2: Wait for lag
-    wait(2)
+    -- Step 2: Create heavy lag effect for OTHER players
+    for i = 1, 10 do
+        for _, plr in pairs(Players:GetPlayers()) do
+            if plr ~= me then
+                if plr.Character then
+                    local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        humanoid.WalkSpeed = 0
+                        humanoid.JumpPower = 0
+                    end
+                end
+            end
+        end
+        wait(0.1)
+    end
     
     -- Step 3: Create blur effect for OTHER players
     for _, plr in pairs(Players:GetPlayers()) do
