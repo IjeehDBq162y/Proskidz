@@ -134,7 +134,7 @@ local function hackAllParts()
             bbg.AlwaysOnTop = true
             
             local tlb = Instance.new("TextLabel", bbg)
-            tlb.Text = "666"
+            tlb.Text = ""
             tlb.Font = "SourceSansBold"
             tlb.TextColor3 = Color3.new(1, 0, 0)
             tlb.Size = UDim2.new(1.25, 0, 1.25, 0)
@@ -157,8 +157,8 @@ local function hackAllParts()
             a.Brightness = 5
             
             local f = Instance.new("Fire", v)
-            f.Size = 19
-            f.Heat = 22
+            f.Size = 5
+            f.Heat = 14
         end
     end
 end
